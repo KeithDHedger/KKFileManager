@@ -1,5 +1,5 @@
 
-SUBDIRS = KKFileManager/app KKFileManager/debug
+SUBDIRS = KKFileManager/app
 
 remake:
 	$(shell ./remakesourcelist)

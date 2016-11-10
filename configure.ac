@@ -26,5 +26,5 @@ PKG_CHECK_MODULES(GTK, $GTK_MODULES)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
-AC_OUTPUT(Makefile KKFileManager/app/Makefile KKFileManager/debug/Makefile)
+AC_OUTPUT(Makefile KKFileManager/app/Makefile)
 
