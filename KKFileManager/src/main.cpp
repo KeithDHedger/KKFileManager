@@ -84,28 +84,30 @@ char *getMimeType(const char *path)
 {
 	char *retdata;
 	char *command;
-//	asprintf(&command,"file  -b --mime-type \"%s\"|sed 's@/@-@g;s@-httpd@@g;s@program@executable@g;s@msdos@ms-dos@g'",path);
-asprintf(&command,"file  -b --mime-type \"%s\"",path);
-retdata=oneLiner(command);
-return(retdata);	
-//}
+
 	if(strchr(path,'.')!=NULL)
 		{
 			char *dot=strchr((char*)path,'.');
-			asprintf(&command,"cat /usr/share/mime/globs|sed -n '/\\%s$/p'|awk -F \":\" '{print $1}'|awk -F \"/\" '{print $2}'",dot);
+			asprintf(&command,"cat /usr/share/mime/globs|sed -n '/\\%s$/p'|awk -F \":\" '{print $1}'",dot);
 			retdata=oneLiner(command);
 			if(strlen(retdata)>4)
 				{
-					printf("------%s<<<\n",command);
+					printf("command=%s returns:%s\n",command,retdata);
 					return(retdata);
 				}
 		}
 
+	asprintf(&command,"file  -b --mime-type \"%s\"",path);
+	printf("command=%s",command);
+	retdata=oneLiner(command);
+	printf(", returns:%s\n",retdata);
+	return(retdata);	
+
 //	if(strchr(path,'.')==NULL)
-		{
-			asprintf(&command,"file  -b --mime-type \"%s\"|awk -F \"/\" '{print $2}'",path);
-			retdata=oneLiner(command);
-		}
+//		{
+//			asprintf(&command,"file  -b --mime-type \"%s\"|awk -F \"/\" '{print $2}'",path);
+//			retdata=oneLiner(command);
+//		}
 //	else
 //		{
 //			char *dot=strchr((char*)path,'.');
@@ -123,16 +125,18 @@ GdkPixbuf* getPixBuf(const char *file)
 	char			*mime=getMimeType(file);
 	char			buffer[2048];
 
-GIcon *icon=g_content_type_get_icon (mime);
-printf(">>>%s<<<\n",g_icon_to_string (icon));
+	GIcon *icon=g_content_type_get_icon (mime);
+
+	printf("file=%s\n",file);
+//printf(">>>%s<<<\n",g_icon_to_string (icon));
 ////g_content_type_get_icon
 ////gtk_icon_theme_choose_icon
 ////g_loadable_icon_load
 //printf("name=%s\n",g_content_type_get_generic_icon_name ("text/x-shellscript"));
 //printf("name=%s\n",g_content_type_from_mime_type ("text/x-shellscript"));
-theme=gtk_icon_theme_get_default();
-GtkIconInfo *info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
-printf(">>>%s<<<\n",gtk_icon_info_get_filename (info));
+	theme=gtk_icon_theme_get_default();
+	GtkIconInfo *info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
+printf("info filename=%s\n\n",gtk_icon_info_get_filename (info));
 	//pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
 	//if(pb!=NULL)
 	//	{
@@ -213,7 +217,7 @@ void populateStore(void)
 	GtkIconTheme	*theme=gtk_icon_theme_get_default();
 	GdkPixbuf		*pixbuf;
 	char			*mime=NULL;
-	const char		*data[]={"/media/LinuxData/Development64/Projects/KKEdit/kkedit_fr_FR.po","/media/LinuxData/Development64/Projects/KKEdit/config.status","/media/LinuxData/Development64/Projects/KKEdit","/bin/bash","/media/LinuxData/Development64/Projects/KKEdit/KKEdit/resources/src/kkeditmsg.mpz","/media/Music/Mp3s/Music/Abba/Gold/01 Dancing Queen.mp3","/media/Music/Flacs/Music/Abba/Gold/01 Dancing Queen.flac","/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/src/main.cpp",NULL};
+	const char		*data[]={"/media/LinuxData/Development64/Projects/KKEdit/kkedit_fr_FR.po","/media/LinuxData/Development64/Projects/KKEdit/config.status","/media/LinuxData/Development64/Projects/KKEdit","/bin/bash","/media/LinuxData/Development64/Projects/KKEdit/KKEdit/resources/src/kkeditmsg.mpz","/media/Music/Mp3s/Music/Abba/Gold/01 Dancing Queen.mp3","/media/Music/Flacs/Music/Abba/Gold/01 Dancing Queen.flac","/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/src/main.cpp","/media/LinuxData/Development64/Projects/KKFileManager/Makefile","/media/LinuxData/Development64/Projects/KKFileManager/configure","/media/LinuxData/Development64/Projects/KKFileManager/ChangeLog",NULL};
 	int j=0;
 	while(data[j]!=NULL)
 //	for(int j=0;j<5;j++)
@@ -364,6 +368,7 @@ int main(int argc,char **argv)
 {
 
 	gtk_init(&argc,&argv);
+#if 1
 	window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
 	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(shutdown),NULL);
@@ -373,16 +378,23 @@ int main(int argc,char **argv)
 	gtk_container_add((GtkContainer*)window,mainVBox);
 	gtk_widget_show_all(window);
 
+#endif
 
-GIcon *icon=g_content_type_get_icon ("application/x-executable");
-printf(">>>%s<<<\n",g_icon_to_string (icon));
+//printf("\n\n\n\n");
+//
+//GIcon *icon=g_content_type_get_icon ("text/x-shellscript");
+//printf(">>>%s<<<\n",g_icon_to_string (icon));
 ////g_content_type_get_icon
 ////gtk_icon_theme_choose_icon
 ////g_loadable_icon_load
 //printf("name=%s\n",g_content_type_get_generic_icon_name ("text/x-shellscript"));
 //printf("name=%s\n",g_content_type_from_mime_type ("text/x-shellscript"));
-GtkIconTheme	*theme=gtk_icon_theme_get_default();
-GtkIconInfo *info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
-printf(">>>%s<<<\n",gtk_icon_info_get_filename (info));
+//GtkIconTheme	*theme=gtk_icon_theme_get_default();
+//GtkIconInfo *info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)GTK_ICON_LOOKUP_GENERIC_FALLBACK);
+//printf("info=%p\n",info);
+//printf("%s\n",gtk_icon_info_get_filename (info));
+#if 1
 	gtk_main();
+
+#endif
 }
