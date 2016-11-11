@@ -123,215 +123,26 @@ GdkPixbuf* getPixBuf(const char *file)
 	GtkIconTheme	*theme=gtk_icon_theme_get_default();
 	GdkPixbuf		*pb=NULL;
 	char			*mime=getMimeType(file);
-	char			buffer[2048];
 
 	GIcon *icon=g_content_type_get_icon (mime);
 
 	printf("file=%s\n",file);
-//printf(">>>%s<<<\n",g_icon_to_string (icon));
-////g_content_type_get_icon
-////gtk_icon_theme_choose_icon
-////g_loadable_icon_load
-//printf("name=%s\n",g_content_type_get_generic_icon_name ("text/x-shellscript"));
-//printf("name=%s\n",g_content_type_from_mime_type ("text/x-shellscript"));
 	theme=gtk_icon_theme_get_default();
 	GtkIconInfo *info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
-printf("info filename=%s\n\n",gtk_icon_info_get_filename (info));
-	//pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	//if(pb!=NULL)
-	//	{
-	pb=gdk_pixbuf_new_from_file_at_size  (gtk_icon_info_get_filename (info),-1,48,NULL);
-			return(pb);
-
-#if 0
-	printf("file=%s,raw mimetype=%s
-",file,mime);
-
-	buffer[0]=0;
-	sprintf(buffer,"inode-%s",mime);
-//	printf("buffer=%s
-",buffer);
-	pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	if(pb!=NULL)
-		{
-			return(pb);
-		}
-	buffer[0]=0;
-	sprintf(buffer,"gnome-%s",mime);
-	//printf("buffer=%s
-",buffer);
-	pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	if(pb!=NULL)
-		{
-			return(pb);
-		}
-	buffer[0]=0;
-	sprintf(buffer,"application-%s",mime);
-	//printf("buffer=%s
-",buffer);
-	pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	if(pb!=NULL)
-		{
-			return(pb);
-		}
-	buffer[0]=0;
-	sprintf(buffer,"gnome-mime-application-%s",mime);
-	//printf("buffer=%s
-",buffer);
-	pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	if(pb!=NULL)
-		{
-			return(pb);
-		}
-	buffer[0]=0;
-	sprintf(buffer,"gnome-mime-text-%s",mime);
-	//printf("buffer=%s
-",buffer);
-	pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	if(pb!=NULL)
-		{
-			return(pb);
-		}
-	buffer[0]=0;
-	sprintf(buffer,"text-%s",mime);
-	pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	if(pb!=NULL)
-		{
-			return(pb);
-		}
-	buffer[0]=0;
-	sprintf(buffer,"audio-%s",mime);
-	pb=gtk_icon_theme_load_icon(theme,buffer,48,(GtkIconLookupFlags)0,NULL);
-	if(pb!=NULL)
-		{
-			return(pb);
-		}
-
-#endif
+	printf("info filename=%s\n\n",gtk_icon_info_get_filename (info));
+	pb=gdk_pixbuf_new_from_file_at_size (gtk_icon_info_get_filename (info),-1,48,NULL);
+	return(pb);
 }
 
-//content_type_get_icon
 void populateStore(void)
 {
-	char			*type;
-	GtkIconTheme	*theme=gtk_icon_theme_get_default();
 	GdkPixbuf		*pixbuf;
-	char			*mime=NULL;
-	const char		*data[]={"/media/LinuxData/Development64/Projects/KKEdit/kkedit_fr_FR.po","/media/LinuxData/Development64/Projects/KKEdit/config.status","/media/LinuxData/Development64/Projects/KKEdit","/bin/bash","/media/LinuxData/Development64/Projects/KKEdit/KKEdit/resources/src/kkeditmsg.mpz","/media/Music/Mp3s/Music/Abba/Gold/01 Dancing Queen.mp3","/media/Music/Flacs/Music/Abba/Gold/01 Dancing Queen.flac","/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/src/main.cpp","/media/LinuxData/Development64/Projects/KKFileManager/Makefile","/media/LinuxData/Development64/Projects/KKFileManager/configure","/media/LinuxData/Development64/Projects/KKFileManager/ChangeLog",NULL};
+	const char		*data[]={"/media/LinuxData/Development64/Projects/KKEdit/kkedit_fr_FR.po","/media/LinuxData/Development64/Projects/KKEdit/config.status","/media/LinuxData/Development64/Projects/KKEdit","/bin/bash","/media/LinuxData/Development64/Projects/KKEdit/KKEdit/resources/src/kkeditmsg.mpz","/media/Music/Mp3s/Music/Abba/Gold/01 Dancing Queen.mp3","/media/Music/Flacs/Music/Abba/Gold/01 Dancing Queen.flac","/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/src/main.cpp","/media/LinuxData/Development64/Projects/KKFileManager/Makefile","/media/LinuxData/Development64/Projects/KKFileManager/configure","/media/LinuxData/Development64/Projects/KKFileManager/ChangeLog","/media/LinuxData/Development/CodeSnippets/filescape-code/Filescape.py",NULL};
 	int j=0;
 	while(data[j]!=NULL)
-//	for(int j=0;j<5;j++)
 		{
 			pixbuf=getPixBuf(data[j]);
-//			mime=getMimeType(data[j]);
-//			printf("mime=%s\n",mime);
-//			if(gtk_icon_theme_has_icon(theme,mime))
-//				{
-//			printf("got mime=%s\n",mime);
-//					pixbuf=gtk_icon_theme_load_icon(theme,mime,48,(GtkIconLookupFlags)0,NULL);
-
-//					setNewPixbuf(pixbuf,j,"a");
-//				}
-
-
-//pixbuf=gtk_icon_theme_load_icon (theme,"gnome-directory",48,(GtkIconLookupFlags)0,NULL);
-					setNewPixbuf(pixbuf,j,"a");
-//			mime="inode-directory";
-//			if(gtk_icon_theme_has_icon(theme,mime))
-//				{
-//				printf("xxxxxx\n");
-//					pixbuf=gtk_icon_theme_load_icon(theme,mime,48,(GtkIconLookupFlags)0,NULL);
-//					setNewPixbuf(pixbuf,j,"a");
-//				}
-					
-			//setNewPixbuf("/usr/share/icons/gnome/48x48/places/folder.png",j,"a");
-#if 0
-			type=strndup((char*)&toolBarLayout[j],1);
-			switch(toolBarLayout[j])
-				{
-					case 'N':
-//new
-						setNewPixbuf(PREFSNEW,ITEMNEW,type);
-						break;
-					case 'O':
-//open+recent
-						setNewPixbuf(PREFSOPEN,ITEMOPEN,type);
-						break;
-					case 'S':
-//save
-						setNewPixbuf(PREFSSAVE,ITEMSAVE,type);
-						break;
-
-					case 'X':
-//cut
-						setNewPixbuf(PREFSCUT,ITEMCUT,type);
-						break;
-					case 'C':
-//copy
-						setNewPixbuf(PREFSCOPY,ITEMCOPY,type);
-						break;
-					case 'P':
-//paste
-						setNewPixbuf(PREFSPASTE,ITEMPASTE,type);
-						break;
-					case 'U':
-//undo
-						setNewPixbuf(PREFSUNDO,ITEMUNDO,type);
-						break;
-					case 'R':
-//redo
-						setNewPixbuf(PREFSREDO,ITEMREDO,type);
-						break;
-					case 'F':
-//find
-						setNewPixbuf(PREFSFIND,ITEMFIND,type);
-						break;
-					case 'G':
-//navigation
-						setNewPixbuf(PREFSQUESTION,ITEMGOTO,type);
-						break;
-//go back
-					case 'B':
-						setNewPixbuf(PREFSBACK,ITEMBACK,type);
-						break;
-//go forward
-					case 'W':
-						setNewPixbuf(PREFSFORWARD,ITEMFORWARD,type);
-						break;
-//goto line num
-					case '9':
-						setNewPixbuf(PREFSLINENUM,ITEMLINE,type);
-						break;
-//find api
-					case 'A':
-						setNewPixbuf(PREFSAPI,ITEMAPI,type);
-						break;
-//find qt api
-					case 'Q':
-						setNewPixbuf(PREFSQTAPI,ITEMQTAPI,type);
-						break;
-					case 'D':
-//find define
-						setNewPixbuf(PREFSFINDDEF,ITEMDEFINE,type);
-						break;
-					case 'L':
-//live search
-						setNewPixbuf(PREFSLIVE,ITEMLIVE,type);
-						break;
-//seperator
-					case 's':
-						setNewPixbuf(PREFSSEPERATOR,ITEMSEPERATOR,type);
-						gtk_widget_set_sensitive((GtkWidget*)tool[14],true);
-					break;
-//expander
-					case 'E':
-						setNewPixbuf(PREFSEXPAND,ITEMEXPANDER,type);
-						gtk_widget_set_sensitive((GtkWidget*)tool[15],true);
-						break;
-				}
-			free(&type);
-
-#endif
+			setNewPixbuf(pixbuf,j,"a");
 			j++;
 		}
 }
@@ -379,20 +190,20 @@ int main(int argc,char **argv)
 	gtk_widget_show_all(window);
 
 #endif
-
-//printf("\n\n\n\n");
 //
+////printf("\n\n\n\n");
+////
 //GIcon *icon=g_content_type_get_icon ("text/x-shellscript");
 //printf(">>>%s<<<\n",g_icon_to_string (icon));
-////g_content_type_get_icon
-////gtk_icon_theme_choose_icon
-////g_loadable_icon_load
-//printf("name=%s\n",g_content_type_get_generic_icon_name ("text/x-shellscript"));
-//printf("name=%s\n",g_content_type_from_mime_type ("text/x-shellscript"));
+//////g_content_type_get_icon
+//////gtk_icon_theme_choose_icon
+//////g_loadable_icon_load
+////printf("name=%s\n",g_content_type_get_generic_icon_name ("text/x-shellscript"));
+////printf("name=%s\n",g_content_type_from_mime_type ("text/x-shellscript"));
 //GtkIconTheme	*theme=gtk_icon_theme_get_default();
 //GtkIconInfo *info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)GTK_ICON_LOOKUP_GENERIC_FALLBACK);
 //printf("info=%p\n",info);
-//printf("%s\n",gtk_icon_info_get_filename (info));
+//printf("filename=%s\n",gtk_icon_info_get_filename (info));
 #if 1
 	gtk_main();
 

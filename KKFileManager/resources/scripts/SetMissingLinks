@@ -1,3 +1,43 @@
 #!/bin/bash -e
 
 #©keithhedger Fri 11 Nov 11:13:52 GMT 2016 kdhedger68713@gmail.com
+
+cd "$1"
+while read
+	do
+		FOLDER=$(dirname "$REPLY")
+		(
+			cd "$FOLDER"
+			echo "In $FOLDER ..."
+			if [ ! -e "text-x-gettext-translation.png" ];then
+				BASE=$(basename "$REPLY")
+				ln -sv "$BASE" "text-x-gettext-translation.png"
+			fi
+		)
+	done < <(find -iname "*text-x-gettext-translation.png")
+
+while read
+	do
+		FOLDER=$(dirname "$REPLY")
+		(
+			cd "$FOLDER"
+			echo "In $FOLDER ..."
+			if [ ! -e "text-x-shellscript.png" ];then
+				BASE=$(basename "$REPLY")
+				ln -sv "$BASE" "text-x-shellscript.png"
+			fi
+		)
+	done < <(find -iname "*application-x-shellscript.png")
+
+while read
+	do
+		FOLDER=$(dirname "$REPLY")
+		(
+			cd "$FOLDER"
+			echo "In $FOLDER ..."
+			if [ ! -e "text-x-c++src.png" ];then
+				BASE=$(basename "$REPLY")
+				ln -sv "$BASE" "text-x-c++src.png"
+			fi
+		)
+	done < <(find -iname "*text-x-c++src.png")
