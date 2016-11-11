@@ -2,8 +2,83 @@
 
 #©keithhedger Fri 11 Nov 11:13:52 GMT 2016 kdhedger68713@gmail.com
 
-FROMFILENAMES=( "*text-x-gettext-translation.png" "*application-x-shellscript.png" "*text-x-c++src.png" )
-TOFILENAMES=( "text-x-gettext-translation.png" "application-x-shellscript.png" "text-x-c++src.png" )
+
+#FILENAMES=( "text-x-gettext-translation.png" "application-x-shellscript.png" "text-x-c++src.png" "text-x-makefile.png" )
+#
+#cd "$1"
+#INDEX=0
+#while [ $INDEX -lt ${#FILENAMES[@]} ]
+#	do
+#		while read
+#			do
+#				FOLDER=$(dirname "$REPLY")
+#				(
+#					cd "$FOLDER"
+#					echo "In $FOLDER ..."
+#					if [ ! -e ${FILENAMES[$INDEX]} ];then
+#						BASE=$(basename "$REPLY")
+#						ln -sv "$BASE" "${FILENAMES[$INDEX]}"||true
+#					fi
+#					if [ ! -e "inode-x-empty.png" ];then
+#						if [ -e "empty.png" ];then
+#							ln -sv "empty.png" "inode-x-empty.png"||true
+#						else
+#							ln -sv "text-x-generic.png" "inode-x-empty.png"||true
+#						fi
+#					fi
+#				)
+#			done < <(find -iname "*${FILENAMES[$INDEX]}")
+#		((INDEX+=1))
+#	done
+
+FILENAMES=( "empty.png" "shellscript.png" )
+LINKNAME=( "inode-x-empty.png" "text-x-shellscript.png" )
+cd "$1"
+INDEX=0
+while [ $INDEX -lt ${#FILENAMES[@]} ]
+	do
+		while read
+			do
+				FOLDER=$(dirname "$REPLY")
+				(
+					cd "$FOLDER"
+					echo "In $FOLDER ..."
+					if [ ! -e ${LINKNAME[$INDEX]} ] && [ -e ${FILENAMES[$INDEX]} ];then
+						BASE=$(basename "$REPLY")
+						ln -sv "$BASE" "${LINKNAME[$INDEX]}"||true
+					else
+						BASE=$(basename "$REPLY")
+						ln -sv "$BASE" "text-x-generic.png"||true
+					fi
+				)
+			done < <(find -iname "${FILENAMES[$INDEX]}")
+		((INDEX+=1))
+	done
+
+FILENAMES=( "text-x-gettext-translation.png" "application-x-shellscript.png" "text-x-c++src.png" "text-x-makefile.png" )
+
+cd "$1"
+INDEX=0
+while [ $INDEX -lt ${#FILENAMES[@]} ]
+	do
+		while read
+			do
+				FOLDER=$(dirname "$REPLY")
+				(
+					cd "$FOLDER"
+					echo "In $FOLDER ..."
+					if [ ! -e ${FILENAMES[$INDEX]} ];then
+						BASE=$(basename "$REPLY")
+						ln -sv "$BASE" "${FILENAMES[$INDEX]}"||true
+					fi
+				)
+			done < <(find -iname "*${FILENAMES[$INDEX]}")
+		((INDEX+=1))
+	done
+
+exit 0
+FROMFILENAMES=( "*text-x-gettext-translation.png" "*application-x-shellscript.png" "*text-x-c++src.png" "*text-x-makefile.png" )
+TOFILENAMES=( "text-x-gettext-translation.png" "application-x-shellscript.png" "text-x-c++src.png" "text-x-makefile.png" )
 
 cd "$1"
 INDEX=0
@@ -17,51 +92,9 @@ while [ $INDEX -lt ${#FROMFILENAMES[@]} ]
 					echo "In $FOLDER ..."
 					if [ ! -e ${TOFILENAMES[$INDEX]} ];then
 						BASE=$(basename "$REPLY")
-						ln -sv "$BASE" "${TOFILENAMES[$INDEX]}"||true
+						echo "ln -sv "$BASE" "${TOFILENAMES[$INDEX]}"||true"
 					fi
 				)
 			done < <(find -iname "${FROMFILENAMES[$INDEX]}")
 		((INDEX+=1))
 	done
-
-exit 0
-
-cd "$1"
-while read
-	do
-		FOLDER=$(dirname "$REPLY")
-		(
-			cd "$FOLDER"
-			echo "In $FOLDER ..."
-			if [ ! -e "text-x-gettext-translation.png" ];then
-				BASE=$(basename "$REPLY")
-				ln -sv "$BASE" "text-x-gettext-translation.png"
-			fi
-		)
-	done < <(find -iname "*text-x-gettext-translation.png")
-
-while read
-	do
-		FOLDER=$(dirname "$REPLY")
-		(
-			cd "$FOLDER"
-			echo "In $FOLDER ..."
-			if [ ! -e "text-x-shellscript.png" ];then
-				BASE=$(basename "$REPLY")
-				ln -sv "$BASE" "text-x-shellscript.png"
-			fi
-		)
-	done < <(find -iname "*application-x-shellscript.png")
-
-while read
-	do
-		FOLDER=$(dirname "$REPLY")
-		(
-			cd "$FOLDER"
-			echo "In $FOLDER ..."
-			if [ ! -e "text-x-c++src.png" ];then
-				BASE=$(basename "$REPLY")
-				ln -sv "$BASE" "text-x-c++src.png"
-			fi
-		)
-	done < <(find -iname "*text-x-c++src.png")
