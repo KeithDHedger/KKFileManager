@@ -2,6 +2,30 @@
 
 #©keithhedger Fri 11 Nov 11:13:52 GMT 2016 kdhedger68713@gmail.com
 
+FROMFILENAMES=( "*text-x-gettext-translation.png" "*application-x-shellscript.png" "*text-x-c++src.png" )
+TOFILENAMES=( "text-x-gettext-translation.png" "application-x-shellscript.png" "text-x-c++src.png" )
+
+cd "$1"
+INDEX=0
+while [ $INDEX -lt ${#FROMFILENAMES[@]} ]
+	do
+		while read
+			do
+				FOLDER=$(dirname "$REPLY")
+				(
+					cd "$FOLDER"
+					echo "In $FOLDER ..."
+					if [ ! -e ${TOFILENAMES[$INDEX]} ];then
+						BASE=$(basename "$REPLY")
+						ln -sv "$BASE" "${TOFILENAMES[$INDEX]}"||true
+					fi
+				)
+			done < <(find -iname "${FROMFILENAMES[$INDEX]}")
+		((INDEX+=1))
+	done
+
+exit 0
+
 cd "$1"
 while read
 	do
