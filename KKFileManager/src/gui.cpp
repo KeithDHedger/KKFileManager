@@ -61,53 +61,15 @@ void setNewPixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool isdir
 
 char *getMimeType(const char *path)
 {
-	char *retdata;
-	char *command;
-#if 0
+	char	*retdata;
+	gboolean	uncertain=false;
 
-	asprintf(&command,"xdg-mime query filetype \"%s\"",path);
-//	printf("command=%s",command);
-	retdata=oneLiner(command);
-	return(retdata);
-
-#endif
-
-#if 0
-	asprintf(&command,"mimetype -b \"%s\"",path);
-//	printf("command=%s",command);
-	retdata=oneLiner(command);
-	return(retdata);
-//mimetype -b
-//libmagic
-#endif
- gboolean uncertain = FALSE;
-
-  retdata= g_content_type_guess (path, NULL, 0, &uncertain);
- //printf(">>>%s %i<<<\n",retdata,uncertain);
+	retdata=g_content_type_guess(path,NULL,0,&uncertain);
 	if(uncertain==false)
 		return(retdata);
-//printf("%s\n",path);
-//	  printf("magic output: '%s'\n",magic_file(magicInstance,path));
+	
 	retdata=strdup(magic_file(magicInstance,path));
-printf(">>>%s<<<\n",retdata);
-	return(retdata);
-//	if(strchr(path,'.')!=NULL)
-//		{
-//			char *dot=strchr((char*)path,'.');
-//			asprintf(&command,"cat /usr/share/mime/globs|sed -n '/\\%s$/p'|awk -F \":\" '{print $1}'",dot);
-//			retdata=oneLiner(command);
-//			if(retdata!=NULL)
-//				{
-//					if(strlen(retdata)>4)
-//						return(retdata);
-//				}
-//		}
-
-	asprintf(&command,"file  -b --mime-type \"%s\"",path);
-//	printf("command=%s",command);
-	retdata=oneLiner(command);
-//	printf(", returns:%s\n",retdata);
-	return(retdata);	
+		return(retdata);
 }
 
 GdkPixbuf* getPixBuf(const char *file)
@@ -118,7 +80,7 @@ GdkPixbuf* getPixBuf(const char *file)
 	GtkIconTheme	*theme=gtk_icon_theme_get_default();
 	GtkIconTheme	*gnometheme=gtk_icon_theme_new();
 	char			*mime=getMimeType(file);
-//	printf("file=%s\n",file);
+
 	theme=gtk_icon_theme_get_default();
 	icon=g_content_type_get_icon(mime);
 	info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
@@ -137,9 +99,10 @@ GdkPixbuf* getPixBuf(const char *file)
 		{
 			icon=g_content_type_get_icon(mime);
 		}
-//	printf("info filename=%s\n\n",gtk_icon_info_get_filename (info));
-	pb=gdk_pixbuf_new_from_file_at_size (gtk_icon_info_get_filename(info),-1,48,NULL);
+//	printf("mimetype=%s, filepath=%s\n",mime,gtk_icon_info_get_filename(info));
+	pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
 	g_object_unref(gnometheme);
+	free(mime);
 	return(pb);
 }
 
@@ -198,8 +161,8 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data
 
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&iter,tree_path);
 	gtk_tree_model_get(GTK_TREE_MODEL(store),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-	printf("path=%s\n",path);
-	printf("---%i\n",isdir);
+	//printf("path=%s\n",path);
+	//printf("---%i\n",isdir);
 	if(isdir==true)
 		{
 			free(thisFolder);
