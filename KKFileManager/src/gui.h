@@ -22,5 +22,6 @@
 #define _GUI_
 
 void buidMainGui(void);
+void populateStore(void);
 
 #endif

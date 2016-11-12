@@ -25,6 +25,14 @@
 
 #include "globals.h"
 
+void goUp(GtkWidget *widget,gpointer data)
+{
+	char	*hold;
+
+	hold=g_path_get_dirname(thisFolder);
+	thisFolder=hold;
+	populateStore();
+}
 
 void setUpToolBar(void)
 {
@@ -45,6 +53,7 @@ void setUpToolBar(void)
 					case 'U':
 						upButton=gtk_tool_button_new_from_stock(GTK_STOCK_GO_UP);
 						gtk_toolbar_insert(toolBar,upButton,-1);
+						g_signal_connect(G_OBJECT(upButton),"clicked",G_CALLBACK(goUp),NULL);
 						break;
 //go back
 					case 'B':

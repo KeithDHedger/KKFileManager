@@ -25,6 +25,7 @@
 #include <magic.h>
 
 #include "toolbar.h"
+#include "gui.h"
 
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
