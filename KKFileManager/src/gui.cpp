@@ -210,6 +210,13 @@ void buidMainGui(void)
 	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollBox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 	mainVBox=createNewBox(NEWVBOX,false,0);
 	vbox=createNewBox(NEWVBOX,false,0);
+
+	//toolBarBox=createNewBox(NEWHBOX,true,0);
+	toolBar=(GtkToolbar*)gtk_toolbar_new();
+
+	setUpToolBar();
+	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
+
 	doIconView();
 	gtk_container_add((GtkContainer*)window,mainVBox);
 	gtk_container_add((GtkContainer*)scrollBox,(GtkWidget*)iconView);

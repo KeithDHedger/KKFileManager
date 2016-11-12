@@ -20,6 +20,8 @@ int main(int argc,char **argv)
 		thisFolder=strdup(argv[1]);
 	else
 		thisFolder=strdup("/media/LinuxData/Development64/Projects/KKFileManager");
+	toolBarLayout=strdup("OUBF");
+
 	gtk_init(&argc,&argv);
 
 	magicInstance=magic_open(MAGIC_MIME_TYPE);

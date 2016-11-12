@@ -22,5 +22,6 @@
 #ifndef _TOOLBAR_
 #define _TOOLBAR_
 
+void setUpToolBar(void);
 
 #endif

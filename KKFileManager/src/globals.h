@@ -24,6 +24,8 @@
 #include <gtk/gtk.h>
 #include <magic.h>
 
+#include "toolbar.h"
+
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
 
@@ -37,6 +39,13 @@ extern GtkWidget	*mainVBox;
 extern char			*sinkReturnStr;
 extern char			*thisFolder;
 extern magic_t		magicInstance;
+extern char			*toolBarLayout;
+extern GtkWidget	*toolBarBox;
+
+//tool bar
+extern GtkToolItem		*upButton;
+extern GtkToolItem		*backButton;
+extern GtkToolItem		*forwardButton;
 
 //global functions
 char* oneLiner(const char *command);

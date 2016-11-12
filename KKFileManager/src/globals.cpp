@@ -34,6 +34,13 @@ GtkWidget		*mainVBox=NULL;
 char			*sinkReturnStr=NULL;
 char			*thisFolder=NULL;
 magic_t			magicInstance=NULL;
+char			*toolBarLayout=NULL;
+GtkWidget		*toolBarBox=NULL;
+
+//tool bar
+GtkToolItem		*upButton=NULL;
+GtkToolItem		*backButton=NULL;
+GtkToolItem		*forwardButton=NULL;
 
 //global functions
 char* oneLiner(const char *command)
