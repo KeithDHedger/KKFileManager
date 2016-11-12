@@ -22,6 +22,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <gtk/gtk.h>
+#include <magic.h>
 
 //main app
 GtkToolbar		*toolBar=NULL;
@@ -30,8 +31,9 @@ GtkWidget		*scrollBox=NULL;
 GtkIconView		*iconView=NULL;
 GtkListStore	*listStore=NULL;
 GtkWidget		*mainVBox=NULL;
-char			*sinkReturnStr;
-char			*thisFolder;
+char			*sinkReturnStr=NULL;
+char			*thisFolder=NULL;
+magic_t			magicInstance=NULL;
 
 //global functions
 char* oneLiner(const char *command)

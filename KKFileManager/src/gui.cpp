@@ -63,21 +63,45 @@ char *getMimeType(const char *path)
 {
 	char *retdata;
 	char *command;
+#if 0
 
-	if(strchr(path,'.')!=NULL)
-		{
-			char *dot=strchr((char*)path,'.');
-			asprintf(&command,"cat /usr/share/mime/globs|sed -n '/\\%s$/p'|awk -F \":\" '{print $1}'",dot);
-			retdata=oneLiner(command);
-			if(retdata!=NULL)
-			{
-			if(strlen(retdata)>4)
-				{
-					//printf("command=%s returns:%s\n",command,retdata);
-					return(retdata);
-				}
-			}
-		}
+	asprintf(&command,"xdg-mime query filetype \"%s\"",path);
+//	printf("command=%s",command);
+	retdata=oneLiner(command);
+	return(retdata);
+
+#endif
+
+#if 0
+	asprintf(&command,"mimetype -b \"%s\"",path);
+//	printf("command=%s",command);
+	retdata=oneLiner(command);
+	return(retdata);
+//mimetype -b
+//libmagic
+#endif
+ gboolean uncertain = FALSE;
+
+  retdata= g_content_type_guess (path, NULL, 0, &uncertain);
+ //printf(">>>%s %i<<<\n",retdata,uncertain);
+	if(uncertain==false)
+		return(retdata);
+//printf("%s\n",path);
+//	  printf("magic output: '%s'\n",magic_file(magicInstance,path));
+	retdata=strdup(magic_file(magicInstance,path));
+printf(">>>%s<<<\n",retdata);
+	return(retdata);
+//	if(strchr(path,'.')!=NULL)
+//		{
+//			char *dot=strchr((char*)path,'.');
+//			asprintf(&command,"cat /usr/share/mime/globs|sed -n '/\\%s$/p'|awk -F \":\" '{print $1}'",dot);
+//			retdata=oneLiner(command);
+//			if(retdata!=NULL)
+//				{
+//					if(strlen(retdata)>4)
+//						return(retdata);
+//				}
+//		}
 
 	asprintf(&command,"file  -b --mime-type \"%s\"",path);
 //	printf("command=%s",command);

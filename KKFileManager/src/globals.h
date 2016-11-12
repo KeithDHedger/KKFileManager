@@ -22,6 +22,7 @@
 #define _GLOBALS_
 
 #include <gtk/gtk.h>
+#include <magic.h>
 
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
@@ -35,6 +36,7 @@ extern GtkListStore	*listStore;
 extern GtkWidget	*mainVBox;
 extern char			*sinkReturnStr;
 extern char			*thisFolder;
+extern magic_t		magicInstance;
 
 //global functions
 char* oneLiner(const char *command);
