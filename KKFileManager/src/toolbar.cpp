@@ -45,6 +45,8 @@ void goHome(GtkWidget *widget,gpointer data)
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
 	const char	*text=gtk_entry_get_text(entry);
+	if(g_file_test(text,G_FILE_TEST_IS_DIR)==false)
+		return;
 	if(text!=NULL && strlen(text)>0)
 		{
 			free(thisFolder);
