@@ -5,7 +5,6 @@ This is still very early days and there is lots to do.
 It's very simply functional at the moment, use is kkfilemanager /path/to/folder
 
 TODO ( in no particular order )
-
 add gtk3 functionality
 
 add forward/back
