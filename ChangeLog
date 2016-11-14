@@ -1,2 +1,10 @@
+0.0.2
+Arrow key and return now work as expected on location entry completion.
+Location completion added.
+Location bar added.
+Home button added.
+Up button added.
+Basic functionality.
+
 0.0.1
 First commit.

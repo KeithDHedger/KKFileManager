@@ -200,7 +200,7 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data
 	else
 		{
 			asprintf(&command,"mimeopen -L -n \"%s\" &",path);
-			printf("command=%s\n",command);
+			//printf("command=%s\n",command);
 			system(command);
 			free(command);
 		}

@@ -50,6 +50,8 @@ GtkEntry		*locationTextBox=NULL;
 //mimes and stuff
 std::map<unsigned,GdkPixbuf*>	pixBuffCache;
 
+//tabs
+
 //global functions
 char* oneLiner(const char *command)
 {

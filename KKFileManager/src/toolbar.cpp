@@ -22,6 +22,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include "globals.h"
 
@@ -41,21 +42,7 @@ void goHome(GtkWidget *widget,gpointer data)
 	populateStore();
 }
 
-void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
-//void goLocation(GtkWidget *widget,gpointer data)
-{
-	const char	*text=gtk_entry_get_text(entry);
-	if(text!=NULL && strlen(text)>0)
-		{
-//			free(thisFolder);
-//			thisFolder=strdup((char*)text);
-//			populateStore();
-			printf(">>>%s<<<\n",text);
-		}
-}
-
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
-//void goLocation(GtkWidget *widget,gpointer data)
 {
 	const char	*text=gtk_entry_get_text(entry);
 	if(text!=NULL && strlen(text)>0)
@@ -67,14 +54,57 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 }
 
 
+void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
+{
+	char			*command;
+	FILE			*fp=NULL;
+	char			buffer[2048];
+    GtkListStore	*list;
+    GtkTreeIter		iter;
+	GtkEntryCompletion	*completion;
+
+	if(event->key.keyval==GDK_KEY_Up)
+		return;
+	if(event->key.keyval==GDK_KEY_Down)
+		return;
+	if(event->key.keyval==GDK_KEY_Return)
+		{
+			goLocation(entry,NULL,NULL);
+			return;
+		}
+
+	const char	*text=gtk_entry_get_text(entry);
+	if(text!=NULL && strlen(text)>0)
+		{
+			asprintf(&command,"ls -d1 /%s*/",text);
+			fp=popen(command,"r");
+			if(fp!=NULL)
+				{
+					completion=gtk_entry_get_completion(entry);
+					list=(GtkListStore*)gtk_entry_completion_get_model(completion);
+        			gtk_list_store_clear(list);
+					while(fgets(buffer,2048,fp))
+						{
+							if(strlen(buffer)>0)
+								buffer[strlen(buffer)-1]=0;
+							//printf("buffer=%s\n",&buffer[1]);
+							gtk_list_store_append(list,&iter);
+							gtk_list_store_set(list,&iter,0,&buffer[1],-1);
+						}
+					gtk_entry_completion_complete(completion);
+				}
+			free(command);
+			pclose(fp);
+		}
+}
+
 void setUpToolBar(void)
 {
-	GtkToolItem		*toolbutton;
-//#ifdef _USEGTK3_
-//	GtkWidget		*image;
-//#endif
-	GtkWidget		*menu;
-
+	GtkToolItem			*toolbutton;
+	GtkWidget			*menu;
+	GtkEntryCompletion	*completion;
+	GtkListStore		*store;
+  
 	for(int j=0;j<(int)strlen(toolBarLayout);j++)
 		{
 			switch(toolBarLayout[j])
@@ -88,6 +118,14 @@ void setUpToolBar(void)
 						gtk_toolbar_insert(toolBar,locationButton,-1);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-release-event",G_CALLBACK(getLocation),locationTextBox);
 						g_signal_connect(G_OBJECT(locationTextBox),"activate",G_CALLBACK(goLocation),locationTextBox);
+						    /* Create the completion object */
+						completion=gtk_entry_completion_new();
+						gtk_entry_set_completion(locationTextBox,completion);
+						g_object_unref(completion);
+						store=gtk_list_store_new(1,G_TYPE_STRING);
+						gtk_entry_completion_set_model(completion,(GtkTreeModel *)store);
+						g_object_unref(store);
+						gtk_entry_completion_set_text_column(completion,0);
 						break;
 //new tab
 					case 'O':
