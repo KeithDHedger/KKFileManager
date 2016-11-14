@@ -42,13 +42,14 @@ extern char			*sinkReturnStr;
 extern char			*thisFolder;
 extern magic_t		magicInstance;
 extern char			*toolBarLayout;
-extern GtkWidget	*toolBarBox;
 
 //tool bar
 extern GtkToolItem		*upButton;
 extern GtkToolItem		*backButton;
 extern GtkToolItem		*forwardButton;
 extern GtkToolItem		*homeButton;
+extern GtkToolItem		*locationButton;
+extern GtkEntry			*locationTextBox;
 
 //mimes and stuff
 extern std::map<unsigned,GdkPixbuf*>	pixBuffCache;

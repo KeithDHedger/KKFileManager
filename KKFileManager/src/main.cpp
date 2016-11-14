@@ -21,7 +21,7 @@ int main(int argc,char **argv)
 		thisFolder=strdup(argv[1]);
 	else
 		thisFolder=strdup("/");
-	toolBarLayout=strdup("OUBFH");
+	toolBarLayout=strdup("OUBFHL");
 
 	gtk_init(&argc,&argv);
 

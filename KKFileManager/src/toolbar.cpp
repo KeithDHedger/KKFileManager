@@ -41,6 +41,32 @@ void goHome(GtkWidget *widget,gpointer data)
 	populateStore();
 }
 
+void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
+//void goLocation(GtkWidget *widget,gpointer data)
+{
+	const char	*text=gtk_entry_get_text(entry);
+	if(text!=NULL && strlen(text)>0)
+		{
+//			free(thisFolder);
+//			thisFolder=strdup((char*)text);
+//			populateStore();
+			printf(">>>%s<<<\n",text);
+		}
+}
+
+void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
+//void goLocation(GtkWidget *widget,gpointer data)
+{
+	const char	*text=gtk_entry_get_text(entry);
+	if(text!=NULL && strlen(text)>0)
+		{
+			free(thisFolder);
+			thisFolder=strdup((char*)text);
+			populateStore();
+		}
+}
+
+
 void setUpToolBar(void)
 {
 	GtkToolItem		*toolbutton;
@@ -53,6 +79,16 @@ void setUpToolBar(void)
 		{
 			switch(toolBarLayout[j])
 				{
+//location
+					case 'L':
+						locationTextBox=(GtkEntry*)gtk_entry_new();
+						locationButton=gtk_tool_item_new();
+						gtk_container_add((GtkContainer *)locationButton,(GtkWidget*)locationTextBox);
+						gtk_tool_item_set_expand(locationButton,true);
+						gtk_toolbar_insert(toolBar,locationButton,-1);
+						g_signal_connect(G_OBJECT(locationTextBox),"key-release-event",G_CALLBACK(getLocation),locationTextBox);
+						g_signal_connect(G_OBJECT(locationTextBox),"activate",G_CALLBACK(goLocation),locationTextBox);
+						break;
 //new tab
 					case 'O':
 						break;

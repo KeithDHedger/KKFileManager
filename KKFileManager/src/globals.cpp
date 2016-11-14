@@ -38,13 +38,14 @@ char			*sinkReturnStr=NULL;
 char			*thisFolder=NULL;
 magic_t			magicInstance=NULL;
 char			*toolBarLayout=NULL;
-GtkWidget		*toolBarBox=NULL;
 
 //tool bar
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
 GtkToolItem		*forwardButton=NULL;
 GtkToolItem		*homeButton=NULL;
+GtkToolItem		*locationButton=NULL;
+GtkEntry		*locationTextBox=NULL;
 
 //mimes and stuff
 std::map<unsigned,GdkPixbuf*>	pixBuffCache;
