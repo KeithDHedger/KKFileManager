@@ -23,6 +23,7 @@
 
 #include <gtk/gtk.h>
 #include <magic.h>
+#include <map>
 
 #include "toolbar.h"
 #include "gui.h"
@@ -47,6 +48,16 @@ extern GtkWidget	*toolBarBox;
 extern GtkToolItem		*upButton;
 extern GtkToolItem		*backButton;
 extern GtkToolItem		*forwardButton;
+
+//mimes and stuff
+//struct			pixBufForMime
+//{
+//	GdkPixbuf	*pixbuf;
+//};
+
+//extern std::map<char*,pixBufForMime*>	*pixBuffCache;
+//extern std::map<const char*,GdkPixbuf*>	*pixBuffCache;
+extern std::map<unsigned,GdkPixbuf*>	pixBuffCache;
 
 //global functions
 char* oneLiner(const char *command);

@@ -23,6 +23,9 @@
 #include <sys/stat.h>
 #include <gtk/gtk.h>
 #include <magic.h>
+#include <map>
+
+#include "globals.h"
 
 //main app
 GtkToolbar		*toolBar=NULL;
@@ -41,6 +44,11 @@ GtkWidget		*toolBarBox=NULL;
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
 GtkToolItem		*forwardButton=NULL;
+
+//mimes and stuff
+//std::map<char*,pixBufForMime*> *pixBuffCache;
+//std::map<const char*,GdkPixbuf*>	*pixBuffCache;
+std::map<unsigned,GdkPixbuf*>	pixBuffCache;
 
 //global functions
 char* oneLiner(const char *command)

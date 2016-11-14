@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 
 #include "globals.h"
+GdkPixbuf *pixbuft;
 
 void shutdown(GtkWidget* widget,gpointer data)
 {
@@ -72,6 +73,14 @@ char *getMimeType(const char *path)
 		return(retdata);
 }
 
+unsigned hashMimeType(char* cp)
+{
+	unsigned hash=5381;
+	while(*cp)
+		hash=33*hash^*cp++;
+	return(hash);
+}
+
 GdkPixbuf* getPixBuf(const char *file)
 {
 	GIcon			*icon=NULL;
@@ -80,7 +89,12 @@ GdkPixbuf* getPixBuf(const char *file)
 	GtkIconTheme	*theme=gtk_icon_theme_get_default();
 	GtkIconTheme	*gnometheme=gtk_icon_theme_new();
 	char			*mime=getMimeType(file);
+	unsigned		hash=hashMimeType(mime);
 
+	if(pixBuffCache.find(hash)!=pixBuffCache.end())
+		return(pixBuffCache.find(hash)->second);
+
+	//printf("mime type=%s\n",mime);
 	theme=gtk_icon_theme_get_default();
 	icon=g_content_type_get_icon(mime);
 	info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
@@ -99,11 +113,20 @@ GdkPixbuf* getPixBuf(const char *file)
 		{
 			icon=g_content_type_get_icon(mime);
 		}
-//	printf("mimetype=%s, filepath=%s\n",mime,gtk_icon_info_get_filename(info));
 	pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
+	pixBuffCache[hash]=pb;
 	g_object_unref(gnometheme);
 	free(mime);
 	return(pb);
+}
+bool done=false;
+
+gboolean updateBarTimer(gpointer data)
+{
+	if(done==true)
+		return(false);
+	gtk_main_iteration ();
+	return(true);
 }
 
 void populateStore(void)
@@ -115,23 +138,26 @@ void populateStore(void)
 	char			buffer[2048];
 	int				cnt=0;
 
+	done=false;
 	gtk_list_store_clear(listStore);
-	asprintf(&command,"find %s -maxdepth 1 -mindepth 1 -type d -not -path '*/\\.*'|sort",thisFolder);
+	asprintf(&command,"find %s -maxdepth 1 -mindepth 1 -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
 			while(fgets(buffer,2048,fp))
 				{
+				g_timeout_add (100,updateBarTimer,NULL);
 					if(strlen(buffer)>0)
 						buffer[strlen(buffer)-1]=0;
 					pixbuf=getPixBuf(buffer);
 					setNewPixbuf(pixbuf,basename(buffer),buffer,true);
+					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
 					cnt++;
 				}
 			pclose(fp);
 		}
 	free(command);
-	asprintf(&command,"find %s -maxdepth 1 -mindepth 1 -not -type d -not -path '*/\\.*'|sort",thisFolder);
+	asprintf(&command,"find %s -maxdepth 1 -mindepth 1 -not -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -141,11 +167,13 @@ void populateStore(void)
 						buffer[strlen(buffer)-1]=0;
 					pixbuf=getPixBuf(buffer);
 					setNewPixbuf(pixbuf,basename(buffer),buffer,false);
+					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
 					cnt++;
 				}
 			pclose(fp);
 		}
 	free(command);
+	done=true;
 }
 
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data)
@@ -202,6 +230,8 @@ void buidMainGui(void)
 {
 	GtkWidget	*vbox;
 
+	pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
+
 	window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
 	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(shutdown),NULL);
@@ -213,7 +243,6 @@ void buidMainGui(void)
 
 	//toolBarBox=createNewBox(NEWHBOX,true,0);
 	toolBar=(GtkToolbar*)gtk_toolbar_new();
-
 	setUpToolBar();
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
 

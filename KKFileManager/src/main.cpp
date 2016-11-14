@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <gtk/gtk.h>
+#include <map>
 
 #include "globals.h"
 #include "gui.h"
@@ -21,6 +22,8 @@ int main(int argc,char **argv)
 	else
 		thisFolder=strdup("/media/LinuxData/Development64/Projects/KKFileManager");
 	toolBarLayout=strdup("OUBF");
+//	pixBuffCache=new std::map<char*,pixBufForMime*>;
+//	pixBuffCache=new std::map<const char*,GdkPixbuf*>;
 
 	gtk_init(&argc,&argv);
 
