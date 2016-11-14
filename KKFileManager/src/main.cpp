@@ -20,7 +20,7 @@ int main(int argc,char **argv)
 	if(argc>1)
 		thisFolder=strdup(argv[1]);
 	else
-		thisFolder=strdup("/media/LinuxData/Development64/Projects/KKFileManager");
+		thisFolder=strdup("/");
 	toolBarLayout=strdup("OUBFH");
 
 	gtk_init(&argc,&argv);
