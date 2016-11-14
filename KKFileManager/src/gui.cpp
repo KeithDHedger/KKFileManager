@@ -140,7 +140,7 @@ void populateStore(void)
 
 	done=false;
 	gtk_list_store_clear(listStore);
-	asprintf(&command,"find %s -maxdepth 1 -mindepth 1 -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -157,7 +157,7 @@ void populateStore(void)
 			pclose(fp);
 		}
 	free(command);
-	asprintf(&command,"find %s -maxdepth 1 -mindepth 1 -not -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -241,7 +241,6 @@ void buidMainGui(void)
 	mainVBox=createNewBox(NEWVBOX,false,0);
 	vbox=createNewBox(NEWVBOX,false,0);
 
-	//toolBarBox=createNewBox(NEWHBOX,true,0);
 	toolBar=(GtkToolbar*)gtk_toolbar_new();
 	setUpToolBar();
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
@@ -253,6 +252,5 @@ void buidMainGui(void)
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)vbox,true,true,0);
 
 	gtk_widget_show_all(window);
-
 }
 

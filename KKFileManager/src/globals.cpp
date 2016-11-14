@@ -44,10 +44,9 @@ GtkWidget		*toolBarBox=NULL;
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
 GtkToolItem		*forwardButton=NULL;
+GtkToolItem		*homeButton=NULL;
 
 //mimes and stuff
-//std::map<char*,pixBufForMime*> *pixBuffCache;
-//std::map<const char*,GdkPixbuf*>	*pixBuffCache;
 std::map<unsigned,GdkPixbuf*>	pixBuffCache;
 
 //global functions

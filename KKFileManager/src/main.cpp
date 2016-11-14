@@ -21,9 +21,7 @@ int main(int argc,char **argv)
 		thisFolder=strdup(argv[1]);
 	else
 		thisFolder=strdup("/media/LinuxData/Development64/Projects/KKFileManager");
-	toolBarLayout=strdup("OUBF");
-//	pixBuffCache=new std::map<char*,pixBufForMime*>;
-//	pixBuffCache=new std::map<const char*,GdkPixbuf*>;
+	toolBarLayout=strdup("OUBFH");
 
 	gtk_init(&argc,&argv);
 

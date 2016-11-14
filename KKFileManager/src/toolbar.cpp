@@ -34,6 +34,13 @@ void goUp(GtkWidget *widget,gpointer data)
 	populateStore();
 }
 
+void goHome(GtkWidget *widget,gpointer data)
+{
+	free(thisFolder);
+	thisFolder=strdup((char*)g_get_home_dir());
+	populateStore();
+}
+
 void setUpToolBar(void)
 {
 	GtkToolItem		*toolbutton;
@@ -48,6 +55,12 @@ void setUpToolBar(void)
 				{
 //new tab
 					case 'O':
+						break;
+//go home
+					case 'H':
+						homeButton=gtk_tool_button_new_from_stock(GTK_STOCK_HOME);
+						gtk_toolbar_insert(toolBar,homeButton,-1);
+						g_signal_connect(G_OBJECT(homeButton),"clicked",G_CALLBACK(goHome),NULL);
 						break;
 //go up
 					case 'U':
