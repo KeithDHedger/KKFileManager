@@ -1,0 +1,10 @@
+.svn
+artwork
+autom4te.cache
+Makefile
+Makefile.in
+configure
+KKFileManager/app/kkfilemanager
+
+*~
+
