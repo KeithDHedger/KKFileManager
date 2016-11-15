@@ -206,6 +206,7 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data
 		{
 			free(thisFolder);
 			thisFolder=strdup(path);
+			gtk_entry_set_text(locationTextBox,thisFolder);
 			populateStore();
 		}
 	else
@@ -261,7 +262,7 @@ void buidMainGui(void)
 	gtk_container_add((GtkContainer*)scrollBox,(GtkWidget*)iconView);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)scrollBox,true,true,0);
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)vbox,true,true,0);
-
+	gtk_entry_set_text(locationTextBox,thisFolder);
 	gtk_widget_show_all(window);
 }
 

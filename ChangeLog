@@ -1,5 +1,6 @@
 0.0.2
-Entering non-existant folde path in location bar now does nothing.
+Home, Up buttons now fill in location bar as well.
+Entering non-existant folder path in location bar now does nothing.
 Arrow key and return now work as expected on location entry completion.
 Location completion added.
 Location bar added.

@@ -32,6 +32,7 @@ void goUp(GtkWidget *widget,gpointer data)
 
 	hold=g_path_get_dirname(thisFolder);
 	thisFolder=hold;
+	gtk_entry_set_text(locationTextBox,thisFolder);
 	populateStore();
 }
 
@@ -39,10 +40,9 @@ void goHome(GtkWidget *widget,gpointer data)
 {
 	free(thisFolder);
 	thisFolder=strdup((char*)g_get_home_dir());
+	gtk_entry_set_text(locationTextBox,thisFolder);
 	populateStore();
 }
-
-char *olddir=strdup("");
 
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
@@ -50,15 +50,13 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	if(g_file_test(text,G_FILE_TEST_IS_DIR)==false)
 		return;
 
-	if(strcmp(olddir,thisFolder)==0)
+	if(strcmp(thisFolder,text)==0)
 		return;
 
 	if(text!=NULL && strlen(text)>0)
 		{
 			free(thisFolder);
-			free(olddir);
 			thisFolder=strdup((char*)text);
-			olddir=strdup(thisFolder);
 			populateStore();
 		}
 }
