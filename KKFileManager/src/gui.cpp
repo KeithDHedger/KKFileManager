@@ -66,11 +66,13 @@ char *getMimeType(const char *path)
 	gboolean	uncertain=false;
 
 	retdata=g_content_type_guess(path,NULL,0,&uncertain);
+//printf("g_content_type_guess=%s\n",retdata);
 	if(uncertain==false)
 		return(retdata);
 	
 	retdata=strdup(magic_file(magicInstance,path));
-		return(retdata);
+//printf("magic_file=%s\n",retdata);
+	return(retdata);
 }
 
 unsigned hashMimeType(char* cp)
@@ -86,16 +88,48 @@ GdkPixbuf* getPixBuf(const char *file)
 	GIcon			*icon=NULL;
 	GtkIconInfo		*info=NULL;
 	GdkPixbuf		*pb=NULL;
-	//GtkIconTheme	*theme=gtk_icon_theme_get_default();
-	//GtkIconTheme	*gnometheme=gtk_icon_theme_new();
-	char			*mime=getMimeType(file);
-	unsigned		hash=hashMimeType(mime);
+	char			*mime;
+	unsigned		hash;
+	bool			issymlink=false;
+	char			*symlink=NULL;
+	char			*newf=NULL;
+	bool			isbrokenlink=false;
+
+	mime=getMimeType(file);
+	if(strstr(mime,"inode/symlink")!=NULL)
+		{
+			issymlink=true;
+			free(mime);
+			newf=realpath(file,NULL);
+			if(newf==NULL)
+				{
+					mime=strdup("application-octet-stream");
+					hash=hashMimeType(mime);
+					isbrokenlink=true;
+				}
+			else
+				{
+					mime=getMimeType(newf);
+					symlink=strdup(mime);
+					symlink=strncpy(symlink,"sym",3);
+					hash=hashMimeType(symlink);
+				}
+		}
+	else
+		hash=hashMimeType(mime);
+
+		if(symlink!=NULL)
+			free(symlink);
+		if(newf!=NULL)
+			free(newf);
 
 	if(pixBuffCache.find(hash)!=pixBuffCache.end())
-		return(pixBuffCache.find(hash)->second);
+		{
+			free(mime);
+			return(pixBuffCache.find(hash)->second);
+		}
 
-	//printf("mime type=%s\n",mime);
-	//theme=gtk_icon_theme_get_default();
+printf("%s\n",mime);
 	icon=g_content_type_get_icon(mime);
 	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
 	if(info==NULL)
@@ -104,7 +138,6 @@ GdkPixbuf* getPixBuf(const char *file)
 			info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
 			if(info==NULL)
 				{
-//					gtk_icon_theme_set_custom_theme(gnometheme,"gnome");
 					icon=g_content_type_get_icon("text-x-generic");
 					info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,48,(GtkIconLookupFlags)0);
 				}
@@ -115,22 +148,16 @@ GdkPixbuf* getPixBuf(const char *file)
 		}
 
 	pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
-//	pb=pixbuft;
+
+	if(issymlink==true)
+		gdk_pixbuf_composite(symLink,pb,48-16,48-16,16,16,48-16,48-16,1.0,1.0,GDK_INTERP_NEAREST,255);
+
+	if(isbrokenlink==true)
+		gdk_pixbuf_composite(brokenLink,pb,0,48-16,16,16,0,48-16,1.0,1.0,GDK_INTERP_NEAREST,255);
+
 	pixBuffCache[hash]=pb;
-//	g_object_unref(gnometheme);
 	free(mime);
 	return(pb);
-}
-bool done=false;
-
-gboolean updateBarTimer(gpointer data)
-{
-printf("time in\n");
-	if(done==true)
-		return(false);
-gtk_main_iteration_do (false);
-printf("time out\n");
-	return(true);
 }
 
 void populateStore(void)
@@ -143,10 +170,9 @@ void populateStore(void)
 	int				cnt=0;
 	int				upcnt=0;
 
-	done=false;
-	//g_timeout_add (40,updateBarTimer,NULL);
+	gtk_widget_freeze_child_notify((GtkWidget*)iconView);
 	gtk_list_store_clear(listStore);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -162,7 +188,7 @@ void populateStore(void)
 			pclose(fp);
 		}
 	free(command);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -path '*/\\.*'|sort",thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -174,17 +200,18 @@ void populateStore(void)
 					setNewPixbuf(pixbuf,basename(buffer),buffer,false);
 					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
 					upcnt++;
-					if(upcnt>10)
-					{
-						gtk_main_iteration_do (false);
-						upcnt=0;
-					}
+					if(upcnt>20)
+						{
+							gtk_widget_thaw_child_notify((GtkWidget*)iconView);
+							gtk_main_iteration_do (false);
+							gtk_widget_freeze_child_notify((GtkWidget*)iconView);
+							upcnt=0;
+						}
 					cnt++;
 				}
 			pclose(fp);
 		}
 	free(command);
-	done=true;
 }
 
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data)

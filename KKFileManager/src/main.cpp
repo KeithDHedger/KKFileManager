@@ -15,12 +15,12 @@
 
 int main(int argc,char **argv)
 {
-
+	GtkIconInfo	*info;
 
 	if(argc>1)
-		thisFolder=strdup(argv[1]);
+		thisFolder=(char*)argv[1];
 	else
-		thisFolder=strdup("/");
+		thisFolder=(char*)"/";
 	toolBarLayout=strdup("OUBFHL");
 
 	gtk_init(&argc,&argv);
@@ -28,8 +28,18 @@ int main(int argc,char **argv)
 	gnomeTheme=gtk_icon_theme_new();
 	gtk_icon_theme_set_custom_theme(gnomeTheme,"gnome");
 
+	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-symbolic-link",16,(GtkIconLookupFlags)0);
+	symLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
+	gtk_icon_info_free(info);
+	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-unreadable",16,(GtkIconLookupFlags)0);
+	brokenLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
+	gtk_icon_info_free(info);
+
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
+
+	chdir(thisFolder);
+	thisFolder=get_current_dir_name();
 
 	buidMainGui();
 

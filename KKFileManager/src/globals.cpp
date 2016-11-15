@@ -51,6 +51,8 @@ GtkEntry		*locationTextBox=NULL;
 
 //mimes and stuff
 std::map<unsigned,GdkPixbuf*>	pixBuffCache;
+GdkPixbuf		*symLink;
+GdkPixbuf		*brokenLink;
 
 //tabs
 

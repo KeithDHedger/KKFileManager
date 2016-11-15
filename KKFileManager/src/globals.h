@@ -55,6 +55,8 @@ extern GtkEntry			*locationTextBox;
 
 //mimes and stuff
 extern std::map<unsigned,GdkPixbuf*>	pixBuffCache;
+extern GdkPixbuf		*symLink;
+extern GdkPixbuf		*brokenLink;
 
 //global functions
 char* oneLiner(const char *command);
