@@ -42,6 +42,8 @@ extern char			*sinkReturnStr;
 extern char			*thisFolder;
 extern magic_t		magicInstance;
 extern char			*toolBarLayout;
+extern GtkIconTheme	*defaultTheme;
+extern GtkIconTheme	*gnomeTheme;
 
 //tool bar
 extern GtkToolItem		*upButton;

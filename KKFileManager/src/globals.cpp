@@ -38,6 +38,8 @@ char			*sinkReturnStr=NULL;
 char			*thisFolder=NULL;
 magic_t			magicInstance=NULL;
 char			*toolBarLayout=NULL;
+GtkIconTheme	*defaultTheme=NULL;
+GtkIconTheme	*gnomeTheme=NULL;
 
 //tool bar
 GtkToolItem		*upButton=NULL;

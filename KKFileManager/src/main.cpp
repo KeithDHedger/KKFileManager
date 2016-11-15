@@ -24,6 +24,9 @@ int main(int argc,char **argv)
 	toolBarLayout=strdup("OUBFHL");
 
 	gtk_init(&argc,&argv);
+	defaultTheme=gtk_icon_theme_get_default();
+	gnomeTheme=gtk_icon_theme_new();
+	gtk_icon_theme_set_custom_theme(gnomeTheme,"gnome");
 
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
@@ -31,5 +34,7 @@ int main(int argc,char **argv)
 	buidMainGui();
 
 	gtk_main();
+
+	g_object_unref(defaultTheme);
 	magic_close(magicInstance);
 }

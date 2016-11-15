@@ -86,8 +86,8 @@ GdkPixbuf* getPixBuf(const char *file)
 	GIcon			*icon=NULL;
 	GtkIconInfo		*info=NULL;
 	GdkPixbuf		*pb=NULL;
-	GtkIconTheme	*theme=gtk_icon_theme_get_default();
-	GtkIconTheme	*gnometheme=gtk_icon_theme_new();
+	//GtkIconTheme	*theme=gtk_icon_theme_get_default();
+	//GtkIconTheme	*gnometheme=gtk_icon_theme_new();
 	char			*mime=getMimeType(file);
 	unsigned		hash=hashMimeType(mime);
 
@@ -95,27 +95,29 @@ GdkPixbuf* getPixBuf(const char *file)
 		return(pixBuffCache.find(hash)->second);
 
 	//printf("mime type=%s\n",mime);
-	theme=gtk_icon_theme_get_default();
+	//theme=gtk_icon_theme_get_default();
 	icon=g_content_type_get_icon(mime);
-	info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
+	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
 	if(info==NULL)
 		{
 			icon=g_content_type_get_icon("text-x-generic");
-			info=gtk_icon_theme_lookup_by_gicon(theme,icon,48,(GtkIconLookupFlags)0);
+			info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
 			if(info==NULL)
 				{
-					gtk_icon_theme_set_custom_theme(gnometheme,"gnome");
+//					gtk_icon_theme_set_custom_theme(gnometheme,"gnome");
 					icon=g_content_type_get_icon("text-x-generic");
-					info=gtk_icon_theme_lookup_by_gicon(gnometheme,icon,48,(GtkIconLookupFlags)0);
+					info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,48,(GtkIconLookupFlags)0);
 				}
 		}
 	else
 		{
 			icon=g_content_type_get_icon(mime);
 		}
+
 	pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
+//	pb=pixbuft;
 	pixBuffCache[hash]=pb;
-	g_object_unref(gnometheme);
+//	g_object_unref(gnometheme);
 	free(mime);
 	return(pb);
 }
@@ -123,9 +125,11 @@ bool done=false;
 
 gboolean updateBarTimer(gpointer data)
 {
+printf("time in\n");
 	if(done==true)
 		return(false);
-	gtk_main_iteration ();
+gtk_main_iteration_do (false);
+printf("time out\n");
 	return(true);
 }
 
@@ -137,8 +141,10 @@ void populateStore(void)
 	FILE			*fp=NULL;
 	char			buffer[2048];
 	int				cnt=0;
+	int				upcnt=0;
 
 	done=false;
+	//g_timeout_add (40,updateBarTimer,NULL);
 	gtk_list_store_clear(listStore);
 	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -not -type l -not -path '*/\\.*'|sort",thisFolder);
 	fp=popen(command,"r");
@@ -146,7 +152,6 @@ void populateStore(void)
 		{
 			while(fgets(buffer,2048,fp))
 				{
-				g_timeout_add (100,updateBarTimer,NULL);
 					if(strlen(buffer)>0)
 						buffer[strlen(buffer)-1]=0;
 					pixbuf=getPixBuf(buffer);
@@ -168,6 +173,12 @@ void populateStore(void)
 					pixbuf=getPixBuf(buffer);
 					setNewPixbuf(pixbuf,basename(buffer),buffer,false);
 					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
+					upcnt++;
+					if(upcnt>10)
+					{
+						gtk_main_iteration_do (false);
+						upcnt=0;
+					}
 					cnt++;
 				}
 			pclose(fp);

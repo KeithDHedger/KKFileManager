@@ -42,19 +42,26 @@ void goHome(GtkWidget *widget,gpointer data)
 	populateStore();
 }
 
+char *olddir=strdup("");
+
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
 	const char	*text=gtk_entry_get_text(entry);
 	if(g_file_test(text,G_FILE_TEST_IS_DIR)==false)
 		return;
+
+	if(strcmp(olddir,thisFolder)==0)
+		return;
+
 	if(text!=NULL && strlen(text)>0)
 		{
 			free(thisFolder);
+			free(olddir);
 			thisFolder=strdup((char*)text);
+			olddir=strdup(thisFolder);
 			populateStore();
 		}
 }
-
 
 void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
