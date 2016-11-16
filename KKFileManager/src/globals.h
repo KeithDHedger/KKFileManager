@@ -57,6 +57,8 @@ extern GtkEntry			*locationTextBox;
 extern std::map<unsigned,GdkPixbuf*>	pixBuffCache;
 extern GdkPixbuf		*symLink;
 extern GdkPixbuf		*brokenLink;
+extern GFile			*dirPath;
+extern GFileMonitor		*monitorDir;
 
 //global functions
 char* oneLiner(const char *command);

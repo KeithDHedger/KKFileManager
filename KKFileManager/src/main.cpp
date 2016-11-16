@@ -47,6 +47,8 @@ int main(int argc,char **argv)
 
 	chdir(thisFolder);
 	thisFolder=get_current_dir_name();
+	dirPath=g_file_new_for_path(thisFolder);
+	monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
 
 	buidMainGui();
 

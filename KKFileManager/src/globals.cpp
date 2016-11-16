@@ -51,10 +51,13 @@ GtkEntry		*locationTextBox=NULL;
 
 //mimes and stuff
 std::map<unsigned,GdkPixbuf*>	pixBuffCache;
-GdkPixbuf		*symLink;
-GdkPixbuf		*brokenLink;
+GdkPixbuf		*symLink=NULL;
+GdkPixbuf		*brokenLink=NULL;
+GFile			*dirPath=NULL;
+GFileMonitor	*monitorDir=NULL;
 
 //tabs
+//TODO//
 
 //global functions
 char* oneLiner(const char *command)
