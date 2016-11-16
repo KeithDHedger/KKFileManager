@@ -96,7 +96,7 @@ GdkPixbuf* getPixBuf(const char *file)
 	bool			isbrokenlink=false;
 
 	mime=getMimeType(file);
-printf("mime=%s file %s\n",mime,file);
+//printf("mime=%s file %s\n",mime,file);
 	if(g_file_test(file,G_FILE_TEST_IS_SYMLINK)==true)
 		{
 			issymlink=true;
