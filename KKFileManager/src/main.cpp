@@ -15,7 +15,6 @@
 
 void themeChanged(GtkIconTheme *icon_theme,gpointer user_data)
 {
-	printf("----\n");
 	pixBuffCache.clear();
 	populateStore();
 }
@@ -47,10 +46,11 @@ int main(int argc,char **argv)
 
 	chdir(thisFolder);
 	thisFolder=get_current_dir_name();
+	buidMainGui();
+
 	dirPath=g_file_new_for_path(thisFolder);
 	monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
-
-	buidMainGui();
+	g_signal_connect(G_OBJECT(monitorDir),"changed",G_CALLBACK(dirChanged),NULL);
 
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
 	gtk_main();

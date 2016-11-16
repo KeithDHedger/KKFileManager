@@ -83,3 +83,30 @@ char* oneLiner(const char *command)
 	return(retstr);
 }
 
+void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,gpointer user_data)
+{
+	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type))
+		populateStore();
+}
+
+void setCurrentFolder(const char *newfolder)
+{
+	if(g_file_test(newfolder,G_FILE_TEST_IS_DIR)==false)
+		return;
+
+	if(strcmp(thisFolder,newfolder)==0)
+		return;
+	if(newfolder!=NULL && strlen(newfolder)>0)
+		{
+			free(thisFolder);
+			thisFolder=strdup((char*)newfolder);
+			gtk_entry_set_text(locationTextBox,thisFolder);
+			populateStore();
+			g_object_unref(dirPath);
+			g_object_unref(monitorDir);
+			dirPath=g_file_new_for_path(thisFolder);
+			monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
+			g_signal_connect(G_OBJECT(monitorDir),"changed",G_CALLBACK(dirChanged),NULL);
+		}
+}
+

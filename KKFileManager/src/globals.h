@@ -62,5 +62,6 @@ extern GFileMonitor		*monitorDir;
 
 //global functions
 char* oneLiner(const char *command);
-
+void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,gpointer user_data);
+void setCurrentFolder(const char *newfolder);
 #endif

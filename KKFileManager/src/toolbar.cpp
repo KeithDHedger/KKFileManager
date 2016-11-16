@@ -31,34 +31,20 @@ void goUp(GtkWidget *widget,gpointer data)
 	char	*hold;
 
 	hold=g_path_get_dirname(thisFolder);
-	thisFolder=hold;
-	gtk_entry_set_text(locationTextBox,thisFolder);
-	populateStore();
+	setCurrentFolder(hold);
+	free(hold);
 }
 
 void goHome(GtkWidget *widget,gpointer data)
 {
-	free(thisFolder);
-	thisFolder=strdup((char*)g_get_home_dir());
-	gtk_entry_set_text(locationTextBox,thisFolder);
-	populateStore();
+	setCurrentFolder(g_get_home_dir());
 }
 
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
-	const char	*text=gtk_entry_get_text(entry);
-	if(g_file_test(text,G_FILE_TEST_IS_DIR)==false)
+	if(g_file_test(gtk_entry_get_text(entry),G_FILE_TEST_IS_DIR)==false)
 		return;
-
-	if(strcmp(thisFolder,text)==0)
-		return;
-
-	if(text!=NULL && strlen(text)>0)
-		{
-			free(thisFolder);
-			thisFolder=strdup((char*)text);
-			populateStore();
-		}
+	setCurrentFolder(gtk_entry_get_text(entry));
 }
 
 void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
@@ -107,8 +93,8 @@ void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 
 void setUpToolBar(void)
 {
-	GtkToolItem			*toolbutton;
-	GtkWidget			*menu;
+//	GtkToolItem			*toolbutton;
+//	GtkWidget			*menu;
 	GtkEntryCompletion	*completion;
 	GtkListStore		*store;
   

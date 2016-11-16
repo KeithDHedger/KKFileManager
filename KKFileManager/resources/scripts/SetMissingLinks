@@ -3,7 +3,7 @@
 #©keithhedger Fri 11 Nov 11:13:52 GMT 2016 kdhedger68713@gmail.com
 
 
-FILENAMES=( "text-x-gettext-translation.png" "application-x-shellscript.png" "text-x-c++src.png" "text-x-makefile.png" "text-x-patch.png" "application-x-python.png"  "text-x-python.png" "application-x-sharedlib.png")
+FILENAMES=( "text-x-gettext-translation.png" "application-x-shellscript.png" "text-x-c++src.png" "text-x-makefile.png" "text-x-patch.png" "application-x-python.png"  "text-x-python.png" "application-x-sharedlib.png" "x-empty.png" )
 
 cd "$1"
 INDEX=0
@@ -31,7 +31,6 @@ while [ $INDEX -lt ${#FILENAMES[@]} ]
 		((INDEX+=1))
 	done
 exit 0
-
 FILENAMES=( "empty.png" "shellscript.png" )
 LINKNAME=( "inode-x-empty.png" "text-x-shellscript.png" )
 cd "$1"

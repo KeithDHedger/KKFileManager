@@ -96,7 +96,7 @@ GdkPixbuf* getPixBuf(const char *file)
 	bool			isbrokenlink=false;
 
 	mime=getMimeType(file);
-//printf("mime=%s file %s\n",mime,file);
+printf("mime=%s file %s\n",mime,file);
 	if(g_file_test(file,G_FILE_TEST_IS_SYMLINK)==true)
 		{
 			issymlink=true;
@@ -161,15 +161,6 @@ GdkPixbuf* getPixBuf(const char *file)
 	return(pb);
 }
 
-void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,gpointer user_data)
-{
-	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type))
-		{
-			//printf("changed\n");
-			populateStore();
-		}
-}
-
 void populateStore(void)
 {
 	GdkPixbuf		*pixbuf;
@@ -222,11 +213,6 @@ void populateStore(void)
 			pclose(fp);
 		}
 	free(command);
-	g_object_unref(dirPath);
-	g_object_unref(monitorDir);
-	dirPath=g_file_new_for_path(thisFolder);
-	monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
-	g_signal_connect(G_OBJECT(monitorDir),"changed",G_CALLBACK(dirChanged),NULL);
 }
 
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data)
