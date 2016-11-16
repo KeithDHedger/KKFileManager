@@ -13,6 +13,13 @@
 #include "globals.h"
 #include "gui.h"
 
+void themeChanged(GtkIconTheme *icon_theme,gpointer user_data)
+{
+	printf("----\n");
+	pixBuffCache.clear();
+	populateStore();
+}
+
 int main(int argc,char **argv)
 {
 	GtkIconInfo	*info;
@@ -43,6 +50,7 @@ int main(int argc,char **argv)
 
 	buidMainGui();
 
+	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
 	gtk_main();
 
 	g_object_unref(defaultTheme);

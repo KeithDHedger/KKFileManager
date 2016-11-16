@@ -96,7 +96,9 @@ GdkPixbuf* getPixBuf(const char *file)
 	bool			isbrokenlink=false;
 
 	mime=getMimeType(file);
-	if(strstr(mime,"inode/symlink")!=NULL)
+//printf("mime=%s file %s\n",mime,file);
+	if(g_file_test(file,G_FILE_TEST_IS_SYMLINK)==true)
+//	if(strstr(mime,"inode/symlink")!=NULL)
 		{
 			issymlink=true;
 			free(mime);
@@ -129,7 +131,7 @@ GdkPixbuf* getPixBuf(const char *file)
 			return(pixBuffCache.find(hash)->second);
 		}
 
-printf("%s\n",mime);
+//
 	icon=g_content_type_get_icon(mime);
 	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
 	if(info==NULL)
