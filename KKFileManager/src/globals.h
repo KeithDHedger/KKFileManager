@@ -28,6 +28,7 @@
 #include "toolbar.h"
 #include "gui.h"
 #include "pages.h"
+#include "callbacks.h"
 
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
