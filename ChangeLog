@@ -1,4 +1,6 @@
 0.0.2
+Added better folder change monitoring.
+Code clean.
 Added multiple tabs.
 Added folder montitor changes.
 Added symlink and broken link emblems to icons.
