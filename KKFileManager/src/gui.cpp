@@ -51,14 +51,26 @@ GtkWidget *createNewBox(int orient,bool homog,int spacing)
 	return(retwidg);
 }
 
-void setNewPixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool isdir)
+void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_data)
+{
+
+	GtkWidget	*widg;
+	widg=gtk_notebook_get_nth_page(notebook,arg2);
+
+	pageStruct	*page=getPageStructByIDFromList((unsigned)(long)g_object_get_data((GObject*)widg,"pageid"));
+	if(page!=NULL)
+		gtk_entry_set_text(locationTextBox,page->thisFolder);
+}
+
+void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool isdir,pageStruct *page)
 {
 	GtkTreeIter iter;
 
-	gtk_list_store_append(listStore, &iter);
+	gtk_list_store_append(page->listStore, &iter);
 	if(pixbuf!=NULL)
-		gtk_list_store_set(listStore,&iter,PIXBUF_COLUMN,pixbuf,TEXT_COLUMN,type,FILEPATH,path,ISDIR,isdir,-1);
+		gtk_list_store_set(page->listStore,&iter,PIXBUF_COLUMN,pixbuf,TEXT_COLUMN,type,FILEPATH,path,ISDIR,isdir,-1);
 }
+
 
 char *getMimeType(const char *path)
 {
@@ -161,7 +173,61 @@ GdkPixbuf* getPixBuf(const char *file)
 	return(pb);
 }
 
-void populateStore(void)
+void populateStorze(void)
+{
+//	GdkPixbuf		*pixbuf;
+//
+//	char			*command;
+//	FILE			*fp=NULL;
+//	char			buffer[2048];
+//	int				cnt=0;
+//	int				upcnt=0;
+//
+//	gtk_widget_freeze_child_notify((GtkWidget*)iconView);
+//	gtk_list_store_clear(listStore);
+//	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",thisFolder);
+//	fp=popen(command,"r");
+//	if(fp!=NULL)
+//		{
+//			while(fgets(buffer,2048,fp))
+//				{
+//					if(strlen(buffer)>0)
+//						buffer[strlen(buffer)-1]=0;
+//					pixbuf=getPixBuf(buffer);
+//					setNewPixbuf(pixbuf,basename(buffer),buffer,true);
+//					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
+//					cnt++;
+//				}
+//			pclose(fp);
+//		}
+//	free(command);
+//	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -path '*/\\.*'|sort",thisFolder);
+//	fp=popen(command,"r");
+//	if(fp!=NULL)
+//		{
+//			while(fgets(buffer,2048,fp))
+//				{
+//					if(strlen(buffer)>0)
+//						buffer[strlen(buffer)-1]=0;
+//					pixbuf=getPixBuf(buffer);
+//					setNewPixbuf(pixbuf,basename(buffer),buffer,false);
+//					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
+//					upcnt++;
+//					if(upcnt>20)
+//						{
+//							gtk_widget_thaw_child_notify((GtkWidget*)iconView);
+//							gtk_main_iteration_do (false);
+//							gtk_widget_freeze_child_notify((GtkWidget*)iconView);
+//							upcnt=0;
+//						}
+//					cnt++;
+//				}
+//			pclose(fp);
+//		}
+//	free(command);
+}
+
+void populatePageStore(pageStruct *page)
 {
 	GdkPixbuf		*pixbuf;
 
@@ -171,9 +237,9 @@ void populateStore(void)
 	int				cnt=0;
 	int				upcnt=0;
 
-	gtk_widget_freeze_child_notify((GtkWidget*)iconView);
-	gtk_list_store_clear(listStore);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",thisFolder);
+	//gtk_widget_freeze_child_notify((GtkWidget*)page->iconView);
+	gtk_list_store_clear(page->listStore);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -182,14 +248,13 @@ void populateStore(void)
 					if(strlen(buffer)>0)
 						buffer[strlen(buffer)-1]=0;
 					pixbuf=getPixBuf(buffer);
-					setNewPixbuf(pixbuf,basename(buffer),buffer,true);
-					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
+					setNewPagePixbuf(pixbuf,basename(buffer),buffer,true,page);
 					cnt++;
 				}
 			pclose(fp);
 		}
 	free(command);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -path '*/\\.*'|sort",thisFolder);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -198,14 +263,13 @@ void populateStore(void)
 					if(strlen(buffer)>0)
 						buffer[strlen(buffer)-1]=0;
 					pixbuf=getPixBuf(buffer);
-					setNewPixbuf(pixbuf,basename(buffer),buffer,false);
-					//setNewPixbuf(pixbuft,basename(buffer),buffer,true);
+					setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
 					upcnt++;
 					if(upcnt>20)
 						{
-							gtk_widget_thaw_child_notify((GtkWidget*)iconView);
+							//gtk_widget_thaw_child_notify((GtkWidget*)iconView);
 							gtk_main_iteration_do (false);
-							gtk_widget_freeze_child_notify((GtkWidget*)iconView);
+							//gtk_widget_freeze_child_notify((GtkWidget*)iconView);
 							upcnt=0;
 						}
 					cnt++;
@@ -213,9 +277,10 @@ void populateStore(void)
 			pclose(fp);
 		}
 	free(command);
+	gtk_widget_show_all((GtkWidget*)page->scrollBox);
 }
 
-void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data)
+void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 {
 	printf("clicked\n");
 	GtkListStore	*store;
@@ -224,18 +289,18 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data
 	gboolean		isdir;
 	char			*command;
 
-	store=GTK_LIST_STORE(user_data);
+	//store=GTK_LIST_STORE(page->listStore);
 
-	gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&iter,tree_path);
-	gtk_tree_model_get(GTK_TREE_MODEL(store),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,tree_path);
+	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
 	//printf("path=%s\n",path);
 	//printf("---%i\n",isdir);
 	if(isdir==true)
 		{
-			free(thisFolder);
-			thisFolder=strdup(path);
-			gtk_entry_set_text(locationTextBox,thisFolder);
-			populateStore();
+			free(page->thisFolder);
+			page->thisFolder=strdup(path);
+			gtk_entry_set_text(locationTextBox,page->thisFolder);
+			populatePageStore(page);
 		}
 	else
 		{
@@ -249,48 +314,77 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer user_data
 
 void doIconView(void)
 {
-	listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
-	iconView=(GtkIconView*)gtk_icon_view_new();
-	gtk_icon_view_set_pixbuf_column(GTK_ICON_VIEW(iconView),PIXBUF_COLUMN);
-	gtk_icon_view_set_text_column(GTK_ICON_VIEW (iconView),TEXT_COLUMN);
-	gtk_icon_view_set_model(GTK_ICON_VIEW(iconView),GTK_TREE_MODEL(listStore));
-	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(iconView),0);
-	g_signal_connect (iconView,"item-activated",G_CALLBACK(selectItem),listStore);	
-	populateStore();
-
-	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(iconView),GTK_SELECTION_SINGLE);
-	gtk_icon_view_set_item_orientation(GTK_ICON_VIEW(iconView),GTK_ORIENTATION_VERTICAL);
-	gtk_icon_view_set_columns(GTK_ICON_VIEW(iconView),-1);
-	gtk_icon_view_set_reorderable(GTK_ICON_VIEW(iconView),false);
-
-	gtk_icon_view_set_item_width ((GtkIconView *)iconView,96);
+//	listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
+//	iconView=(GtkIconView*)gtk_icon_view_new();
+//	gtk_icon_view_set_pixbuf_column(GTK_ICON_VIEW(iconView),PIXBUF_COLUMN);
+//	gtk_icon_view_set_text_column(GTK_ICON_VIEW (iconView),TEXT_COLUMN);
+//	gtk_icon_view_set_model(GTK_ICON_VIEW(iconView),GTK_TREE_MODEL(listStore));
+//	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(iconView),0);
+//	g_signal_connect (iconView,"item-activated",G_CALLBACK(selectItem),listStore);	
+//	populateStore();
+//
+//	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(iconView),GTK_SELECTION_SINGLE);
+//	gtk_icon_view_set_item_orientation(GTK_ICON_VIEW(iconView),GTK_ORIENTATION_VERTICAL);
+//	gtk_icon_view_set_columns(GTK_ICON_VIEW(iconView),-1);
+//	gtk_icon_view_set_reorderable(GTK_ICON_VIEW(iconView),false);
+//
+//	gtk_icon_view_set_item_width ((GtkIconView *)iconView,96);
 }
 
-void buidMainGui(void)
+void newIconView(pageStruct *page)
+{
+	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
+	page->iconView=(GtkIconView*)gtk_icon_view_new();
+	gtk_icon_view_set_pixbuf_column(GTK_ICON_VIEW(page->iconView),PIXBUF_COLUMN);
+	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),TEXT_COLUMN);
+	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
+	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
+	g_signal_connect (page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
+	populatePageStore(page);
+
+	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(page->iconView),GTK_SELECTION_SINGLE);
+	gtk_icon_view_set_item_orientation(GTK_ICON_VIEW(page->iconView),GTK_ORIENTATION_VERTICAL);
+	gtk_icon_view_set_columns(GTK_ICON_VIEW(page->iconView),-1);
+	gtk_icon_view_set_reorderable(GTK_ICON_VIEW(page->iconView),false);
+
+	gtk_icon_view_set_item_width ((GtkIconView *)page->iconView,96);
+}
+
+void buidMainGui(const char *startdir)
 {
 	GtkWidget	*vbox;
+//	char		*here;
 
-	pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
+	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
 
 	window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
 	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(shutdown),NULL);
 
-	scrollBox=gtk_scrolled_window_new(NULL,NULL);
-	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollBox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+	mainNotebook=(GtkNotebook*)gtk_notebook_new();
+	g_signal_connect(G_OBJECT(mainNotebook),"switch-page",G_CALLBACK(switchPage),NULL);
+
+//	here=get_current_dir_name();
+	addNewPage((char*)startdir);
+	
+//	free(here);
+
+//	scrollBox=gtk_scrolled_window_new(NULL,NULL);
+//	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollBox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 	mainVBox=createNewBox(NEWVBOX,false,0);
-	vbox=createNewBox(NEWVBOX,false,0);
+//	vbox=createNewBox(NEWVBOX,false,0);
 
 	toolBar=(GtkToolbar*)gtk_toolbar_new();
 	setUpToolBar();
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
+	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainNotebook,true,true,0);
 
-	doIconView();
+//	doIconView();
 	gtk_container_add((GtkContainer*)window,mainVBox);
-	gtk_container_add((GtkContainer*)scrollBox,(GtkWidget*)iconView);
-	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)scrollBox,true,true,0);
-	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)vbox,true,true,0);
-	gtk_entry_set_text(locationTextBox,thisFolder);
+//	gtk_container_add((GtkContainer*)scrollBox,(GtkWidget*)iconView);
+//	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)scrollBox,true,true,0);
+//	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)vbox,true,true,0);
+	gtk_entry_set_text(locationTextBox,startdir);
 	gtk_widget_show_all(window);
 }
 

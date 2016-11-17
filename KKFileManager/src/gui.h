@@ -21,7 +21,12 @@
 #ifndef _GUI_
 #define _GUI_
 
-void buidMainGui(void);
-void populateStore(void);
+#include "pages.h"
+
+GtkWidget *createNewBox(int orient,bool homog,int spacing);
+void buidMainGui(const char *startdir);
+//void populateStore(void);
+void populatePageStore(pageStruct *page);
+void newIconView(pageStruct *page);
 
 #endif

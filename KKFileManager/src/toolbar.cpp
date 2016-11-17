@@ -28,23 +28,32 @@
 
 void goUp(GtkWidget *widget,gpointer data)
 {
-	char	*hold;
+	char		*hold;
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
-	hold=g_path_get_dirname(thisFolder);
-	setCurrentFolder(hold);
+	hold=g_path_get_dirname(page->thisFolder);
+	setCurrentFolderForTab(hold,page);
 	free(hold);
 }
 
 void goHome(GtkWidget *widget,gpointer data)
 {
-	setCurrentFolder(g_get_home_dir());
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+	setCurrentFolderForTab(g_get_home_dir(),page);
+}
+
+void goNew(GtkWidget *widget,gpointer data)
+{
+	addNewPage((char*)getenv("HOME"));
 }
 
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+
 	if(g_file_test(gtk_entry_get_text(entry),G_FILE_TEST_IS_DIR)==false)
 		return;
-	setCurrentFolder(gtk_entry_get_text(entry));
+	setCurrentFolderForTab(gtk_entry_get_text(entry),page);
 }
 
 void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
@@ -121,7 +130,10 @@ void setUpToolBar(void)
 						gtk_entry_completion_set_text_column(completion,0);
 						break;
 //new tab
-					case 'O':
+					case 'N':
+						newButton=gtk_tool_button_new_from_stock(GTK_STOCK_ADD);
+						gtk_toolbar_insert(toolBar,newButton,-1);
+						g_signal_connect(G_OBJECT(newButton),"clicked",G_CALLBACK(goNew),NULL);
 						break;
 //go home
 					case 'H':

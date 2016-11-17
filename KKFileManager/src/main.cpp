@@ -15,19 +15,37 @@
 
 void themeChanged(GtkIconTheme *icon_theme,gpointer user_data)
 {
+	GtkWidget	*widg;
+	unsigned	pageid;
+	pageStruct	*page;
+
 	pixBuffCache.clear();
-	populateStore();
+	for(int j=0;j<gtk_notebook_get_n_pages(mainNotebook);j++)
+		{
+			widg=gtk_notebook_get_nth_page(mainNotebook,j);
+			pageid=(unsigned)(long)g_object_get_data((GObject*)widg,"pageid");
+			page=getPageStructByIDFromList(pageid);
+			populatePageStore(page);
+		}
 }
 
 int main(int argc,char **argv)
 {
 	GtkIconInfo	*info;
+	const char	*startdir;
+	char		*origpath=NULL;
 
 	if(argc>1)
-		thisFolder=(char*)argv[1];
+		{
+			origpath=realpath(argv[1],NULL);
+			if(origpath!=NULL)
+				startdir=origpath;
+			else
+				startdir=(char*)"/";
+		}
 	else
-		thisFolder=(char*)"/";
-	toolBarLayout=strdup("OUBFHL");
+		startdir=(char*)"/";
+	toolBarLayout=strdup("NUBFHL");
 
 	gtk_init(&argc,&argv);
 	defaultTheme=gtk_icon_theme_get_default();
@@ -44,13 +62,12 @@ int main(int argc,char **argv)
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
 
-	chdir(thisFolder);
-	thisFolder=get_current_dir_name();
-	buidMainGui();
+	buidMainGui(startdir);
 
-	dirPath=g_file_new_for_path(thisFolder);
-	monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
-	g_signal_connect(G_OBJECT(monitorDir),"changed",G_CALLBACK(dirChanged),NULL);
+	free(origpath);
+//	dirPath=g_file_new_for_path(startdir);
+//	monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
+//	g_signal_connect(G_OBJECT(monitorDir),"changed",G_CALLBACK(dirChanged),NULL);
 
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
 	gtk_main();

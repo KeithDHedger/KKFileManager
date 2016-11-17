@@ -27,6 +27,7 @@
 
 #include "toolbar.h"
 #include "gui.h"
+#include "pages.h"
 
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
@@ -34,22 +35,21 @@ enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
 //main app
 extern GtkToolbar	*toolBar;
 extern GtkWidget	*window;
-extern GtkWidget	*scrollBox;
-extern GtkIconView	*iconView;
-extern GtkListStore	*listStore;
 extern GtkWidget	*mainVBox;
 extern char			*sinkReturnStr;
-extern char			*thisFolder;
 extern magic_t		magicInstance;
 extern char			*toolBarLayout;
 extern GtkIconTheme	*defaultTheme;
 extern GtkIconTheme	*gnomeTheme;
+extern GtkNotebook	*mainNotebook;
+extern GList		*pageList;
 
 //tool bar
 extern GtkToolItem		*upButton;
 extern GtkToolItem		*backButton;
 extern GtkToolItem		*forwardButton;
 extern GtkToolItem		*homeButton;
+extern GtkToolItem		*newButton;
 extern GtkToolItem		*locationButton;
 extern GtkEntry			*locationTextBox;
 
@@ -60,8 +60,12 @@ extern GdkPixbuf		*brokenLink;
 extern GFile			*dirPath;
 extern GFileMonitor		*monitorDir;
 
+//tabs
+extern unsigned			pageCnt;
+
 //global functions
 char* oneLiner(const char *command);
-void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,gpointer user_data);
-void setCurrentFolder(const char *newfolder);
+void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);
+void setCurrentFolderForTab(const char *newfolder,pageStruct *page);
+
 #endif

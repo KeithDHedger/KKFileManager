@@ -30,22 +30,21 @@
 //main app
 GtkToolbar		*toolBar=NULL;
 GtkWidget		*window = NULL;
-GtkWidget		*scrollBox=NULL;
-GtkIconView		*iconView=NULL;
-GtkListStore	*listStore=NULL;
 GtkWidget		*mainVBox=NULL;
 char			*sinkReturnStr=NULL;
-char			*thisFolder=NULL;
 magic_t			magicInstance=NULL;
 char			*toolBarLayout=NULL;
 GtkIconTheme	*defaultTheme=NULL;
 GtkIconTheme	*gnomeTheme=NULL;
+GtkNotebook		*mainNotebook=NULL;
+GList			*pageList=NULL;
 
 //tool bar
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
 GtkToolItem		*forwardButton=NULL;
 GtkToolItem		*homeButton=NULL;
+GtkToolItem		*newButton=NULL;
 GtkToolItem		*locationButton=NULL;
 GtkEntry		*locationTextBox=NULL;
 
@@ -57,7 +56,7 @@ GFile			*dirPath=NULL;
 GFileMonitor	*monitorDir=NULL;
 
 //tabs
-//TODO//
+unsigned		pageCnt=1000;
 
 //global functions
 char* oneLiner(const char *command)
@@ -83,30 +82,29 @@ char* oneLiner(const char *command)
 	return(retstr);
 }
 
-void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,gpointer user_data)
+void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
 	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type))
-		populateStore();
+		populatePageStore(page);
 }
 
-void setCurrentFolder(const char *newfolder)
+void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 {
 	if(g_file_test(newfolder,G_FILE_TEST_IS_DIR)==false)
 		return;
 
-	if(strcmp(thisFolder,newfolder)==0)
+	if(strcmp(page->thisFolder,newfolder)==0)
 		return;
 	if(newfolder!=NULL && strlen(newfolder)>0)
 		{
-			free(thisFolder);
-			thisFolder=strdup((char*)newfolder);
-			gtk_entry_set_text(locationTextBox,thisFolder);
-			populateStore();
-			g_object_unref(dirPath);
-			g_object_unref(monitorDir);
-			dirPath=g_file_new_for_path(thisFolder);
-			monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
-			g_signal_connect(G_OBJECT(monitorDir),"changed",G_CALLBACK(dirChanged),NULL);
+			free(page->thisFolder);
+			page->thisFolder=strdup((char*)newfolder);
+			gtk_entry_set_text(locationTextBox,page->thisFolder);
+			populatePageStore(page);
+			g_object_unref(page->dirPath);
+			g_object_unref(page->monitorDir);
+			page->dirPath=g_file_new_for_path(page->thisFolder);
+			page->monitorDir=g_file_monitor_directory(page->dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
+			g_signal_connect(G_OBJECT(page->monitorDir),"changed",G_CALLBACK(dirChanged),page);
 		}
 }
-
