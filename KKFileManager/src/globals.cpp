@@ -82,12 +82,6 @@ char* oneLiner(const char *command)
 	return(retstr);
 }
 
-void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
-{
-	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type))
-		populatePageStore(page);
-}
-
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 {
 	if(g_file_test(newfolder,G_FILE_TEST_IS_DIR)==false)

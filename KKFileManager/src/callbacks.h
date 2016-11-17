@@ -22,5 +22,6 @@
 #ifndef _CALLBACKS_
 #define _CALLBACKS_
 
+void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page);
 
 #endif

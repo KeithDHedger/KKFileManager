@@ -17,4 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+#include <gtk/gtk.h>
+
+#include "gui.h"
+
+void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
+{
+	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type))
+		populatePageStore(page);
+}
 
