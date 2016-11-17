@@ -25,7 +25,6 @@
 
 GtkWidget *createNewBox(int orient,bool homog,int spacing);
 void buidMainGui(const char *startdir);
-//void populateStore(void);
 void populatePageStore(pageStruct *page);
 void newIconView(pageStruct *page);
 
