@@ -29,7 +29,7 @@
 
 //main app
 GtkToolbar		*toolBar=NULL;
-GtkWidget		*window = NULL;
+GtkWidget		*mainWindow = NULL;
 GtkWidget		*mainVBox=NULL;
 char			*sinkReturnStr=NULL;
 magic_t			magicInstance=NULL;
@@ -38,6 +38,7 @@ GtkIconTheme	*defaultTheme=NULL;
 GtkIconTheme	*gnomeTheme=NULL;
 GtkNotebook		*mainNotebook=NULL;
 GList			*pageList=NULL;
+GtkAccelGroup	*accgroup=NULL;
 
 //tool bar
 GtkToolItem		*upButton=NULL;
@@ -64,6 +65,11 @@ unsigned		iconPadding=16;
 unsigned		iconSize=96;
 unsigned		iconPadding=16;
 #endif
+
+//menus
+
+//prefs
+bool			showMenuIcons=true;
 
 //global functions
 char* oneLiner(const char *command)

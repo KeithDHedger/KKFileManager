@@ -18,10 +18,19 @@
  * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+#include <stdlib.h>
+#include <limits.h>
+#include <string.h>
+#include <sys/stat.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <gdk/gdk.h>
 
+//#include "globals.h"
 #include "gui.h"
+
+GtkWidget	*tabMenu;
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
@@ -29,78 +38,112 @@ void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitor
 		populatePageStore(page);
 }
 
-/*
- if event.type == Gdk.EventType.BUTTON_PRESS:
-    path = GtkIconView.get_path_at_pos(event.x, event.y)
-    if path != None:
-        GtkIconView.select_path(path)
-        choice = util.get_selection(GtkIconView,GtkListStore)
-        if event.button == 3:
-            # popup on right click
-        elif event.button == 1:
-            self.on_GtkIconView_activated(widget,choice)
-*/
-
-GtkWidget			*tabMenu;
-
-void contextMenuActivate(GtkMenuItem *menuitem,pageStruct *page)
+void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 {
-printf("data=%i\n",(long)page);
+	char		buffer[PATH_MAX+20];
+	unsigned	newFileCnt=0;
+	unsigned	newFolderCnt=0;
+	const char	*type="Folder";
+	const char	*command="mkdir";
+	unsigned	cnt=0;
+
+printf("contextid=%u\n",ctx->id);
+	switch(ctx->id)
+		{
+			case CONTEXTNEWFILE:
+				type="File";
+				command="touch";
+//				sprintf(buffer,"%s/New File",ctx->page->thisFolder);
+//				if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+//					{
+//						newFileCnt=0;
+//						while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+//							{
+//								newFileCnt++;
+//								sprintf(buffer,"%s/New File %u",ctx->page->thisFolder,newFileCnt);
+//							}
+//						sprintf(buffer,"touch \"%s/New File %u\"",ctx->page->thisFolder,newFileCnt);
+//					}
+//				else
+//					{
+//						sprintf(buffer,"touch \"%s/New File\"",ctx->page->thisFolder);
+//					}
+//				system(buffer);
+//				break;
+			case CONTEXTNEWFOLDER:
+				sprintf(buffer,"%s/New %s",ctx->page->thisFolder,type);
+				if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+					{
+						cnt=0;
+						while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+							{
+								cnt++;
+								sprintf(buffer,"%s/New %s %u",ctx->page->thisFolder,type,cnt);
+							}
+						sprintf(buffer,"%s \"%s/New %s %u\"",command,ctx->page->thisFolder,type,cnt);
+					}
+				else
+					{
+						sprintf(buffer,"%s \"%s/New %s\"",command,ctx->page->thisFolder,type);
+					}
+				system(buffer);
+				break;
+			case CONTEXTOPEN:
+				selectItem(ctx->page->iconView,ctx->treepath,ctx->page);
+				break;
+			case CONTEXTDELETE:
+				printf("do delete\n");
+				break;
+			default:
+				printf("unknown\n");
+		}
 }
 
 gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkWidget	*menuitem;
-    GtkTreeIter real_it;
-    GtkTreePath* treepath;
-GtkTreeViewColumn *column;
-int cellx;
-int celly;
-//printf("button=%i\n",event->button.button);
-//printf("buttonmask=%i\n",GDK_BUTTON3_MASK);
-//printf("state=%i\n",event->button.state & GDK_BUTTON1_MASK);
-
-	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
-printf("rite\n");
-//if(event->any.type==GDK_BUTTON1_PRESSED)
-//	printf("button 1 down\n");
-
-
-	if(event->type==GDK_BUTTON_PRESS)
-		{
-			//if(event.button == 3
-			printf("button down\n");
-		}
+    GtkTreePath	*treepath;
 
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
-		gtk_icon_view_unselect_all (page->iconView);
-		//gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(page->listStore),event->x, event->y, &treepath,&column,&cellx,&celly);
-		treepath=gtk_icon_view_get_path_at_pos (page->iconView,event->x, event->y);
-		if(treepath!=NULL)
-		{
-		gtk_icon_view_select_path (page->iconView,treepath);
-
-			printf("path=%s\n",gtk_tree_path_to_string (treepath));
+			gtk_icon_view_unselect_all (page->iconView);
+			treepath=gtk_icon_view_get_path_at_pos (page->iconView,event->x, event->y);
+			if(G_IS_OBJECT(tabMenu))
+				{
+					g_object_ref_sink(tabMenu);
+					g_object_unref(tabMenu);
+				}
 			tabMenu=gtk_menu_new();
-			menuitem=gtk_menu_item_new_with_label("test menu item 1");
-			gtk_menu_shell_append(GTK_MENU_SHELL(tabMenu),menuitem);
-			g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)1);
-//		 g_signal_connect (page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
-
-			menuitem=gtk_menu_item_new_with_label("test menu item 2");
-			gtk_menu_shell_append(GTK_MENU_SHELL(tabMenu),menuitem);
-			g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)2);
-			gtk_menu_attach_to_widget(GTK_MENU(tabMenu),widget,NULL);
+			if(treepath!=NULL)
+				{
+					gtk_icon_view_select_path(page->iconView,treepath);
+					menuitem=newMenuItem(CONTEXTOPEN,tabMenu);
+					contextMenus[CONTEXTOPEN]->page=page;
+					contextMenus[CONTEXTOPEN]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTOPEN]);
+					menuitem=newMenuItem(CONTEXTDELETE,tabMenu);
+					contextMenus[CONTEXTDELETE]->page=page;
+					contextMenus[CONTEXTDELETE]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTDELETE]);
+				}
+			else
+				{
+					menuitem=newImageMenuItem(CONTEXTNEWFILE,tabMenu);
+					contextMenus[CONTEXTNEWFILE]->page=page;
+					contextMenus[CONTEXTNEWFILE]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTNEWFILE]);
+					menuitem=newImageMenuItem(CONTEXTNEWFOLDER,tabMenu);
+					contextMenus[CONTEXTNEWFOLDER]->page=page;
+					contextMenus[CONTEXTNEWFOLDER]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTNEWFOLDER]);
+				}
 			gtk_menu_popup(GTK_MENU(tabMenu),NULL,NULL,NULL,NULL,event->button,event->time);
 			gtk_widget_show_all((GtkWidget*)tabMenu);
-		}
-		
+			return(true);
 		}
 
-return(false);
+	return(false);
 }
-
 
 
 

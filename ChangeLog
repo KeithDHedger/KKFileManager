@@ -1,4 +1,5 @@
 0.0.2
+Added new file/folder context menu.
 Made gtk3 compatable.
 Added better folder change monitoring.
 Code clean.

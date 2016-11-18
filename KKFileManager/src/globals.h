@@ -35,6 +35,8 @@
 //menus
 //documents
 #define GTK_STOCK_NEW "document-new"
+#define GTK_STOCK_OPEN "document-open"
+#define GTK_STOCK_DELETE "edit-delete"
 //odds
 #define GTK_STOCK_ADD "list-add"
 
@@ -43,6 +45,7 @@
 #define GTK_STOCK_GO_BACK "go-previous"
 #define GTK_STOCK_GO_UP "go-up"
 #define GTK_STOCK_HOME "go-home"
+#define GTK_STOCK_DIRECTORY "folder"
 #endif
 
 
@@ -51,7 +54,7 @@ enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
 
 //main app
 extern GtkToolbar	*toolBar;
-extern GtkWidget	*window;
+extern GtkWidget	*mainWindow;
 extern GtkWidget	*mainVBox;
 extern char			*sinkReturnStr;
 extern magic_t		magicInstance;
@@ -60,6 +63,7 @@ extern GtkIconTheme	*defaultTheme;
 extern GtkIconTheme	*gnomeTheme;
 extern GtkNotebook	*mainNotebook;
 extern GList		*pageList;
+extern GtkAccelGroup	*accgroup;
 
 //tool bar
 extern GtkToolItem		*upButton;
@@ -81,6 +85,9 @@ extern GFileMonitor		*monitorDir;
 extern unsigned			pageCnt;
 extern unsigned			iconSize;
 extern unsigned			iconPadding;
+
+//prefs
+extern bool				showMenuIcons;
 
 //global functions
 char* oneLiner(const char *command);

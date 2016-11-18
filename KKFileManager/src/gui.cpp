@@ -23,9 +23,21 @@
 #include <sys/stat.h>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include "globals.h"
+
 GdkPixbuf *pixbuft;
+menuDataStruct	menuData[]=
+	{
+//context
+		{"New File",GTK_STOCK_NEW,0,0,NULL,"newfilemenu",NULL},
+		{"New Folder",GTK_STOCK_DIRECTORY,0,0,NULL,"newfoldermenu",NULL},
+		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
+		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL}
+	};
+
+contextStruct	**contextMenus;
 
 void shutdown(GtkWidget* widget,gpointer data)
 {
@@ -50,6 +62,130 @@ GtkWidget *createNewBox(int orient,bool homog,int spacing)
 #endif
 
 	return(retwidg);
+}
+
+char	keyStrBuffer[32];
+void setHotKeyString(unsigned menunumber)
+{
+	const char	*ckeystr="";
+	const char	*skeystr="";
+
+	if(menuData[menunumber].key!=0)
+		{
+			if(GDK_CONTROL_MASK & menuData[menunumber].mod)
+				ckeystr="Ctrl+";
+			if(GDK_SHIFT_MASK & menuData[menunumber].mod)
+				skeystr="Shift+";
+
+			sprintf(keyStrBuffer,"%s%s%s",skeystr,ckeystr,gdk_keyval_name(menuData[menunumber].key));
+		}
+	else
+		keyStrBuffer[0]=0;
+}
+
+GtkWidget* newMenuItem(unsigned menunumber,GtkWidget *parent)
+{
+	GtkWidget	*menu;
+#ifdef _USEGTK3_
+	char		*menulabel;
+	GtkWidget	*menuhbox;
+	GtkWidget	*pad;
+	GtkWidget	*image;
+	GtkWidget	*ritelabel;
+	char		*labelwithspace;
+
+	menu=gtk_menu_item_new_with_mnemonic(menuData[menunumber].menuLabel);
+	if((showMenuIcons==true) && (menuData[menunumber].stockID!=NULL))
+		{
+			setHotKeyString(menunumber);
+			gtk_widget_destroy(gtk_bin_get_child(GTK_BIN(menu)));
+			menuhbox=createNewBox(NEWHBOX,false,0);
+			pad=createNewBox(NEWHBOX,false,0);
+
+			image=gtk_image_new_from_icon_name(menuData[menunumber].stockID,GTK_ICON_SIZE_MENU);
+			gtk_box_pack_start((GtkBox*)menuhbox,image,false,false,0);
+
+			asprintf(&labelwithspace," %s",menuData[menunumber].menuLabel);
+			gtk_box_pack_start(GTK_BOX(menuhbox),gtk_label_new_with_mnemonic(labelwithspace),false,false,0);
+			free(labelwithspace);
+			gtk_box_pack_start(GTK_BOX(menuhbox),pad,true,true,0);
+
+			ritelabel=gtk_label_new(keyStrBuffer);
+			gtk_widget_set_sensitive(ritelabel,false);
+			gtk_box_pack_start(GTK_BOX(menuhbox),ritelabel,false,false,8);
+
+			gtk_container_add(GTK_CONTAINER(menu),menuhbox);
+		}
+#else
+	if(menuData[menunumber].stockID!=NULL)
+		menu=gtk_image_menu_item_new_from_stock(menuData[menunumber].stockID,NULL);
+	else
+		menu=gtk_menu_item_new_with_mnemonic(menuData[menunumber].menuLabel);
+#endif
+	if(menuData[menunumber].key>0)
+		gtk_widget_add_accelerator((GtkWidget *)menu,"activate",accgroup,menuData[menunumber].key,(GdkModifierType)menuData[menunumber].mod,GTK_ACCEL_VISIBLE);
+
+	if(parent!=NULL)
+		gtk_menu_shell_append(GTK_MENU_SHELL(parent),menu);
+	if(menuData[menunumber].cb!=NULL)
+		g_signal_connect(G_OBJECT(menu),"activate",G_CALLBACK(menuData[menunumber].cb),menuData[menunumber].userData);
+	gtk_widget_set_name(menu,menuData[menunumber].widgetName);
+
+	return(menu);
+}
+
+GtkWidget* newImageMenuItem(unsigned menunumber,GtkWidget *parent)
+{
+	GtkWidget	*menu;
+#ifdef _USEGTK3_
+	char		*menulabel;
+	GtkWidget	*menuhbox;
+	GtkWidget	*pad;
+	GtkWidget	*image;
+	GtkWidget	*ritelabel;
+	char		*labelwithspace;
+
+	menu=gtk_menu_item_new_with_mnemonic(menuData[menunumber].menuLabel);
+	if(showMenuIcons==true)
+		{
+			setHotKeyString(menunumber);
+			gtk_widget_destroy(gtk_bin_get_child(GTK_BIN(menu)));
+			menuhbox=createNewBox(NEWHBOX,false,0);
+			pad=createNewBox(NEWHBOX,false,0);
+
+			image=gtk_image_new_from_icon_name(menuData[menunumber].stockID,GTK_ICON_SIZE_MENU);
+			gtk_box_pack_start((GtkBox*)menuhbox,image,false,false,0);
+
+			//gtk_box_pack_start(GTK_BOX(menuhbox),gtk_label_new(" "),false,false,0);
+			asprintf(&labelwithspace," %s",menuData[menunumber].menuLabel);
+			//gtk_box_pack_start(GTK_BOX(menuhbox),gtk_label_new_with_mnemonic((menuData[menunumber].menuLabel)),false,false,0);
+			gtk_box_pack_start(GTK_BOX(menuhbox),gtk_label_new_with_mnemonic(labelwithspace),false,false,0);
+			free(labelwithspace);
+			gtk_box_pack_start(GTK_BOX(menuhbox),pad,true,true,0);
+
+			ritelabel=gtk_label_new(keyStrBuffer);
+			gtk_widget_set_sensitive(ritelabel,false);
+			gtk_box_pack_start(GTK_BOX(menuhbox),ritelabel,false,false,8);
+
+			gtk_container_add(GTK_CONTAINER(menu),menuhbox);
+		}
+#else
+	GtkWidget	*image;
+	menu=gtk_image_menu_item_new_with_mnemonic(menuData[menunumber].menuLabel);
+	image=gtk_image_new_from_stock(menuData[menunumber].stockID,GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image((GtkImageMenuItem *)menu,image);
+#endif
+	if(menuData[menunumber].key>0)
+		gtk_widget_add_accelerator((GtkWidget *)menu,"activate",accgroup,menuData[menunumber].key,(GdkModifierType)menuData[menunumber].mod,GTK_ACCEL_VISIBLE);
+
+	if(parent!=NULL)
+		gtk_menu_shell_append(GTK_MENU_SHELL(parent),menu);
+	if(menuData[menunumber].cb!=NULL)
+		g_signal_connect(G_OBJECT(menu),"activate",G_CALLBACK(menuData[menunumber].cb),menuData[menunumber].userData);
+	if(menuData[menunumber].widgetName!=NULL)
+		gtk_widget_set_name(menu,menuData[menunumber].widgetName);
+
+	return(menu);
 }
 
 void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_data)
@@ -277,13 +413,30 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
 }
 
+void setUpContextMenus(void)
+{
+	unsigned	menucnt;	
+//enum	{CONTEXTNEWFILE=0,CONTEXTNEWFOLDER,CONTEXTOPEN,CONTEXTDELETE};
+	menucnt=4;//TODO//add use items
+	contextMenus=(contextStruct**)calloc(menucnt,sizeof(contextStruct*));
+	for(int j=0;j<menucnt;j++)//TODO//manky code
+		{
+			contextMenus[j]=(contextStruct*)calloc(1,sizeof(contextStruct));
+			contextMenus[j]->id=j;
+		}
+}
+
 void buidMainGui(const char *startdir)
 {
 	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
 
-	window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(window), 640, 480);
-	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(shutdown),NULL);
+	mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size(GTK_WINDOW(mainWindow), 640, 480);
+	g_signal_connect(G_OBJECT(mainWindow),"delete-event",G_CALLBACK(shutdown),NULL);
+	accgroup=gtk_accel_group_new();
+	gtk_window_add_accel_group((GtkWindow*)mainWindow,accgroup);
+
+	setUpContextMenus();
 
 	mainNotebook=(GtkNotebook*)gtk_notebook_new();
 	g_signal_connect(G_OBJECT(mainNotebook),"switch-page",G_CALLBACK(switchPage),NULL);
@@ -296,8 +449,8 @@ void buidMainGui(const char *startdir)
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainNotebook,true,true,0);
 
-	gtk_container_add((GtkContainer*)window,mainVBox);
+	gtk_container_add((GtkContainer*)mainWindow,mainVBox);
 	gtk_entry_set_text(locationTextBox,startdir);
-	gtk_widget_show_all(window);
+	gtk_widget_show_all(mainWindow);
 }
 

@@ -23,9 +23,35 @@
 
 #include "pages.h"
 
+struct	menuDataStruct
+{
+	const char		*menuLabel;
+	const char		*stockID;
+	char			key;
+	long			mod;
+	void			*cb;
+	const char		*widgetName;
+	gpointer		userData;	
+};
+
+struct	contextStruct
+{
+	pageStruct	*page;
+	GtkTreePath	*treepath;
+	unsigned	id;
+};
+
+enum	{CONTEXTNEWFILE=0,CONTEXTNEWFOLDER,CONTEXTOPEN,CONTEXTDELETE};
+
+extern	menuDataStruct	menuData[];
+extern	contextStruct	**contextMenus;
+
 GtkWidget *createNewBox(int orient,bool homog,int spacing);
 void buidMainGui(const char *startdir);
 void populatePageStore(pageStruct *page);
 void newIconView(pageStruct *page);
+GtkWidget* newMenuItem(unsigned menunumber,GtkWidget *parent);
+GtkWidget* newImageMenuItem(unsigned menunumber,GtkWidget *parent);
+void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page);
 
 #endif
