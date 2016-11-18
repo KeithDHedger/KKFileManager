@@ -26,6 +26,21 @@
 
 #include "globals.h"
 
+GtkToolItem *createNewToolItem(const char *stock,const char *label)
+{
+	GtkToolItem	*button;
+#ifdef _USEGTK3_
+	GtkWidget	*image;
+	image=gtk_image_new_from_icon_name(stock,GTK_ICON_SIZE_LARGE_TOOLBAR);
+	button=gtk_tool_button_new(image,label);
+#else
+	button=gtk_tool_button_new_from_stock(stock);
+	gtk_tool_button_set_label((GtkToolButton*)button,label);
+#endif
+
+	return(button);
+}
+
 void goUp(GtkWidget *widget,gpointer data)
 {
 	char		*hold;
@@ -106,7 +121,12 @@ void setUpToolBar(void)
 //	GtkWidget			*menu;
 	GtkEntryCompletion	*completion;
 	GtkListStore		*store;
-  
+ 
+ 	GtkToolItem			*toolbutton;
+#ifdef _USEGTK3_
+	GtkWidget		*image;
+#endif
+ 
 	for(int j=0;j<(int)strlen(toolBarLayout);j++)
 		{
 			switch(toolBarLayout[j])
@@ -131,31 +151,38 @@ void setUpToolBar(void)
 						break;
 //new tab
 					case 'N':
-						newButton=gtk_tool_button_new_from_stock(GTK_STOCK_ADD);
+						newButton=createNewToolItem(GTK_STOCK_NEW,"New");
+						//gtk_toolbar_insert(toolBar,newButton,-1);
+						//g_signal_connect(G_OBJECT(newButton),"clicked",G_CALLBACK(newFile),NULL);
+						//gtk_widget_set_tooltip_text((GtkWidget*)newButton,NEW_TT_LABEL);
+//
+//
+						//newButton=gtk_tool_button_new_from_stock(GTK_STOCK_ADD);
 						gtk_toolbar_insert(toolBar,newButton,-1);
 						g_signal_connect(G_OBJECT(newButton),"clicked",G_CALLBACK(goNew),NULL);
 						break;
 //go home
 					case 'H':
-						homeButton=gtk_tool_button_new_from_stock(GTK_STOCK_HOME);
+						homeButton=createNewToolItem(GTK_STOCK_HOME,"Home");
+						//gtk_tool_button_new_from_stock(GTK_STOCK_HOME);
 						gtk_toolbar_insert(toolBar,homeButton,-1);
 						g_signal_connect(G_OBJECT(homeButton),"clicked",G_CALLBACK(goHome),NULL);
 						break;
 //go up
 					case 'U':
-						upButton=gtk_tool_button_new_from_stock(GTK_STOCK_GO_UP);
+						upButton=createNewToolItem(GTK_STOCK_GO_UP,"Up");
+						//gtk_tool_button_new_from_stock(GTK_STOCK_GO_UP);
 						gtk_toolbar_insert(toolBar,upButton,-1);
 						g_signal_connect(G_OBJECT(upButton),"clicked",G_CALLBACK(goUp),NULL);
 						break;
 //go back
 					case 'B':
-//						{
-//#ifdef _USEGTK3_
-//						image=gtk_image_new_from_icon_name(GTK_STOCK_GO_BACK,GTK_ICON_SIZE_LARGE_TOOLBAR);
-//						backButton=gtk_menu_tool_button_new(image,BACK_TOOLBAR_LABEL);
-//#else
+#ifdef _USEGTK3_
+						image=gtk_image_new_from_icon_name(GTK_STOCK_GO_BACK,GTK_ICON_SIZE_LARGE_TOOLBAR);
+						backButton=gtk_menu_tool_button_new(image,"Back");
+#else
 						backButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
-//#endif
+#endif
 
 						gtk_toolbar_insert(toolBar,backButton,-1);
 #if 0
@@ -172,15 +199,15 @@ void setUpToolBar(void)
 						break;
 //go forward
 					case 'F':
-//#ifdef _USEGTK3_
-//						image=gtk_image_new_from_icon_name(GTK_STOCK_GO_FORWARD,GTK_ICON_SIZE_LARGE_TOOLBAR);
-//						forwardButton=gtk_menu_tool_button_new(image,FORWARD_TOOLBAR_LABEL);
-//#else
+#ifdef _USEGTK3_
+						image=gtk_image_new_from_icon_name(GTK_STOCK_GO_FORWARD,GTK_ICON_SIZE_LARGE_TOOLBAR);
+						forwardButton=gtk_menu_tool_button_new(image,"Forward");
+#else
 						forwardButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_GO_FORWARD);
-//#endif
+#endif
 						gtk_toolbar_insert(toolBar,forwardButton,-1);
-//						g_signal_connect(G_OBJECT(forwardButton),"clicked",G_CALLBACK(navigateHistory),(void*)NAVNEXT);
-//						gtk_widget_set_tooltip_text((GtkWidget*)forwardButton,FORWARD_TT_LABEL);
+						//g_signal_connect(G_OBJECT(forwardButton),"clicked",G_CALLBACK(navigateHistory),(void*)NAVNEXT);
+						//gtk_widget_set_tooltip_text((GtkWidget*)forwardButton,FORWARD_TT_LABEL);
 #if 0
 //foward history
 						menu=gtk_menu_new();

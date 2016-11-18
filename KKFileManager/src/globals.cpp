@@ -57,6 +57,13 @@ GFileMonitor	*monitorDir=NULL;
 
 //tabs
 unsigned		pageCnt=1000;
+#ifdef _USEGTK3_
+unsigned		iconSize=48;
+unsigned		iconPadding=16;
+#else
+unsigned		iconSize=96;
+unsigned		iconPadding=16;
+#endif
 
 //global functions
 char* oneLiner(const char *command)
@@ -98,3 +105,4 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 			monitorFolderForPage(page);
 		}
 }
+

@@ -23,5 +23,6 @@
 #define _CALLBACKS_
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page);
+gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
 
 #endif

@@ -15,15 +15,15 @@ Although the application is installable it is still in it's infancy so best is t
 
 
 TODO ( in no particular order ):<br>
-add gtk3 functionality<br>
+<del>add gtk3 functionality</del><br>
 add forward/back<br>
 add forward back history<br>
 add 'open teminal here' to file menu<br>
 ADD file menu!<br>
 add menubar<br>
-add location bar<br>
+<del>add location bar</del><br>
 add thumbnails<br>
-add tabs<br>
+<del>add tabs</de/><br>
 <br>
 ...
 

@@ -1,4 +1,5 @@
 0.0.2
+Made gtk3 compatable.
 Added better folder change monitoring.
 Code clean.
 Added multiple tabs.

@@ -25,10 +25,26 @@
 #include <magic.h>
 #include <map>
 
+#include "config.h"
 #include "toolbar.h"
 #include "gui.h"
 #include "pages.h"
 #include "callbacks.h"
+
+#ifdef _USEGTK3_
+//menus
+//documents
+#define GTK_STOCK_NEW "document-new"
+//odds
+#define GTK_STOCK_ADD "list-add"
+
+//icons
+#define GTK_STOCK_GO_FORWARD "go-next"
+#define GTK_STOCK_GO_BACK "go-previous"
+#define GTK_STOCK_GO_UP "go-up"
+#define GTK_STOCK_HOME "go-home"
+#endif
+
 
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
@@ -63,6 +79,8 @@ extern GFileMonitor		*monitorDir;
 
 //tabs
 extern unsigned			pageCnt;
+extern unsigned			iconSize;
+extern unsigned			iconPadding;
 
 //global functions
 char* oneLiner(const char *command);

@@ -22,6 +22,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>
 
 #include "globals.h"
 GdkPixbuf *pixbuft;
@@ -228,7 +229,6 @@ void populatePageStore(pageStruct *page)
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 {
 	printf("clicked\n");
-	GtkListStore	*store;
 	gchar			*path;
 	GtkTreeIter		iter;
 	gboolean		isdir;
@@ -259,11 +259,13 @@ void newIconView(pageStruct *page)
 {
 	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
 	page->iconView=(GtkIconView*)gtk_icon_view_new();
+	
 	gtk_icon_view_set_pixbuf_column(GTK_ICON_VIEW(page->iconView),PIXBUF_COLUMN);
 	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),TEXT_COLUMN);
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
 	g_signal_connect (page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
+	g_signal_connect (page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
 	populatePageStore(page);
 
 	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(page->iconView),GTK_SELECTION_SINGLE);
@@ -271,13 +273,12 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_columns(GTK_ICON_VIEW(page->iconView),-1);
 	gtk_icon_view_set_reorderable(GTK_ICON_VIEW(page->iconView),true);
 
-	gtk_icon_view_set_item_width ((GtkIconView *)page->iconView,96);
+	gtk_icon_view_set_item_width(page->iconView,iconSize);
+	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
 }
 
 void buidMainGui(const char *startdir)
 {
-	GtkWidget	*vbox;
-
 	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
 
 	window=gtk_window_new(GTK_WINDOW_TOPLEVEL);

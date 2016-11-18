@@ -54,10 +54,18 @@ int main(int argc,char **argv)
 
 	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-symbolic-link",16,(GtkIconLookupFlags)0);
 	symLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
+#ifdef _USEGTK3_
+	g_object_unref(info);
+#else
 	gtk_icon_info_free(info);
+#endif
 	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-unreadable",16,(GtkIconLookupFlags)0);
 	brokenLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
+#ifdef _USEGTK3_
+	g_object_unref(info);
+#else
 	gtk_icon_info_free(info);
+#endif
 
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
@@ -65,9 +73,6 @@ int main(int argc,char **argv)
 	buidMainGui(startdir);
 
 	free(origpath);
-//	dirPath=g_file_new_for_path(startdir);
-//	monitorDir=g_file_monitor_directory(dirPath,(GFileMonitorFlags)G_FILE_MONITOR_SEND_MOVED,NULL,NULL);
-//	g_signal_connect(G_OBJECT(monitorDir),"changed",G_CALLBACK(dirChanged),NULL);
 
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
 	gtk_main();
