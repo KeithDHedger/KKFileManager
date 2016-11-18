@@ -41,35 +41,16 @@ void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitor
 void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 {
 	char		buffer[PATH_MAX+20];
-	unsigned	newFileCnt=0;
-	unsigned	newFolderCnt=0;
 	const char	*type="Folder";
 	const char	*command="mkdir";
 	unsigned	cnt=0;
 
-printf("contextid=%u\n",ctx->id);
+//printf("contextid=%u\n",ctx->id);
 	switch(ctx->id)
 		{
 			case CONTEXTNEWFILE:
 				type="File";
 				command="touch";
-//				sprintf(buffer,"%s/New File",ctx->page->thisFolder);
-//				if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-//					{
-//						newFileCnt=0;
-//						while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-//							{
-//								newFileCnt++;
-//								sprintf(buffer,"%s/New File %u",ctx->page->thisFolder,newFileCnt);
-//							}
-//						sprintf(buffer,"touch \"%s/New File %u\"",ctx->page->thisFolder,newFileCnt);
-//					}
-//				else
-//					{
-//						sprintf(buffer,"touch \"%s/New File\"",ctx->page->thisFolder);
-//					}
-//				system(buffer);
-//				break;
 			case CONTEXTNEWFOLDER:
 				sprintf(buffer,"%s/New %s",ctx->page->thisFolder,type);
 				if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
