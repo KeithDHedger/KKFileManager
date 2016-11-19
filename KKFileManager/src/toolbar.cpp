@@ -71,7 +71,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	setCurrentFolderForTab(gtk_entry_get_text(entry),page);
 }
 
-void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
+gboolean getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
 	char			*command;
 	FILE			*fp=NULL;
@@ -81,19 +81,41 @@ void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	GtkEntryCompletion	*completion;
 
 	if(event->key.keyval==GDK_KEY_Up)
-		return;
+		return(false);
 	if(event->key.keyval==GDK_KEY_Down)
-		return;
+		return(false);
 	if(event->key.keyval==GDK_KEY_Return)
 		{
+		printf("xxx\n");
 			goLocation(entry,NULL,NULL);
-			return;
+			return(false);
+		}
+
+	if(event->key.keyval==GDK_KEY_Tab)
+		{
+		printf("xxx\n");
+		gtk_editable_set_position ((GtkEditable *)entry,-1);
+		//gtk_editable_select_region ((GtkEditable *)entry,
+         //                   0,
+          //                  0);
+					//completion=gtk_entry_get_completion(entry);
+				//	gtk_entry_completion_complete(completion);
+			
+			goLocation(entry,NULL,NULL);
+				//	completion=gtk_entry_get_completion(entry);
+				//	list=(GtkListStore*)gtk_entry_completion_get_model(completion);
+        		//	gtk_list_store_clear(list);
+				//	
+				//	gtk_entry_completion_complete(completion);
+
+			//g_signal_emit_by_name ((gpointer) entry,"button-release-event",(GtkWidget*)entry,NULL,NULL);
+			return(false);
 		}
 
 	const char	*text=gtk_entry_get_text(entry);
 	if(text!=NULL && strlen(text)>0)
 		{
-			asprintf(&command,"ls -d1 /%s*/",text);
+			asprintf(&command,"ls -d1 /%s*/ 2>/dev/null",text);
 			fp=popen(command,"r");
 			if(fp!=NULL)
 				{
@@ -113,6 +135,7 @@ void getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 			free(command);
 			pclose(fp);
 		}
+	return(false);
 }
 
 void setUpToolBar(void)
@@ -139,9 +162,12 @@ void setUpToolBar(void)
 						gtk_tool_item_set_expand(locationButton,true);
 						gtk_toolbar_insert(toolBar,locationButton,-1);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-release-event",G_CALLBACK(getLocation),locationTextBox);
+						//g_signal_connect(G_OBJECT(locationTextBox),"key-press-event",G_CALLBACK(getLocation),locationTextBox);
 						g_signal_connect(G_OBJECT(locationTextBox),"activate",G_CALLBACK(goLocation),locationTextBox);
 						    /* Create the completion object */
 						completion=gtk_entry_completion_new();
+						gtk_entry_completion_set_inline_completion(completion,true);
+
 						gtk_entry_set_completion(locationTextBox,completion);
 						g_object_unref(completion);
 						store=gtk_list_store_new(1,G_TYPE_STRING);

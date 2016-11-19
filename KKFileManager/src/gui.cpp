@@ -244,7 +244,7 @@ GdkPixbuf* getPixBuf(const char *file)
 	char			*newf=NULL;
 	bool			isbrokenlink=false;
 
-	mime=getMimeType(file);
+	mime=getMimeType(file); 
 //printf("mime=%s file %s\n",mime,file);
 	if(g_file_test(file,G_FILE_TEST_IS_SYMLINK)==true)
 		{
@@ -360,35 +360,6 @@ void populatePageStore(pageStruct *page)
 		}
 	free(command);
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);
-}
-
-void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
-{
-	printf("clicked\n");
-	gchar			*path;
-	GtkTreeIter		iter;
-	gboolean		isdir;
-	char			*command;
-
-	gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,tree_path);
-	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-	//printf("path=%s\n",path);
-	//printf("---%i\n",isdir);
-	if(isdir==true)
-		{
-			free(page->thisFolder);
-			page->thisFolder=strdup(path);
-			gtk_entry_set_text(locationTextBox,page->thisFolder);
-			populatePageStore(page);
-			monitorFolderForPage(page);
-		}
-	else
-		{
-			asprintf(&command,"mimeopen -L -n \"%s\" &",path);
-			system(command);
-			free(command);
-		}
-	free(path);
 }
 
 void newIconView(pageStruct *page)

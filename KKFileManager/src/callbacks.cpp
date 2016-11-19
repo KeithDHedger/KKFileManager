@@ -23,12 +23,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-#include <gdk/gdk.h>
+//#include <gtk/gtk.h>
+//#include <gdk/gdkkeysyms.h>
+//#include <gdk/gdk.h>
 
-//#include "globals.h"
-#include "gui.h"
+#include "globals.h"
+//#include "gui.h"
 
 GtkWidget	*tabMenu;
 
@@ -44,6 +44,10 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	const char	*type="Folder";
 	const char	*command="mkdir";
 	unsigned	cnt=0;
+	gchar		*path;
+	GtkTreeIter	iter;
+	gboolean	isdir;
+	int			result=0;
 
 //printf("contextid=%u\n",ctx->id);
 	switch(ctx->id)
@@ -73,7 +77,12 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				selectItem(ctx->page->iconView,ctx->treepath,ctx->page);
 				break;
 			case CONTEXTDELETE:
-				printf("do delete\n");
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+
+				result=yesNo("Really delete\n",path);
+				if(result==GTK_RESPONSE_YES)
+					printf("do delete\n");
 				break;
 			default:
 				printf("unknown\n");
@@ -126,5 +135,33 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	return(false);
 }
 
+void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
+{
+	printf("clicked\n");
+	gchar			*path;
+	GtkTreeIter		iter;
+	gboolean		isdir;
+	char			*command;
+
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,tree_path);
+	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+	//printf("path=%s\n",path);
+	//printf("---%i\n",isdir);
+	if(isdir==true)
+		{
+			free(page->thisFolder);
+			page->thisFolder=strdup(path);
+			gtk_entry_set_text(locationTextBox,page->thisFolder);
+			populatePageStore(page);
+			monitorFolderForPage(page);
+		}
+	else
+		{
+			asprintf(&command,"mimeopen -L -n \"%s\" &",path);
+			system(command);
+			free(command);
+		}
+	free(path);
+}
 
 

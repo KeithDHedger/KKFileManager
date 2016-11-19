@@ -40,6 +40,8 @@ GtkNotebook		*mainNotebook=NULL;
 GList			*pageList=NULL;
 GtkAccelGroup	*accgroup=NULL;
 
+bool			done=false;
+
 //tool bar
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
@@ -110,5 +112,20 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 			populatePageStore(page);
 			monitorFolderForPage(page);
 		}
+}
+
+int yesNo(char *question,char *file)
+{
+	GtkWidget	*dialog;
+	int			result;
+
+	dialog=gtk_message_dialog_new(GTK_WINDOW(mainWindow),GTK_DIALOG_DESTROY_WITH_PARENT,GTK_MESSAGE_WARNING,GTK_BUTTONS_NONE,"%s %s",question,file);
+
+	gtk_dialog_add_buttons((GtkDialog*)dialog,GTK_STOCK_YES,GTK_RESPONSE_YES,GTK_STOCK_NO,GTK_RESPONSE_CANCEL,NULL);
+	gtk_window_set_title(GTK_WINDOW(dialog),"What Do You Want To Do?");
+	result=gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+
+	return(result);
 }
 

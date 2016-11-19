@@ -24,6 +24,7 @@
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page);
 gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
-void contextMenuActivate(GtkMenuItem *menuitem,pageStruct *page);
+void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx);
+void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page);
 
 #endif

@@ -26,9 +26,9 @@
 #include <map>
 
 #include "config.h"
+#include "pages.h"
 #include "toolbar.h"
 #include "gui.h"
-#include "pages.h"
 #include "callbacks.h"
 
 #ifdef _USEGTK3_
@@ -65,6 +65,8 @@ extern GtkNotebook	*mainNotebook;
 extern GList		*pageList;
 extern GtkAccelGroup	*accgroup;
 
+extern bool			done;
+
 //tool bar
 extern GtkToolItem		*upButton;
 extern GtkToolItem		*backButton;
@@ -93,5 +95,6 @@ extern bool				showMenuIcons;
 char* oneLiner(const char *command);
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page);
+int yesNo(char *question,char *file);
 
 #endif

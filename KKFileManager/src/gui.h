@@ -21,7 +21,8 @@
 #ifndef _GUI_
 #define _GUI_
 
-#include "pages.h"
+//#include "pages.h"
+#include "globals.h"
 
 struct	menuDataStruct
 {
@@ -52,6 +53,6 @@ void populatePageStore(pageStruct *page);
 void newIconView(pageStruct *page);
 GtkWidget* newMenuItem(unsigned menunumber,GtkWidget *parent);
 GtkWidget* newImageMenuItem(unsigned menunumber,GtkWidget *parent);
-void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page);
+unsigned hashMimeType(char* cp);
 
 #endif
