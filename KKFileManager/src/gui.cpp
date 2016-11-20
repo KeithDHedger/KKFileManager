@@ -196,7 +196,10 @@ void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_dat
 
 	pageStruct	*page=getPageStructByIDFromList((unsigned)(long)g_object_get_data((GObject*)widg,"pageid"));
 	if(page!=NULL)
-		gtk_entry_set_text(locationTextBox,page->thisFolder);
+		{
+			gtk_entry_set_text(locationTextBox,page->thisFolder);
+			gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
+		}
 }
 
 void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool isdir,pageStruct *page)
@@ -387,8 +390,7 @@ void newIconView(pageStruct *page)
 void setUpContextMenus(void)
 {
 	unsigned	menucnt;	
-//enum	{CONTEXTNEWFILE=0,CONTEXTNEWFOLDER,CONTEXTOPEN,CONTEXTDELETE};
-	menucnt=4;//TODO//add use items
+	menucnt=4;//TODO//add user items
 	contextMenus=(contextStruct**)calloc(menucnt,sizeof(contextStruct*));
 	for(int j=0;j<menucnt;j++)//TODO//manky code
 		{
@@ -422,6 +424,7 @@ void buidMainGui(const char *startdir)
 
 	gtk_container_add((GtkContainer*)mainWindow,mainVBox);
 	gtk_entry_set_text(locationTextBox,startdir);
+	gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
 	gtk_widget_show_all(mainWindow);
 }
 

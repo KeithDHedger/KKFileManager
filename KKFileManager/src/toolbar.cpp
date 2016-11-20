@@ -64,10 +64,16 @@ void goNew(GtkWidget *widget,gpointer data)
 
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
+	char		*command;
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
 	if(g_file_test(gtk_entry_get_text(entry),G_FILE_TEST_IS_DIR)==false)
-		return;
+		{
+			asprintf(&command,"mimeopen -L -n \"%s\" &",gtk_entry_get_text(entry));
+			system(command);
+			free(command);
+			return;
+		}
 	setCurrentFolderForTab(gtk_entry_get_text(entry),page);
 }
 
@@ -147,8 +153,8 @@ void setUpToolBar(void)
 						gtk_toolbar_insert(toolBar,locationButton,-1);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-release-event",G_CALLBACK(getLocation),locationTextBox);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-press-event",G_CALLBACK(trapTabKey),locationTextBox);
-						g_signal_connect(G_OBJECT(locationTextBox),"activate",G_CALLBACK(goLocation),locationTextBox);
-						    /* Create the completion object */
+						//g_signal_connect(G_OBJECT(locationTextBox),"activate",G_CALLBACK(goLocation),locationTextBox);
+						/* Create the completion object */
 						completion=gtk_entry_completion_new();
 						gtk_entry_completion_set_inline_completion(completion,true);
 						gtk_entry_completion_set_popup_single_match(completion,false);

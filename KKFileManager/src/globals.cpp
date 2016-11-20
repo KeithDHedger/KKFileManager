@@ -112,6 +112,7 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 			free(page->thisFolder);
 			page->thisFolder=strdup((char*)newfolder);
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
+			gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
 			populatePageStore(page);
 			monitorFolderForPage(page);
 			completion=gtk_entry_get_completion(locationTextBox);
