@@ -99,6 +99,9 @@ char* oneLiner(const char *command)
 
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 {
+	GtkEntryCompletion	*completion;
+	GtkListStore		*list;
+
 	if(g_file_test(newfolder,G_FILE_TEST_IS_DIR)==false)
 		return;
 
@@ -111,6 +114,10 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
 			populatePageStore(page);
 			monitorFolderForPage(page);
+			completion=gtk_entry_get_completion(locationTextBox);
+			list=(GtkListStore*)gtk_entry_completion_get_model(completion);
+        	gtk_list_store_clear(list);
+			gtk_entry_completion_complete(completion);
 		}
 }
 
