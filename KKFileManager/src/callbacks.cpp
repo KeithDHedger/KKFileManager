@@ -94,6 +94,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	GtkWidget	*menuitem;
     GtkTreePath	*treepath;
 
+	fromPageID=page->pageID;
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
 			gtk_icon_view_unselect_all (page->iconView);

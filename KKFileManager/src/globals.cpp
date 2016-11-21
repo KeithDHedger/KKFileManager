@@ -73,6 +73,9 @@ unsigned		iconPadding=16;
 //prefs
 bool			showMenuIcons=true;
 
+//dand
+unsigned		fromPageID=0;
+
 //global functions
 char* oneLiner(const char *command)
 {

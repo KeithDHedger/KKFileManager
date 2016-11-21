@@ -91,6 +91,9 @@ extern unsigned			iconPadding;
 //prefs
 extern bool				showMenuIcons;
 
+//dand
+extern unsigned			fromPageID;
+
 //global functions
 char* oneLiner(const char *command);
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);

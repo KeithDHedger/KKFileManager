@@ -56,7 +56,6 @@ void addNewPage(char *startdir)
 	gtk_scrolled_window_set_policy(page->scrollBox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 	page->thisFolder=strdup(startdir);
 	page->pageID=pageCnt;
-	pageCnt++;
 
 	pageList=g_list_prepend(pageList,(gpointer)page);
 
@@ -72,6 +71,7 @@ void addNewPage(char *startdir)
 	gtk_notebook_set_tab_reorderable(mainNotebook,page->vBox,true);
 	g_object_set_data(G_OBJECT(page->vBox),"pageid",(gpointer)(long)page->pageID);
 	gtk_widget_show_all((GtkWidget*)mainNotebook);
+	pageCnt++;
 }
 
 void monitorFolderForPage(pageStruct *page)
