@@ -34,6 +34,7 @@ GtkWidget	*tabMenu;
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
+printf("folder=%s\n",page->thisFolder);
 	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type))
 		populatePageStore(page);
 }
@@ -97,7 +98,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	fromPageID=page->pageID;
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
-			gtk_icon_view_unselect_all (page->iconView);
+			gtk_icon_view_unselect_all(page->iconView);
 			treepath=gtk_icon_view_get_path_at_pos (page->iconView,event->x, event->y);
 			if(G_IS_OBJECT(tabMenu))
 				{
@@ -166,4 +167,96 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 	free(path);
 }
 
+void fileAction(const char *frompath,const char *topath,bool isdir,int action)
+{
+	char		*command=NULL;
+	const char	*recursive;
+	char		*uniquetopath;
+	char		*newtopath=NULL;
+
+	if(isdir==true)
+		recursive="-r";
+	else
+		recursive="";
+
+	if(g_file_test(topath,G_FILE_TEST_IS_DIR)==true)
+		{
+			newtopath=g_path_get_basename(frompath);
+			asprintf(&command,"%s/%s",topath,newtopath);
+			g_free(newtopath);
+			uniquetopath=getUniqueFilename(command);
+			g_free(command);
+		}
+	else
+		uniquetopath=getUniqueFilename(topath);
+
+	switch(action)
+		{
+			case GDK_ACTION_COPY:
+				asprintf(&command,"cp %s \"%s\" \"%s\"",recursive,frompath,uniquetopath);
+				break;
+			case GDK_ACTION_LINK:
+				asprintf(&command,"ln -sv \"%s\" \"%s\"",frompath,uniquetopath);
+				break;
+			default:
+				asprintf(&command,"mv \"%s\" \"%s\"",frompath,uniquetopath);
+				break;
+		}
+	if(command!=NULL)
+		{
+			printf("command=%s\n",command);
+			system(command);
+			free(command);
+		}
+	free(uniquetopath);
+}
+
+gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page)
+{
+printf("dand\n");
+	gchar			*topath;
+	gchar			*frompath;
+	GtkTreeIter		iter;
+	gboolean		isdir;
+    GtkTreePath		*treepath;
+	GList			*list=NULL;
+	bool			retval=false;
+	GdkDragAction	action;
+
+	printf("to pageid=%u\n",page->pageID);
+	printf("from pageid=%u\n",fromPageID);
+
+	action=gdk_drag_context_get_actions(context);
+	printf("action=%u copy=%u move=%u link=%u default=%u\n",action,GDK_ACTION_COPY,GDK_ACTION_MOVE,GDK_ACTION_LINK,GDK_ACTION_DEFAULT);
+	pageStruct	*frompage;
+	
+	frompage=getPageStructByIDFromList(fromPageID);
+	list=gtk_icon_view_get_selected_items((GtkIconView*)frompage->iconView);
+
+	treepath=gtk_icon_view_get_path_at_pos(page->iconView,x,y);
+	if(treepath!=NULL)
+		{
+			gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,treepath);
+			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&topath,ISDIR,&isdir,-1);
+			printf(">>>to path=%s<<<\n",topath);
+			retval=true;
+		}
+	else
+		{
+			topath=page->thisFolder;
+			printf(">>>to path=%s<<<\n",topath);
+		}
+
+	while(list!=NULL)
+		{
+			gtk_tree_model_get_iter((GtkTreeModel *)frompage->listStore,&iter,(GtkTreePath *)list->data);
+			gtk_tree_model_get(GTK_TREE_MODEL(frompage->listStore),&iter,FILEPATH,&frompath,ISDIR,&isdir,-1);
+			printf(">>>from path=%s<<<\n",frompath);
+			fileAction(frompath,topath,isdir,action);
+			list=list->next;
+		}
+	g_list_foreach(list,(GFunc)gtk_tree_path_free,NULL);
+	g_list_free(list);
+    return(retval);
+}
 

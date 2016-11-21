@@ -366,54 +366,11 @@ void populatePageStore(pageStruct *page)
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);
 }
 
-void doStartDrag(GtkWidget        *widget,
-               GdkDragContext   *drag_context,
-               gpointer          user_data)
-{
-printf("here\n");
-//gtk_selection_data_set_text (data,"hello world\n",-1);
-}
-
-gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page)
-{
-printf("dand\n");
-	gchar		*path;
-	GtkTreeIter	iter;
-	gboolean	isdir;
-    GtkTreePath	*treepath;
-	GList		*list=NULL;
-	bool		retval=false;
-
-	printf("to pageid=%u\n",page->pageID);
-	printf("from pageid=%u\n",fromPageID);
-
-	pageStruct	*frompage;
-	
-	frompage=getPageStructByIDFromList(fromPageID);
-	list=gtk_icon_view_get_selected_items((GtkIconView*)frompage->iconView);
-	gtk_tree_model_get_iter((GtkTreeModel *)frompage->listStore,&iter,(GtkTreePath *)list->data);
-	gtk_tree_model_get(GTK_TREE_MODEL(frompage->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-	printf(">>>from path=%s<<<\n",path);
-
-	treepath=gtk_icon_view_get_path_at_pos(page->iconView,x,y);
-	if(treepath!=NULL)
-		{
-			gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,treepath);
-			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-			printf(">>>to path=%s<<<\n",path);
-			retval=true;
-		}
-	else
-		printf(">>>to path=root<<<\n");
-	g_list_foreach(list,(GFunc)gtk_tree_path_free,NULL);
-	g_list_free(list);
-    return(retval);
-}
-
 void newIconView(pageStruct *page)
 {
-	char	buffer[256];
+	char	buffer[64];
 	sprintf(buffer,"GtkIconView-%u",pageCnt);
+
 	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
 	page->iconView=(GtkIconView*)gtk_icon_view_new();
 	gtk_icon_view_set_pixbuf_column(GTK_ICON_VIEW(page->iconView),PIXBUF_COLUMN);
@@ -424,25 +381,18 @@ void newIconView(pageStruct *page)
 	g_signal_connect (page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
 	populatePageStore(page);
 
-	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(page->iconView),GTK_SELECTION_SINGLE);
+	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(page->iconView),GTK_SELECTION_MULTIPLE);
 	gtk_icon_view_set_item_orientation(GTK_ICON_VIEW(page->iconView),GTK_ORIENTATION_VERTICAL);
 	gtk_icon_view_set_columns(GTK_ICON_VIEW(page->iconView),-1);
-	//gtk_icon_view_set_reorderable(page->iconView,false);
-	//gtk_icon_view_set_reorderable(GTK_ICON_VIEW(page->iconView),true);
 
-	//target=(GtkTargetEntry*)calloc(1,sizeof(GtkTargetEntry));
-	target=g_slice_new(GtkTargetEntry);
+	target=(GtkTargetEntry*)calloc(1,sizeof(GtkTargetEntry));
 	target->target="InternalTarget";
 	target->flags=GTK_TARGET_SAME_APP;
 	target->info=0;
-    gtk_icon_view_enable_model_drag_source( GTK_ICON_VIEW( page->iconView ),
-                                            GDK_BUTTON1_MASK, target, 1,
-                                            GDK_ACTION_MOVE );
-    gtk_icon_view_enable_model_drag_dest( GTK_ICON_VIEW( page->iconView ), target, 1,
-                                          GDK_ACTION_MOVE );
+    gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
+    gtk_icon_view_enable_model_drag_dest(page->iconView,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
 
     g_signal_connect( G_OBJECT( page->iconView ), "drag-drop",G_CALLBACK(doDrop), (gpointer)page );
-   // g_signal_connect( G_OBJECT( page->iconView ), "drag-begin",G_CALLBACK(doStartDrag), (gpointer)page );
 
 
 	gtk_icon_view_set_item_width(page->iconView,iconSize);

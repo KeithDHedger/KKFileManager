@@ -122,6 +122,7 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 			list=(GtkListStore*)gtk_entry_completion_get_model(completion);
         	gtk_list_store_clear(list);
 			gtk_entry_completion_complete(completion);
+			gtk_widget_show_all(page->vBox);
 		}
 }
 
@@ -138,5 +139,28 @@ int yesNo(char *question,char *file)
 	gtk_widget_destroy(dialog);
 
 	return(result);
+}
+
+char *getUniqueFilename(const char *path)
+{
+	char		buffer[PATH_MAX+20];
+	unsigned	cnt=0;
+
+	sprintf(buffer,"%s",path);
+	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+		{
+			cnt=0;
+			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+				{
+					cnt++;
+					sprintf(buffer,"%s %u",path,cnt);
+				}
+		}
+	else
+		{
+			sprintf(buffer,"%s",path);
+		}
+	return(strdup(buffer));
+
 }
 
