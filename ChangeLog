@@ -1,3 +1,6 @@
+0.0.3
+'New' now opens new tab in same directory as active tab.
+
 0.0.2
 Added 'Delete' code to context menu.
 Folder monitoring now works properly.

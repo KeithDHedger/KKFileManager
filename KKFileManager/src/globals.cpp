@@ -126,7 +126,7 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 		}
 }
 
-int yesNo(char *question,char *file)
+int yesNo(const char *question,char *file)
 {
 	GtkWidget	*dialog;
 	int			result;

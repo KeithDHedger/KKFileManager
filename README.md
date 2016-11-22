@@ -24,6 +24,8 @@ add menubar<br>
 <del>add location bar</del><br>
 add thumbnails<br>
 <del>add tabs</de/><br>
+add left panel for disks/bookmarks<br>
+add move/copy etc to context menu<br>
 <br>
 ...
 

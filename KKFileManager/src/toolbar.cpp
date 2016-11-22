@@ -59,7 +59,11 @@ void goHome(GtkWidget *widget,gpointer data)
 
 void goNew(GtkWidget *widget,gpointer data)
 {
-	addNewPage((char*)getenv("HOME"));
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+	if(page!=NULL)
+		addNewPage(page->thisFolder);
+	else
+		addNewPage((char*)getenv("HOME"));
 }
 
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
@@ -135,7 +139,7 @@ void setUpToolBar(void)
 {
 	GtkEntryCompletion	*completion;
 	GtkListStore		*store;
- 	GtkToolItem			*toolbutton;
+// 	GtkToolItem			*toolbutton;
 #ifdef _USEGTK3_
 	GtkWidget		*image;
 #endif
@@ -153,7 +157,6 @@ void setUpToolBar(void)
 						gtk_toolbar_insert(toolBar,locationButton,-1);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-release-event",G_CALLBACK(getLocation),locationTextBox);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-press-event",G_CALLBACK(trapTabKey),locationTextBox);
-						//g_signal_connect(G_OBJECT(locationTextBox),"activate",G_CALLBACK(goLocation),locationTextBox);
 						/* Create the completion object */
 						completion=gtk_entry_completion_new();
 						gtk_entry_completion_set_inline_completion(completion,true);
@@ -168,26 +171,18 @@ void setUpToolBar(void)
 //new tab
 					case 'N':
 						newButton=createNewToolItem(GTK_STOCK_NEW,"New");
-						//gtk_toolbar_insert(toolBar,newButton,-1);
-						//g_signal_connect(G_OBJECT(newButton),"clicked",G_CALLBACK(newFile),NULL);
-						//gtk_widget_set_tooltip_text((GtkWidget*)newButton,NEW_TT_LABEL);
-//
-//
-						//newButton=gtk_tool_button_new_from_stock(GTK_STOCK_ADD);
 						gtk_toolbar_insert(toolBar,newButton,-1);
 						g_signal_connect(G_OBJECT(newButton),"clicked",G_CALLBACK(goNew),NULL);
 						break;
 //go home
 					case 'H':
 						homeButton=createNewToolItem(GTK_STOCK_HOME,"Home");
-						//gtk_tool_button_new_from_stock(GTK_STOCK_HOME);
 						gtk_toolbar_insert(toolBar,homeButton,-1);
 						g_signal_connect(G_OBJECT(homeButton),"clicked",G_CALLBACK(goHome),NULL);
 						break;
 //go up
 					case 'U':
 						upButton=createNewToolItem(GTK_STOCK_GO_UP,"Up");
-						//gtk_tool_button_new_from_stock(GTK_STOCK_GO_UP);
 						gtk_toolbar_insert(toolBar,upButton,-1);
 						g_signal_connect(G_OBJECT(upButton),"clicked",G_CALLBACK(goUp),NULL);
 						break;

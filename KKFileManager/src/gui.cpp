@@ -386,7 +386,7 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_columns(GTK_ICON_VIEW(page->iconView),-1);
 
 	target=(GtkTargetEntry*)calloc(1,sizeof(GtkTargetEntry));
-	target->target="InternalTarget";
+	target->target=(gchar*)"InternalTarget";
 	target->flags=GTK_TARGET_SAME_APP;
 	target->info=0;
     gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
@@ -405,7 +405,7 @@ void setUpContextMenus(void)
 	unsigned	menucnt;	
 	menucnt=4;//TODO//add user items
 	contextMenus=(contextStruct**)calloc(menucnt,sizeof(contextStruct*));
-	for(int j=0;j<menucnt;j++)//TODO//manky code
+	for(unsigned j=0;j<menucnt;j++)//TODO//manky code
 		{
 			contextMenus[j]=(contextStruct*)calloc(1,sizeof(contextStruct));
 			contextMenus[j]->id=j;
