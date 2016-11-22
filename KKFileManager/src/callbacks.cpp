@@ -23,12 +23,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-//#include <gtk/gtk.h>
-//#include <gdk/gdkkeysyms.h>
-//#include <gdk/gdk.h>
-
 #include "globals.h"
-//#include "gui.h"
 
 GtkWidget	*tabMenu;
 
@@ -50,7 +45,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	gboolean	isdir;
 	int			result=0;
 
-//printf("contextid=%u\n",ctx->id);
 	switch(ctx->id)
 		{
 			case CONTEXTNEWFILE:
@@ -83,7 +77,13 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 
 				result=yesNo("Really delete\n",path);
 				if(result==GTK_RESPONSE_YES)
-					printf("do delete\n");
+					{
+						if(isdir==true)
+							sprintf(buffer,"rm -r \"%s\"",path);
+						else
+							sprintf(buffer,"rm \"%s\"",path);
+						system(buffer);
+					}
 				break;
 			default:
 				printf("unknown\n");

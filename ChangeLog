@@ -1,4 +1,5 @@
 0.0.2
+Folder monitoring now works properly.
 Started dand.
 Launch file from location bar now works.
 Location bar auto complete traps 'TAB' key to complete, 'RETURN' to go.
