@@ -27,5 +27,6 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
 void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx);
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page);
 gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page);
+void closeTab(GtkButton *button,pageStruct *page);
 
 #endif

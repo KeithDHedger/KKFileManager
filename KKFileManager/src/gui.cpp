@@ -212,7 +212,6 @@ void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool i
 		gtk_list_store_set(page->listStore,&iter,PIXBUF_COLUMN,pixbuf,TEXT_COLUMN,type,FILEPATH,path,ISDIR,isdir,-1);
 }
 
-
 char *getMimeType(const char *path)
 {
 	char	*retdata;
@@ -412,6 +411,75 @@ void setUpContextMenus(void)
 		}
 }
 
+//truncate tabname with elipses
+char *truncateWithElipses(char *str,unsigned int maxlen)
+{
+	char	*retstr=NULL;
+	char	*front,*back;
+	int		sides;
+
+	if(g_utf8_validate(str,-1,NULL)==true)
+		{
+			if(g_utf8_strlen(str,-1)>maxlen)
+				{
+					sides=(maxlen-5)/2;
+					front=g_utf8_substring(str,0,sides);
+					back=g_utf8_substring(str,g_utf8_strlen(str,-1)-sides,g_utf8_strlen(str,-1));
+					sinkReturn=asprintf(&retstr,"%s ... %s",front,back);
+					free(front);
+					free(back);
+				}
+			else
+				retstr=strdup(str);
+		}
+	else
+		retstr=strdup(str);
+
+	return(retstr);
+}
+
+GtkWidget *makeNewTab(char *name,pageStruct *page)
+{
+	GtkWidget	*hbox;
+	char		*correctedname;
+	GtkWidget	*evbox=gtk_event_box_new();
+	GtkWidget	*close=gtk_image_new_from_icon_name(GTK_STOCK_CLOSE,GTK_ICON_SIZE_MENU);
+
+	GtkWidget	*button=gtk_button_new();
+
+	hbox=createNewBox(NEWHBOX,false,0);
+	correctedname=truncateWithElipses(name,maxTabChars);
+
+	page->tabLabel=(GtkLabel*)gtk_label_new(correctedname);
+	free(correctedname);
+
+	gtk_button_set_relief((GtkButton*)button,GTK_RELIEF_NONE);
+	gtk_box_pack_start(GTK_BOX(hbox),(GtkWidget*)page->tabLabel,false,false,0);
+
+	gtk_button_set_focus_on_click(GTK_BUTTON(button),FALSE);
+	gtk_container_add(GTK_CONTAINER(button),close);
+
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	gtk_container_add(GTK_CONTAINER(evbox),hbox);
+	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(closeTab),(void*)page);
+	//g_signal_connect(G_OBJECT(evbox),"button-press-event",G_CALLBACK(tabPopUp),(void*)page);
+
+	//page->tabBox=label;
+	//page->tabButton=button;
+//#ifdef _USEGTK3_
+//	applyCSS(button,tabBoxProvider);
+//	gtk_style_context_reset_widgets(gdk_screen_get_default());
+//#else
+//	GtkRcStyle	*style=gtk_rc_style_new();
+//	style->xthickness=style->ythickness=tabsSize;
+//	gtk_widget_modify_style(button,style);
+//	g_object_unref(G_OBJECT(style));
+//#endif
+	gtk_widget_show_all(evbox);
+
+	return(evbox);
+}
+
 void buidMainGui(const char *startdir)
 {
 	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
@@ -441,3 +509,15 @@ void buidMainGui(const char *startdir)
 	gtk_widget_show_all(mainWindow);
 }
 
+void updateTabLabel(pageStruct	*page)
+{
+	char	*correctedname;
+	char	*basename;
+
+	basename=g_path_get_basename(page->thisFolder);
+	correctedname=truncateWithElipses(basename,maxTabChars);
+	gtk_label_set_text(page->tabLabel,correctedname);
+	gtk_widget_show_all((GtkWidget*)page->tabLabel);
+	free(correctedname);
+	free(basename);
+}

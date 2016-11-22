@@ -33,6 +33,8 @@ struct pageStruct
 	GtkIconView			*iconView;
 	GtkListStore		*listStore;
 	char				*thisFolder;
+	GtkWidget			*tabBox;
+	GtkLabel			*tabLabel;
 };
 
 unsigned getPageIdFromTab(void);

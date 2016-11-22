@@ -50,12 +50,15 @@ pageStruct *getPageStructByIDFromList(unsigned pageid)
 void addNewPage(char *startdir)
 {
 	pageStruct	*page;
+	char		*basename;
 
 	page=(pageStruct*)calloc(1,sizeof(pageStruct));
 	page->scrollBox=(GtkScrolledWindow*)gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy(page->scrollBox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 	page->thisFolder=strdup(startdir);
 	page->pageID=pageCnt;
+	basename=g_path_get_basename(page->thisFolder);
+	page->tabBox=makeNewTab(basename,page);
 
 	pageList=g_list_prepend(pageList,(gpointer)page);
 
@@ -67,11 +70,12 @@ void addNewPage(char *startdir)
 	gtk_box_pack_start(GTK_BOX(page->vBox),(GtkWidget*)page->scrollBox,true,true,0);
 
 	gtk_widget_show_all((GtkWidget*)page->vBox);
-	gtk_notebook_append_page(mainNotebook,page->vBox,NULL);
+	gtk_notebook_append_page(mainNotebook,page->vBox,page->tabBox);
 	gtk_notebook_set_tab_reorderable(mainNotebook,page->vBox,true);
 	g_object_set_data(G_OBJECT(page->vBox),"pageid",(gpointer)(long)page->pageID);
 	gtk_widget_show_all((GtkWidget*)mainNotebook);
 	pageCnt++;
+	free(basename);
 }
 
 void monitorFolderForPage(pageStruct *page)

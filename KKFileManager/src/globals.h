@@ -46,6 +46,7 @@
 #define GTK_STOCK_GO_UP "go-up"
 #define GTK_STOCK_HOME "go-home"
 #define GTK_STOCK_DIRECTORY "folder"
+#define GTK_STOCK_CLOSE "window-close"
 #endif
 
 
@@ -64,8 +65,6 @@ extern GtkIconTheme	*gnomeTheme;
 extern GtkNotebook	*mainNotebook;
 extern GList		*pageList;
 extern GtkAccelGroup	*accgroup;
-
-extern bool			done;
 
 //tool bar
 extern GtkToolItem		*upButton;
@@ -87,12 +86,16 @@ extern GFileMonitor		*monitorDir;
 extern unsigned			pageCnt;
 extern unsigned			iconSize;
 extern unsigned			iconPadding;
+extern unsigned			maxTabChars;
 
 //prefs
 extern bool				showMenuIcons;
 
 //dand
 extern unsigned			fromPageID;
+
+//odds
+extern int				sinkReturn;
 
 //global functions
 char* oneLiner(const char *command);

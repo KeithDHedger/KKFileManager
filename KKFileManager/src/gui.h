@@ -54,5 +54,8 @@ void newIconView(pageStruct *page);
 GtkWidget* newMenuItem(unsigned menunumber,GtkWidget *parent);
 GtkWidget* newImageMenuItem(unsigned menunumber,GtkWidget *parent);
 unsigned hashMimeType(char* cp);
+GtkWidget *makeNewTab(char *name,pageStruct *page);
+char *truncateWithElipses(char *str,unsigned int maxlen);
+void updateTabLabel(pageStruct	*page);
 
 #endif

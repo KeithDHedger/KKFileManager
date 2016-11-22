@@ -40,8 +40,6 @@ GtkNotebook		*mainNotebook=NULL;
 GList			*pageList=NULL;
 GtkAccelGroup	*accgroup=NULL;
 
-bool			done=false;
-
 //tool bar
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
@@ -67,6 +65,7 @@ unsigned		iconPadding=16;
 unsigned		iconSize=96;
 unsigned		iconPadding=16;
 #endif
+unsigned		maxTabChars=32;
 
 //menus
 
@@ -75,6 +74,9 @@ bool			showMenuIcons=true;
 
 //dand
 unsigned		fromPageID=0;
+
+//odds
+int				sinkReturn;
 
 //global functions
 char* oneLiner(const char *command)
@@ -123,6 +125,7 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
         	gtk_list_store_clear(list);
 			gtk_entry_completion_complete(completion);
 			gtk_widget_show_all(page->vBox);
+			updateTabLabel(page);
 		}
 }
 

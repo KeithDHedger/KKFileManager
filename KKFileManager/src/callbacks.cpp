@@ -147,10 +147,11 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,tree_path);
 	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-	//printf("path=%s\n",path);
+//	printf("path=%s\n",path);
 	//printf("---%i\n",isdir);
 	if(isdir==true)
 		{
+			setCurrentFolderForTab(path,page);
 			free(page->thisFolder);
 			page->thisFolder=strdup(path);
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
@@ -279,3 +280,18 @@ gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned tim
     return(retval);
 }
 
+void closeTab(GtkButton *button,pageStruct *page)
+{
+	if(page!=NULL);
+		{
+//printf("page=%u folder=%s\n",page->pageID,page->thisFolder);
+			gtk_notebook_remove_page(mainNotebook,gtk_notebook_page_num(mainNotebook,page->vBox));
+			g_object_unref(page->dirPath);
+			g_object_unref(page->monitorDir);
+			free(page->thisFolder);
+			pageList=g_list_remove(pageList,page);
+			free(page);
+			if(gtk_notebook_get_n_pages(mainNotebook)==0)
+				addNewPage((char*)getenv("HOME"));
+		}
+}
