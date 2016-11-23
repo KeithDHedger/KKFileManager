@@ -57,5 +57,6 @@ unsigned hashMimeType(char* cp);
 GtkWidget *makeNewTab(char *name,pageStruct *page);
 char *truncateWithElipses(char *str,unsigned int maxlen);
 void updateTabLabel(pageStruct	*page);
+void updateDiskList(void);
 
 #endif

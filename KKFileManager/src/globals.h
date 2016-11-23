@@ -39,6 +39,8 @@
 #define GTK_STOCK_DELETE "edit-delete"
 //odds
 #define GTK_STOCK_ADD "list-add"
+#define GTK_STOCK_YES "Yes"
+#define GTK_STOCK_NO "No"
 
 //icons
 #define GTK_STOCK_GO_FORWARD "go-next"
@@ -51,20 +53,26 @@
 
 
 enum {NEWVBOX=0,NEWHBOX};
-enum {TEXT_COLUMN,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
+enum {TEXT_COLUMN=0,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
+enum {DEVPATH=0,DISKNAME,MOUNTPATH,MOUNTED,NUMDISKCOLS};
 
 //main app
-extern GtkToolbar	*toolBar;
-extern GtkWidget	*mainWindow;
-extern GtkWidget	*mainVBox;
-extern char			*sinkReturnStr;
-extern magic_t		magicInstance;
-extern char			*toolBarLayout;
-extern GtkIconTheme	*defaultTheme;
-extern GtkIconTheme	*gnomeTheme;
-extern GtkNotebook	*mainNotebook;
-extern GList		*pageList;
+extern GtkToolbar		*toolBar;
+extern GtkWidget		*mainWindow;
+extern GtkWidget		*mainVBox;
+extern char				*sinkReturnStr;
+extern magic_t			magicInstance;
+extern GtkIconTheme		*defaultTheme;
+extern GtkIconTheme		*gnomeTheme;
+extern GtkNotebook		*mainNotebook;
+extern GList			*pageList;
 extern GtkAccelGroup	*accgroup;
+extern GtkWidget		*mainHPane;
+extern GtkWidget		*leftVBox;
+extern GtkWidget		*leftVPane;
+extern GtkListStore		*diskList;
+extern GtkTreeView		*diskView;
+extern GtkWidget		*bookmarkList;
 
 //tool bar
 extern GtkToolItem		*upButton;
@@ -90,6 +98,9 @@ extern unsigned			maxTabChars;
 
 //prefs
 extern bool				showMenuIcons;
+extern char				*toolBarLayout;
+extern char				*diskIncludePattern;
+extern char				*diskExcludePattern;
 
 //dand
 extern unsigned			fromPageID;

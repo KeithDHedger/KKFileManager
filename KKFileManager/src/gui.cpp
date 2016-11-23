@@ -388,11 +388,10 @@ void newIconView(pageStruct *page)
 	target->target=(gchar*)"InternalTarget";
 	target->flags=GTK_TARGET_SAME_APP;
 	target->info=0;
-    gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
-    gtk_icon_view_enable_model_drag_dest(page->iconView,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
+	gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
+	gtk_icon_view_enable_model_drag_dest(page->iconView,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
 
-    g_signal_connect( G_OBJECT( page->iconView ), "drag-drop",G_CALLBACK(doDrop), (gpointer)page );
-
+	g_signal_connect( G_OBJECT( page->iconView ), "drag-drop",G_CALLBACK(doDrop), (gpointer)page );
 
 	gtk_icon_view_set_item_width(page->iconView,iconSize);
 	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
@@ -462,26 +461,54 @@ GtkWidget *makeNewTab(char *name,pageStruct *page)
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	gtk_container_add(GTK_CONTAINER(evbox),hbox);
 	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(closeTab),(void*)page);
-	//g_signal_connect(G_OBJECT(evbox),"button-press-event",G_CALLBACK(tabPopUp),(void*)page);
+	//g_signal_connect(G_OBJECT(evbox),"button-press-event",G_CALLBACK(tabPopUp),(void*)page);//context menu?
 
-	//page->tabBox=label;
-	//page->tabButton=button;
-//#ifdef _USEGTK3_
-//	applyCSS(button,tabBoxProvider);
-//	gtk_style_context_reset_widgets(gdk_screen_get_default());
-//#else
-//	GtkRcStyle	*style=gtk_rc_style_new();
-//	style->xthickness=style->ythickness=tabsSize;
-//	gtk_widget_modify_style(button,style);
-//	g_object_unref(G_OBJECT(style));
-//#endif
 	gtk_widget_show_all(evbox);
 
 	return(evbox);
 }
 
+void updateDiskList(void)
+{
+	char		*command;
+	FILE		*fp=NULL;
+	char		buffer[2048];
+	GtkTreeIter	iter;
+	char		*ptr;
+	char		buffercommand[2048];
+	char	*mountpath=NULL;
+	char	*label=NULL;
+
+	gtk_list_store_clear(diskList);
+	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1 -iname \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(buffer,2048,fp))
+				{
+					if(strlen(buffer)>0)
+						buffer[strlen(buffer)-1]=0;
+						sprintf(buffercommand,"mount|grep \"%s\"|awk '{print $3}'",buffer);
+						mountpath=oneLiner(buffercommand);
+						sprintf(buffercommand,"lsblk -no label \"%s\"",buffer);
+						label=oneLiner(buffercommand);
+						ptr=strrchr(buffer,'/');
+						ptr++;
+						gtk_list_store_append(diskList,&iter);
+						gtk_list_store_set(diskList,&iter,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
+				}
+			pclose(fp);
+		}
+	free(command);
+}
+
 void buidMainGui(const char *startdir)
 {
+	GtkWidget			*scrollbox;
+	GtkCellRenderer		*renderer;
+//	GtkTreeViewColumn	*column;
+//	GtkTreeIter	iter;
+
 	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
 
 	mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -501,7 +528,50 @@ void buidMainGui(const char *startdir)
 	toolBar=(GtkToolbar*)gtk_toolbar_new();
 	setUpToolBar();
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
-	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainNotebook,true,true,0);
+
+	mainHPane=gtk_hpaned_new();
+	leftVBox=createNewBox(NEWVBOX,false,0);
+//left box
+	gtk_paned_add1((GtkPaned*)mainHPane,leftVBox);
+	leftVPane=gtk_vpaned_new();
+	gtk_container_add(GTK_CONTAINER(leftVBox),(GtkWidget*)leftVPane);
+	scrollbox=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_ALWAYS,GTK_POLICY_ALWAYS);
+	gtk_paned_add1((GtkPaned*)leftVPane,scrollbox);
+
+
+	diskList=gtk_list_store_new(NUMDISKCOLS,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
+
+	diskView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)diskList);
+
+//dev num
+	renderer=gtk_cell_renderer_text_new();
+	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)diskView,-1,"dev",renderer,"text",DEVPATH,NULL);
+//label
+	renderer=gtk_cell_renderer_text_new();
+	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)diskView,-1,"label",renderer,"text",DISKNAME,NULL);
+
+//mountpoint
+	renderer=gtk_cell_renderer_text_new();
+	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)diskView,-1,"mountpoint",renderer,"text",MOUNTPATH,NULL);
+
+
+	g_signal_connect(diskView,"row-activated",G_CALLBACK(openDisk),NULL);	
+
+	updateDiskList();
+///	gtk_list_store_clear(diskList);
+	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)diskView);
+	gtk_widget_show_all((GtkWidget*)leftVPane);
+	gtk_widget_show_all((GtkWidget*)diskView);
+
+
+//	updateDiskList();
+
+//notbook
+	gtk_paned_add2((GtkPaned*)mainHPane,(GtkWidget*)mainNotebook);
+	gtk_paned_set_position((GtkPaned*)mainHPane,200);
+
+	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainHPane,true,true,0);
 
 	gtk_container_add((GtkContainer*)mainWindow,mainVBox);
 	gtk_entry_set_text(locationTextBox,startdir);

@@ -168,6 +168,31 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 	free(path);
 }
 
+void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
+{
+	gchar			*path;
+	GtkTreeIter		iter;
+	char			*command;
+	char			*mountpoint;
+
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,tree_path);
+	gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
+
+	if(mountpoint==NULL)
+		{
+			asprintf(&command,"udevil mount /dev/%s",path);
+			system(command);
+			free(path);
+			free(command);
+			updateDiskList();
+			gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,tree_path);
+			gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
+		}
+
+	addNewPage(mountpoint);
+	free(path);
+}
+
 void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 {
 	char		*command=NULL;

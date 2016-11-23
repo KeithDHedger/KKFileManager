@@ -1,4 +1,6 @@
 0.0.3
+Shows and mounts disk according to diskIncludePattern and diskExcludePattern ( to be set in prefs when done ).
+Added left pane for disks.
 Closing last tab reopens tab at ~.
 Added close button to tab.
 Tab label is now set to folder name.

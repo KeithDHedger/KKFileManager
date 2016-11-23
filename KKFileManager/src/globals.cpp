@@ -33,12 +33,17 @@ GtkWidget		*mainWindow = NULL;
 GtkWidget		*mainVBox=NULL;
 char			*sinkReturnStr=NULL;
 magic_t			magicInstance=NULL;
-char			*toolBarLayout=NULL;
 GtkIconTheme	*defaultTheme=NULL;
 GtkIconTheme	*gnomeTheme=NULL;
 GtkNotebook		*mainNotebook=NULL;
 GList			*pageList=NULL;
 GtkAccelGroup	*accgroup=NULL;
+GtkWidget		*mainHPane=NULL;
+GtkWidget		*leftVBox=NULL;
+GtkWidget		*leftVPane=NULL;
+GtkListStore	*diskList=NULL;
+GtkTreeView		*diskView=NULL;
+GtkWidget		*bookmarkList=NULL;
 
 //tool bar
 GtkToolItem		*upButton=NULL;
@@ -71,6 +76,9 @@ unsigned		maxTabChars=32;
 
 //prefs
 bool			showMenuIcons=true;
+char			*toolBarLayout=NULL;
+char			*diskIncludePattern;
+char			*diskExcludePattern;
 
 //dand
 unsigned		fromPageID=0;
