@@ -506,13 +506,11 @@ void buidMainGui(const char *startdir)
 {
 	GtkWidget			*scrollbox;
 	GtkCellRenderer		*renderer;
-//	GtkTreeViewColumn	*column;
-//	GtkTreeIter	iter;
 
 	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
 
 	mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(mainWindow), 640, 480);
+	gtk_window_set_default_size(GTK_WINDOW(mainWindow),1000,600);
 	g_signal_connect(G_OBJECT(mainWindow),"delete-event",G_CALLBACK(shutdown),NULL);
 	accgroup=gtk_accel_group_new();
 	gtk_window_add_accel_group((GtkWindow*)mainWindow,accgroup);
@@ -536,13 +534,14 @@ void buidMainGui(const char *startdir)
 	leftVPane=gtk_vpaned_new();
 	gtk_container_add(GTK_CONTAINER(leftVBox),(GtkWidget*)leftVPane);
 	scrollbox=gtk_scrolled_window_new(NULL,NULL);
-	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_ALWAYS,GTK_POLICY_ALWAYS);
+	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 	gtk_paned_add1((GtkPaned*)leftVPane,scrollbox);
 
-
 	diskList=gtk_list_store_new(NUMDISKCOLS,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
-
 	diskView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)diskList);
+	gtk_tree_view_set_headers_visible(diskView,false);
+
+	g_signal_connect(diskView,"row-activated",G_CALLBACK(openDisk),NULL);	
 
 //dev num
 	renderer=gtk_cell_renderer_text_new();
@@ -555,21 +554,15 @@ void buidMainGui(const char *startdir)
 	renderer=gtk_cell_renderer_text_new();
 	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)diskView,-1,"mountpoint",renderer,"text",MOUNTPATH,NULL);
 
-
-	g_signal_connect(diskView,"row-activated",G_CALLBACK(openDisk),NULL);	
-
 	updateDiskList();
-///	gtk_list_store_clear(diskList);
+
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)diskView);
 	gtk_widget_show_all((GtkWidget*)leftVPane);
 	gtk_widget_show_all((GtkWidget*)diskView);
 
-
-//	updateDiskList();
-
 //notbook
 	gtk_paned_add2((GtkPaned*)mainHPane,(GtkWidget*)mainNotebook);
-	gtk_paned_set_position((GtkPaned*)mainHPane,200);
+	gtk_paned_set_position((GtkPaned*)mainHPane,275);
 
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainHPane,true,true,0);
 
