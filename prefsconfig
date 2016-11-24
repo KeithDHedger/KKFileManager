@@ -1,0 +1,10 @@
+BASE:Prefs
+WINDOWTITLE:Preferences
+NOBOXCODE
+
+DONAME:doPrefs
+INCLUDE:"globals.h"
+
+textbox:Include Disk List:diskIncludePattern
+textbox:Exclude Disk List:diskExcludePattern
+
