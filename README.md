@@ -27,6 +27,7 @@ add thumbnails<br>
 <del>add left panel for disks/bookmarks</del><br>
 add move/copy etc to context menu<br>
 add prefs<br>
+make single instance<br>
 <br>
 ...
 
