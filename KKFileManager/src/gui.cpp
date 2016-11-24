@@ -88,7 +88,6 @@ GtkWidget* newMenuItem(unsigned menunumber,GtkWidget *parent)
 {
 	GtkWidget	*menu;
 #ifdef _USEGTK3_
-	char		*menulabel;
 	GtkWidget	*menuhbox;
 	GtkWidget	*pad;
 	GtkWidget	*image;
@@ -139,7 +138,6 @@ GtkWidget* newImageMenuItem(unsigned menunumber,GtkWidget *parent)
 {
 	GtkWidget	*menu;
 #ifdef _USEGTK3_
-	char		*menulabel;
 	GtkWidget	*menuhbox;
 	GtkWidget	*pad;
 	GtkWidget	*image;
@@ -527,20 +525,27 @@ void buidMainGui(const char *startdir)
 	setUpToolBar();
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
 
+#ifndef _USEGTK3_
 	mainHPane=gtk_hpaned_new();
+#else
+	mainHPane=gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+#endif
 	leftVBox=createNewBox(NEWVBOX,false,0);
 //left box
 	gtk_paned_add1((GtkPaned*)mainHPane,leftVBox);
+#ifndef _USEGTK3_
 	leftVPane=gtk_vpaned_new();
-	gtk_container_add(GTK_CONTAINER(leftVBox),(GtkWidget*)leftVPane);
+#else
+	leftVPane=gtk_paned_new(GTK_ORIENTATION_VERTICAL);
+#endif
 	scrollbox=gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 	gtk_paned_add1((GtkPaned*)leftVPane,scrollbox);
+	gtk_box_pack_start(GTK_BOX(leftVBox),leftVPane,true,true,2);
 
 	diskList=gtk_list_store_new(NUMDISKCOLS,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
 	diskView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)diskList);
 	gtk_tree_view_set_headers_visible(diskView,false);
-
 	g_signal_connect(diskView,"row-activated",G_CALLBACK(openDisk),NULL);	
 
 //dev num
@@ -557,8 +562,7 @@ void buidMainGui(const char *startdir)
 	updateDiskList();
 
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)diskView);
-	gtk_widget_show_all((GtkWidget*)leftVPane);
-	gtk_widget_show_all((GtkWidget*)diskView);
+	gtk_widget_show_all((GtkWidget*)mainHPane);
 
 //notbook
 	gtk_paned_add2((GtkPaned*)mainHPane,(GtkWidget*)mainNotebook);

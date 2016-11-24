@@ -29,5 +29,6 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page);
 gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page);
 void closeTab(GtkButton *button,pageStruct *page);
 void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata);
+void setPrefs(GtkWidget* widget,gpointer ptr);
 
 #endif

@@ -21,6 +21,10 @@
 #ifndef _GLOBALS_
 #define _GLOBALS_
 
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+
 #include <gtk/gtk.h>
 #include <magic.h>
 #include <map>

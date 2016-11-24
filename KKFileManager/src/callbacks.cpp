@@ -320,3 +320,8 @@ void closeTab(GtkButton *button,pageStruct *page)
 				addNewPage((char*)getenv("HOME"));
 		}
 }
+
+void setPrefs(GtkWidget* widget,gpointer ptr)
+{
+	printf(">>%i<<\n",(int)(long)ptr);
+}
