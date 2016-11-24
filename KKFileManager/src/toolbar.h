@@ -23,5 +23,6 @@
 #define _TOOLBAR_
 
 void setUpToolBar(void);
+void goNew(GtkWidget *widget,gpointer data);
 
 #endif

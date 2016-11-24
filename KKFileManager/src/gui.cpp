@@ -34,7 +34,9 @@ menuDataStruct	menuData[]=
 		{"New File",GTK_STOCK_NEW,0,0,NULL,"newfilemenu",NULL},
 		{"New Folder",GTK_STOCK_DIRECTORY,0,0,NULL,"newfoldermenu",NULL},
 		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
-		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL}
+		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
+//main
+		{"New Tab",GTK_STOCK_NEW,0,0,(void*)&goNew,"newtabmenu",NULL}
 	};
 
 contextStruct	**contextMenus;
@@ -500,6 +502,27 @@ void updateDiskList(void)
 	free(command);
 }
 
+void buildMenus(void)
+{
+	GtkWidget		*menuitem;
+	GtkWidget		*menu;
+	GtkWidget		*menurecent;
+	GtkWidget		*plugsubmenu=NULL;
+
+	menuBar=gtk_menu_bar_new();
+
+//menus
+//file menu
+	fileMenu=gtk_menu_item_new_with_label("New");
+	gtk_menu_item_set_use_underline((GtkMenuItem*)fileMenu,true);
+	menu=gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenu),menu);
+//new
+	menuItemNew=newMenuItem(MAINFILENEW,menu);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),fileMenu);
+}
+
 void buidMainGui(const char *startdir)
 {
 	GtkWidget			*scrollbox;
@@ -521,6 +544,12 @@ void buidMainGui(const char *startdir)
 	addNewPage((char*)startdir);
 	mainVBox=createNewBox(NEWVBOX,false,0);
 
+//main menus
+//add menubar
+	buildMenus();
+	gtk_box_pack_start((GtkBox*)mainVBox,menuBar,false,false,0);
+
+//add toolbar
 	toolBar=(GtkToolbar*)gtk_toolbar_new();
 	setUpToolBar();
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);

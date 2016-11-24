@@ -42,7 +42,7 @@ struct	contextStruct
 	unsigned	id;
 };
 
-enum	{CONTEXTNEWFILE=0,CONTEXTNEWFOLDER,CONTEXTOPEN,CONTEXTDELETE};
+enum	{CONTEXTNEWFILE=0,CONTEXTNEWFOLDER,CONTEXTOPEN,CONTEXTDELETE,MAINFILENEW};
 
 extern	menuDataStruct	menuData[];
 extern	contextStruct	**contextMenus;

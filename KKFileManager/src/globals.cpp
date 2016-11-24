@@ -44,6 +44,11 @@ GtkWidget		*leftVPane=NULL;
 GtkListStore	*diskList=NULL;
 GtkTreeView		*diskView=NULL;
 GtkWidget		*bookmarkList=NULL;
+GtkWidget		*menuBar=NULL;
+
+//file menu
+GtkWidget		*fileMenu=NULL;
+GtkWidget		*menuItemNew=NULL;
 
 //tool bar
 GtkToolItem		*upButton=NULL;

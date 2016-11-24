@@ -77,6 +77,11 @@ extern GtkWidget		*leftVPane;
 extern GtkListStore		*diskList;
 extern GtkTreeView		*diskView;
 extern GtkWidget		*bookmarkList;
+extern GtkWidget		*menuBar;
+
+//file menu
+extern GtkWidget		*fileMenu;
+extern GtkWidget		*menuItemNew;
 
 //tool bar
 extern GtkToolItem		*upButton;
