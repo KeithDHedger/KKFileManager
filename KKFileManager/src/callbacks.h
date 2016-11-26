@@ -30,5 +30,6 @@ gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned tim
 void closeTab(GtkButton *button,pageStruct *page);
 void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata);
 void setPrefs(GtkWidget* widget,gpointer ptr);
+void doShutdown(GtkWidget* widget,gpointer data);
 
 #endif

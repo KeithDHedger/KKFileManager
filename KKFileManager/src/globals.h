@@ -34,6 +34,7 @@
 #include "toolbar.h"
 #include "gui.h"
 #include "callbacks.h"
+#include "prefs.h"
 
 #ifdef _USEGTK3_
 //menus
@@ -55,10 +56,27 @@
 #define GTK_STOCK_CLOSE "window-close"
 #endif
 
+#define	APPEXECNAME "kkfilemanager" _EXECSUFFIX_
+#define APPFOLDENAME "." PACKAGE _EXECSUFFIX_
+
+struct	args
+{
+	const char	*name;
+	int			type;
+	void		*data;
+};
+
+struct varStrings
+{
+	char				*name;
+	char				*data;
+};
 
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN=0,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
 enum {DEVPATH=0,DISKNAME,MOUNTPATH,MOUNTED,NUMDISKCOLS};
+enum {NOERR=0,NOOPENFILE,NOSAVEFILE};
+enum {TYPEINT=1,TYPESTRING,TYPEBOOL,TYPELIST};
 
 //main app
 extern GtkToolbar		*toolBar;
@@ -82,6 +100,7 @@ extern GtkWidget		*menuBar;
 //file menu
 extern GtkWidget		*fileMenu;
 extern GtkWidget		*menuItemNew;
+extern GtkWidget		*menuItemPrefs;
 
 //tool bar
 extern GtkToolItem		*upButton;
@@ -111,6 +130,14 @@ extern char				*toolBarLayout;
 extern char				*diskIncludePattern;
 extern char				*diskExcludePattern;
 
+//save and load var lists
+extern char				*windowAllocData;
+extern args				kkfilemanager_rc[];
+extern int				windowX;
+extern int				windowY;
+extern int				windowWidth;
+extern int				windowHeight;
+
 //dand
 extern unsigned			fromPageID;
 
@@ -123,5 +150,7 @@ void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitor
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page);
 int yesNo(const char *question,char *file);
 char *getUniqueFilename(const char *path);
+int loadVarsFromFile(char *filepath,args *dataptr);
+void writeExitData(void);
 
 #endif

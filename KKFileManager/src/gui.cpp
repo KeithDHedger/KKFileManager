@@ -36,16 +36,13 @@ menuDataStruct	menuData[]=
 		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
 //main
-		{"New Tab",GTK_STOCK_NEW,0,0,(void*)&goNew,"newtabmenu",NULL}
+		{"New Tab",GTK_STOCK_NEW,0,0,(void*)&goNew,"newtabmenu",NULL},
+		{"Preferences",GTK_STOCK_PREFERENCES,0,0,(void*)&doPrefs,"prefsmenu",NULL},
+		{"Quit",GTK_STOCK_QUIT,0,0,(void*)&doShutdown,"quitmenu",NULL}
 	};
 
 contextStruct	**contextMenus;
 GtkTargetEntry	*target=NULL;
-
-void shutdown(GtkWidget* widget,gpointer data)
-{
-	gtk_main_quit();
-}
 
 GtkWidget *createNewBox(int orient,bool homog,int spacing)
 {
@@ -490,6 +487,8 @@ void updateDiskList(void)
 						buffer[strlen(buffer)-1]=0;
 						sprintf(buffercommand,"mount|grep \"%s\"|awk '{print $3}'",buffer);
 						mountpath=oneLiner(buffercommand);
+						if(mountpath==NULL)
+							mountpath=strdup("…");
 						sprintf(buffercommand,"lsblk -no label \"%s\"",buffer);
 						label=oneLiner(buffercommand);
 						ptr=strrchr(buffer,'/');
@@ -507,18 +506,22 @@ void buildMenus(void)
 	GtkWidget		*menuitem;
 	GtkWidget		*menu;
 	GtkWidget		*menurecent;
-	GtkWidget		*plugsubmenu=NULL;
 
 	menuBar=gtk_menu_bar_new();
 
-//menus
 //file menu
-	fileMenu=gtk_menu_item_new_with_label("New");
+	fileMenu=gtk_menu_item_new_with_label("_File");
 	gtk_menu_item_set_use_underline((GtkMenuItem*)fileMenu,true);
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenu),menu);
 //new
 	menuItemNew=newMenuItem(MAINFILENEW,menu);
+//prefs
+	menuItemPrefs=newMenuItem(MAINFILEPREFS,menu);
+	
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_separator_menu_item_new());
+//quit
+	menuItemNew=newMenuItem(MAINFILEQUIT,menu);
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),fileMenu);
 }
@@ -531,8 +534,10 @@ void buidMainGui(const char *startdir)
 	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
 
 	mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(mainWindow),1000,600);
-	g_signal_connect(G_OBJECT(mainWindow),"delete-event",G_CALLBACK(shutdown),NULL);
+	gtk_window_set_default_size(GTK_WINDOW(mainWindow),windowWidth,windowHeight);
+	if(windowX!=-1 && windowY!=-1)
+		gtk_window_move((GtkWindow *)mainWindow,windowX,windowY);
+	g_signal_connect(G_OBJECT(mainWindow),"delete-event",G_CALLBACK(doShutdown),NULL);
 	accgroup=gtk_accel_group_new();
 	gtk_window_add_accel_group((GtkWindow*)mainWindow,accgroup);
 

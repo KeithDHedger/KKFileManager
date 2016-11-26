@@ -85,6 +85,22 @@ gboolean loadCache(gpointer data)
 	return(true);
 }
 
+void loadPrefs(void)
+{
+	char	*filename;
+
+	sinkReturn=asprintf(&filename,"%s/%s",getenv("HOME"),APPFOLDENAME);
+	g_mkdir_with_parents(filename,493);
+	free(filename);
+	sinkReturn=asprintf(&filename,"%s/%s/kkfiemanager.rc",getenv("HOME"),APPFOLDENAME);
+
+	loadVarsFromFile(filename,kkfilemanager_rc);
+	if(windowAllocData!=NULL)
+		sscanf(windowAllocData,"%i %i %i %i",(int*)&windowWidth,(int*)&windowHeight,(int*)&windowX,(int*)&windowY);
+
+	free(filename);
+}
+
 int main(int argc,char **argv)
 {
 	GtkIconInfo	*info;
@@ -103,7 +119,6 @@ int main(int argc,char **argv)
 		startdir=(char*)"/";
 	toolBarLayout=strdup("NUBFHL");
 	diskIncludePattern=strdup("*sd[abc][1-9]*");
-//	diskExcludePattern=strdup("\(sda[123456]$\|sdb4\)");
 	diskExcludePattern=strdup("\\(sda[123456]$\\|sda13\\)");
 
 	gtk_init(&argc,&argv);
@@ -129,6 +144,8 @@ int main(int argc,char **argv)
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
 	g_timeout_add (50,loadCache,NULL);
+
+	loadPrefs();
 
 	buidMainGui(startdir);
 

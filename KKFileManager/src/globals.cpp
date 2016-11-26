@@ -49,6 +49,7 @@ GtkWidget		*menuBar=NULL;
 //file menu
 GtkWidget		*fileMenu=NULL;
 GtkWidget		*menuItemNew=NULL;
+GtkWidget		*menuItemPrefs=NULL;
 
 //tool bar
 GtkToolItem		*upButton=NULL;
@@ -84,6 +85,26 @@ bool			showMenuIcons=true;
 char			*toolBarLayout=NULL;
 char			*diskIncludePattern;
 char			*diskExcludePattern;
+
+//save and load var lists
+char			*windowAllocData=NULL;
+int				windowX=-1;
+int				windowY=-1;
+int				windowWidth=1000;
+int				windowHeight=600;
+
+args			kkfilemanager_rc[]=
+{
+	//bools
+	//strings
+	{"toolbarlayout",TYPESTRING,&toolBarLayout},
+	{"includedisks",TYPESTRING,&diskIncludePattern},
+	{"excludedisks",TYPESTRING,&diskExcludePattern},
+	{"windowsize",TYPESTRING,&windowAllocData},
+	//ints
+	//lists
+	{NULL,0,NULL}
+};
 
 //dand
 unsigned		fromPageID=0;
@@ -180,3 +201,152 @@ char *getUniqueFilename(const char *path)
 
 }
 
+varStrings* allocVStrings(char *string)
+{
+	int	namelen=0;
+	int	datalen=0;
+	int	totalcnt=0;
+
+	varStrings	*vs=(varStrings*)calloc(1,sizeof(varStrings));
+	vs->name=NULL;
+	vs->data=NULL;
+
+//var name
+	sscanf(string,"%*s%n",&namelen);
+	vs->name=strndup(string,namelen);
+	totalcnt=namelen;
+
+//var type
+	sscanf(string,"%*s %n%*[^\n]s",&totalcnt);
+	datalen=(int)(long)((long)strchr(string,'\n')-(long)string)-totalcnt;
+	vs->data=strndup(&string[totalcnt],datalen);
+
+	return(vs);
+}
+
+int loadVarsFromFile(char *filepath,args *dataptr)
+{
+	FILE		*fd=NULL;
+	char		buffer[2048];
+	int			cnt;
+	int			retval=NOERR;
+	varStrings	*vs=NULL;
+
+	fd=fopen(filepath,"r");
+	if(fd!=NULL)
+		{
+			while(feof(fd)==0)
+				{
+					buffer[0]=0;
+					sinkReturnStr=fgets(buffer,2048,fd);
+					vs=allocVStrings(buffer);
+					cnt=0;
+					while(dataptr[cnt].name!=NULL)
+						{
+							if((vs->data!=NULL) &&(vs->name!=NULL) &&(strcmp(vs->name,dataptr[cnt].name)==0))
+								{
+									switch(dataptr[cnt].type)
+										{
+											case TYPEINT:
+												*(int*)dataptr[cnt].data=atoi(vs->data);
+												break;
+											case TYPESTRING:
+												if(*(char**)(dataptr[cnt].data)!=NULL)
+													{
+														free(*(char**)(dataptr[cnt].data));
+													}
+												*(char**)(dataptr[cnt].data)=(char*)strdup(vs->data);
+												break;
+											case TYPEBOOL:
+												*(bool*)dataptr[cnt].data=(bool)atoi(vs->data);
+												break;
+											case TYPELIST:
+												*(GSList**)dataptr[cnt].data=g_slist_append(*(GSList**)dataptr[cnt].data,strdup(vs->data));
+												break;
+										}
+								}
+							cnt++;
+						}
+					free(vs->name);
+					free(vs->data);
+					free(vs);
+				}
+			fclose(fd);
+		}
+	else
+		{
+			retval=NOOPENFILE;
+		}
+
+	return(retval);
+}
+
+void saveVarsToFile(char *filepath,args *dataptr)
+{
+	FILE	*fd=NULL;
+	int		cnt=0;
+	GSList	*list=NULL;
+
+	fd=fopen(filepath,"w");
+	if(fd!=NULL)
+		{
+			while(dataptr[cnt].name!=NULL)
+				{
+					switch(dataptr[cnt].type)
+						{
+							case TYPEINT:
+								fprintf(fd,"%s	%i\n",dataptr[cnt].name,*(int*)dataptr[cnt].data);
+								break;
+							case TYPESTRING:
+								fprintf(fd,"%s	%s\n",dataptr[cnt].name,*(char**)(dataptr[cnt].data));
+								break;
+							case TYPEBOOL:
+								fprintf(fd,"%s	%i\n",dataptr[cnt].name,(int)*(bool*)dataptr[cnt].data);
+								break;
+							case TYPELIST:
+//								list=*(GSList**)((dataptr[cnt].data));
+//								if(g_slist_length(list)>maxFRHistory)
+//									list=g_slist_nth(list,g_slist_length(list)-maxFRHistory);
+//								while(list!=NULL)
+//									{
+//										if(strlen((char*)list->data)>0)
+//											{
+//												fprintf(fd,"%s %s\n",dataptr[cnt].name,(char*)list->data);
+//											}
+//										list=list->next;
+//									}
+								break;
+						}
+					cnt++;
+				}
+			fclose(fd);
+		}
+}
+
+void writeExitData(void)
+{
+	GtkAllocation	alloc;
+	char			*filename;
+	int				winx;
+	int				winy;
+
+	gtk_widget_get_allocation(mainWindow,&alloc);
+	gtk_window_get_position((GtkWindow*)mainWindow,&winx,&winy);
+	if( (alloc.width>10) && (alloc.height>10) )
+		sinkReturn=asprintf(&windowAllocData,"%i %i %i %i",alloc.width,alloc.height,winx,winy);
+
+
+//	toolOutHeight=gtk_paned_get_position((GtkPaned*)mainVPane);
+//	bottomVPaneHite=gtk_paned_get_position((GtkPaned*)mainWindowVPane);
+//	topVPaneHite=gtk_paned_get_position((GtkPaned*)secondWindowVPane);
+
+	sinkReturn=asprintf(&filename,"%s/%s",getenv("HOME"),APPFOLDENAME);
+	g_mkdir_with_parents(filename,493);
+	free(filename);
+	sinkReturn=asprintf(&filename,"%s/%s/kkfiemanager.rc",getenv("HOME"),APPFOLDENAME);
+
+	saveVarsToFile(filename,kkfilemanager_rc);
+
+	free(filename);
+	free(windowAllocData);
+}

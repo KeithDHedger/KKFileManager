@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Thu 24 Nov 11:31:23 GMT 2016
+*     ©keithhedger Thu 24 Nov 20:13:52 GMT 2016
 *     kdhedger68713@gmail.com
 *
 *     prefs.cpp
@@ -11,7 +11,7 @@
 #include "prefs.h"
 #include "globals.h"
 
-GtkWidget	*prefsText[2];
+GtkWidget	*prefsText[3];
 
 GtkWidget	*prefsWindow;
 
@@ -45,6 +45,7 @@ void doPrefs(GtkWidget* widget,gpointer data)
 	gtk_window_set_title((GtkWindow*)prefsWindow,"Preferences");
 	vbox=(GtkBox*)createNewBox(NEWVBOX,false,0);
 
+	makePrefsText(TOOLBARLAYOUTTXT,"Toolbar Layout",toolBarLayout,vbox,true);
 	makePrefsText(INCLUDEDISKLISTTXT,"Include Disk List",diskIncludePattern,vbox,true);
 	makePrefsText(EXCLUDEDISKLISTTXT,"Exclude Disk List",diskExcludePattern,vbox,true);
 #ifdef _USEGTK3_
