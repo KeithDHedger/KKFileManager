@@ -90,6 +90,65 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 		}
 }
 
+void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
+{
+	gchar		*path;
+	GtkTreeIter	iter;
+	char		*command;
+	char		*mountpoint;
+
+	switch(ctx->id)
+		{
+			case CONTEXTDISKMOUNT:
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
+
+				if((mountpoint==NULL) ||(strcmp(mountpoint,"…")==0))
+					{
+						asprintf(&command,"udevil mount /dev/%s",path);
+						system(command);
+						free(path);
+						free(command);
+						updateDiskList();
+						gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,ctx->treepath);
+						gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
+						addNewPage(mountpoint);
+						free(mountpoint);
+					}
+				free(path);
+				break;
+			case CONTEXTDISKUNMOUNT:
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
+
+				if((mountpoint!=NULL) && (strcmp(mountpoint,"…")!=0))
+					{
+						asprintf(&command,"udevil umount \"%s\"",mountpoint);
+						system(command);
+						free(path);
+						free(command);
+						updateDiskList();
+						free(mountpoint);
+					}
+				free(path);
+				break;
+			case CONTEXTDISKEJECT:
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
+				if(path!=NULL)
+					{
+						asprintf(&command,"udevil umount \"%s\";eject \"%s\"",mountpoint,path);
+						system(command);
+						free(path);
+						free(command);
+						free(mountpoint);
+					}
+				break;
+			default:
+				printf("unknown\n");
+		}
+}
+
 gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkWidget	*menuitem;
@@ -137,6 +196,48 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	return(false);
 }
 
+gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata)
+{
+	GtkWidget			*menuitem;
+    GtkTreePath			*treepath;
+	GtkTreeViewColumn	*column;
+	GtkTreeSelection	*selection;
+
+	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
+		{
+			selection=gtk_tree_view_get_selection(widget);
+			gtk_tree_view_get_path_at_pos((GtkTreeView*)widget,event->x, event->y,&treepath,&column,NULL,NULL);
+
+			if(G_IS_OBJECT(tabMenu))
+				{
+					g_object_ref_sink(tabMenu);
+					g_object_unref(tabMenu);
+				}
+			tabMenu=gtk_menu_new();
+			if(treepath!=NULL)
+				{
+					gtk_tree_selection_select_path(selection,treepath);
+					menuitem=newImageMenuItem(CONTEXTDISKMOUNT,tabMenu);
+					contextMenus[CONTEXTDISKMOUNT]->tree=widget;
+					contextMenus[CONTEXTDISKMOUNT]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTDISKMOUNT]);
+					menuitem=newImageMenuItem(CONTEXTDISKUNMOUNT,tabMenu);
+					contextMenus[CONTEXTDISKUNMOUNT]->tree=widget;
+					contextMenus[CONTEXTDISKUNMOUNT]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTDISKUNMOUNT]);
+					menuitem=newImageMenuItem(CONTEXTDISKEJECT,tabMenu);
+					contextMenus[CONTEXTDISKEJECT]->tree=widget;
+					contextMenus[CONTEXTDISKEJECT]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTDISKEJECT]);
+
+					gtk_menu_popup(GTK_MENU(tabMenu),NULL,NULL,NULL,NULL,event->button,event->time);
+					gtk_widget_show_all((GtkWidget*)tabMenu);
+					return(true);
+				}
+		}
+	return(false);
+}
+
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 {
 	printf("clicked\n");
@@ -177,6 +278,8 @@ void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,tree_path);
 	gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
+
+printf("path=%s, mountpoint=%s\n",path,mountpoint);
 
 	if((mountpoint==NULL) ||(strcmp(mountpoint,"…")==0))
 		{

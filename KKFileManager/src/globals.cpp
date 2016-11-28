@@ -288,7 +288,7 @@ void saveVarsToFile(char *filepath,args *dataptr)
 {
 	FILE	*fd=NULL;
 	int		cnt=0;
-	GSList	*list=NULL;
+//	GSList	*list=NULL;
 
 	fd=fopen(filepath,"w");
 	if(fd!=NULL)

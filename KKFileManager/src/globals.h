@@ -54,6 +54,9 @@
 #define GTK_STOCK_HOME "go-home"
 #define GTK_STOCK_DIRECTORY "folder"
 #define GTK_STOCK_CLOSE "window-close"
+#define GTK_STOCK_HARDDISK "drive-harddisk"
+#define GTK_STOCK_QUIT "application-exit"
+#define GTK_STOCK_PREFERENCES "preferences-system"
 #endif
 
 #define	APPEXECNAME "kkfilemanager" _EXECSUFFIX_

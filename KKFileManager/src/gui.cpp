@@ -35,6 +35,10 @@ menuDataStruct	menuData[]=
 		{"New Folder",GTK_STOCK_DIRECTORY,0,0,NULL,"newfoldermenu",NULL},
 		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
+//disk context
+		{"Mount",GTK_STOCK_HARDDISK,0,0,NULL,"mountdiskmenu",NULL},
+		{"Un-Mount",GTK_STOCK_HARDDISK,0,0,NULL,"unmountdiskmenu",NULL},
+		{"Eject",GTK_STOCK_HARDDISK,0,0,NULL,"ejectdiskmenu",NULL},
 //main
 		{"New Tab",GTK_STOCK_NEW,0,0,(void*)&goNew,"newtabmenu",NULL},
 		{"Preferences",GTK_STOCK_PREFERENCES,0,0,(void*)&doPrefs,"prefsmenu",NULL},
@@ -43,6 +47,9 @@ menuDataStruct	menuData[]=
 
 contextStruct	**contextMenus;
 GtkTargetEntry	*target=NULL;
+GFile			*devPath;
+GFileMonitor	*monitorDev;
+
 
 GtkWidget *createNewBox(int orient,bool homog,int spacing)
 {
@@ -398,7 +405,7 @@ void newIconView(pageStruct *page)
 void setUpContextMenus(void)
 {
 	unsigned	menucnt;	
-	menucnt=4;//TODO//add user items
+	menucnt=MAINFILENEW;//TODO//add user items
 	contextMenus=(contextStruct**)calloc(menucnt,sizeof(contextStruct*));
 	for(unsigned j=0;j<menucnt;j++)//TODO//manky code
 		{
@@ -477,7 +484,8 @@ void updateDiskList(void)
 	char	*label=NULL;
 
 	gtk_list_store_clear(diskList);
-	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1 -iname \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
+//	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1 -iname \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
+	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -485,7 +493,7 @@ void updateDiskList(void)
 				{
 					if(strlen(buffer)>0)
 						buffer[strlen(buffer)-1]=0;
-						sprintf(buffercommand,"mount|grep \"%s\"|awk '{print $3}'",buffer);
+						sprintf(buffercommand,"findmnt -no TARGET \"%s\"",buffer);
 						mountpath=oneLiner(buffercommand);
 						if(mountpath==NULL)
 							mountpath=strdup("…");
@@ -503,9 +511,7 @@ void updateDiskList(void)
 
 void buildMenus(void)
 {
-	GtkWidget		*menuitem;
 	GtkWidget		*menu;
-	GtkWidget		*menurecent;
 
 	menuBar=gtk_menu_bar_new();
 
@@ -524,6 +530,13 @@ void buildMenus(void)
 	menuItemNew=newMenuItem(MAINFILEQUIT,menu);
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),fileMenu);
+}
+
+void monitorDevFolder(void)
+{
+	devPath=g_file_new_for_path("/dev/disk/by-uuid");
+	monitorDev=g_file_monitor_directory(devPath,(GFileMonitorFlags)G_FILE_MONITOR_NONE,NULL,NULL);
+	g_signal_connect(G_OBJECT(monitorDev),"changed",G_CALLBACK(updateDiskList),NULL);
 }
 
 void buidMainGui(const char *startdir)
@@ -583,7 +596,7 @@ void buidMainGui(const char *startdir)
 	diskView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)diskList);
 	gtk_tree_view_set_headers_visible(diskView,false);
 	g_signal_connect(diskView,"row-activated",G_CALLBACK(openDisk),NULL);	
-
+	g_signal_connect(diskView,"button-press-event",G_CALLBACK(buttonDownDisk),NULL);	
 //dev num
 	renderer=gtk_cell_renderer_text_new();
 	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)diskView,-1,"dev",renderer,"text",DEVPATH,NULL);
@@ -613,6 +626,8 @@ void buidMainGui(const char *startdir)
 	gtk_paned_set_position((GtkPaned*)mainHPane,leftPaneWidth);
 	
 	gtk_widget_show_all(mainWindow);
+//	g_timeout_add(1000,updateDiskListTimer,NULL);
+monitorDevFolder();
 }
 
 void updateTabLabel(pageStruct	*page)

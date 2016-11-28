@@ -1,4 +1,10 @@
 0.0.3
+Disks inserted/removed  now auto detected.
+Disk list include /exclude now sed tyoe regex eg include list:
+.*\(sd[abc][1-9]$\|dvd\)
+Exclude list:
+\(sda[123456]$\|sda13\)
+
 Prefs now change immediately.
 Unmounted disks show mountpoint as "..."
 Saves size of left pane on exit.
