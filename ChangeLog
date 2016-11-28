@@ -1,5 +1,8 @@
 0.0.3
-Saves window position/size on exit.
+Prefs now change immediately.
+Unmounted disks show mountpoint as "..."
+Saves size of left pane on exit.
+Save window position/size on exit.
 Started menu bar.
 Started prefs.
 Shows and mounts disk according to diskIncludePattern and diskExcludePattern ( to be set in prefs when done ).

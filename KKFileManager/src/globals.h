@@ -80,6 +80,7 @@ enum {TYPEINT=1,TYPESTRING,TYPEBOOL,TYPELIST};
 
 //main app
 extern GtkToolbar		*toolBar;
+extern GtkWidget		*toolBarBox;
 extern GtkWidget		*mainWindow;
 extern GtkWidget		*mainVBox;
 extern char				*sinkReturnStr;
@@ -137,6 +138,7 @@ extern int				windowX;
 extern int				windowY;
 extern int				windowWidth;
 extern int				windowHeight;
+extern int				leftPaneWidth;
 
 //dand
 extern unsigned			fromPageID;

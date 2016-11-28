@@ -118,8 +118,8 @@ int main(int argc,char **argv)
 	else
 		startdir=(char*)"/";
 	toolBarLayout=strdup("NUBFHL");
-	diskIncludePattern=strdup("*sd[abc][1-9]*");
-	diskExcludePattern=strdup("\\(sda[123456]$\\|sda13\\)");
+	diskIncludePattern=strdup("*sd?*");
+	diskExcludePattern=strdup("*");
 
 	gtk_init(&argc,&argv);
 	defaultTheme=gtk_icon_theme_get_default();

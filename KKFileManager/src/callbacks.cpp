@@ -323,8 +323,30 @@ void closeTab(GtkButton *button,pageStruct *page)
 
 void setPrefs(GtkWidget* widget,gpointer ptr)
 {
+//\(sda[123456]$\|sda13\)
+//*sd[abc][1-9]*
+	if((long)ptr==-1)
+		{
+			if(toolBarLayout!=NULL)
+				free(toolBarLayout);
+			toolBarLayout=strdup(gtk_entry_get_text((GtkEntry*)prefsText[TOOLBARLAYOUTTXT]));
+
+			gtk_widget_destroy((GtkWidget*)toolBar);
+			toolBar=(GtkToolbar*)gtk_toolbar_new();
+			setUpToolBar();
+			gtk_box_pack_start(GTK_BOX(toolBarBox),(GtkWidget*)toolBar,true,true,0);
+			gtk_widget_show_all(toolBarBox);
+
+
+			if(diskExcludePattern!=NULL)
+				free(diskExcludePattern);
+			diskExcludePattern=strdup(gtk_entry_get_text((GtkEntry*)prefsText[EXCLUDEDISKLISTTXT]));
+			if(diskIncludePattern!=NULL)
+				free(diskIncludePattern);
+			diskIncludePattern=strdup(gtk_entry_get_text((GtkEntry*)prefsText[INCLUDEDISKLISTTXT]));
+			updateDiskList();
+		}
 	gtk_widget_destroy(prefsWindow);
-	printf(">>%i<<\n",(int)(long)ptr);
 }
 
 void doShutdown(GtkWidget* widget,gpointer data)

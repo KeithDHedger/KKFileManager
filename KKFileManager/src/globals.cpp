@@ -29,6 +29,7 @@
 
 //main app
 GtkToolbar		*toolBar=NULL;
+GtkWidget		*toolBarBox=NULL;
 GtkWidget		*mainWindow = NULL;
 GtkWidget		*mainVBox=NULL;
 char			*sinkReturnStr=NULL;
@@ -92,6 +93,7 @@ int				windowX=-1;
 int				windowY=-1;
 int				windowWidth=1000;
 int				windowHeight=600;
+int				leftPaneWidth=260;
 
 args			kkfilemanager_rc[]=
 {
@@ -102,6 +104,7 @@ args			kkfilemanager_rc[]=
 	{"excludedisks",TYPESTRING,&diskExcludePattern},
 	{"windowsize",TYPESTRING,&windowAllocData},
 	//ints
+	{"leftpanesize",TYPEINT,&leftPaneWidth},
 	//lists
 	{NULL,0,NULL}
 };
@@ -335,10 +338,7 @@ void writeExitData(void)
 	if( (alloc.width>10) && (alloc.height>10) )
 		sinkReturn=asprintf(&windowAllocData,"%i %i %i %i",alloc.width,alloc.height,winx,winy);
 
-
-//	toolOutHeight=gtk_paned_get_position((GtkPaned*)mainVPane);
-//	bottomVPaneHite=gtk_paned_get_position((GtkPaned*)mainWindowVPane);
-//	topVPaneHite=gtk_paned_get_position((GtkPaned*)secondWindowVPane);
+	leftPaneWidth=gtk_paned_get_position((GtkPaned*)mainHPane);
 
 	sinkReturn=asprintf(&filename,"%s/%s",getenv("HOME"),APPFOLDENAME);
 	g_mkdir_with_parents(filename,493);

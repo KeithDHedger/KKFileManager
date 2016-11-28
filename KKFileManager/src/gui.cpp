@@ -557,7 +557,9 @@ void buidMainGui(const char *startdir)
 //add toolbar
 	toolBar=(GtkToolbar*)gtk_toolbar_new();
 	setUpToolBar();
-	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBar,false,false,0);
+	toolBarBox=createNewBox(NEWHBOX,true,0);
+	gtk_box_pack_start(GTK_BOX(toolBarBox),(GtkWidget*)toolBar,true,true,0);
+	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)toolBarBox,false,false,0);
 
 #ifndef _USEGTK3_
 	mainHPane=gtk_hpaned_new();
@@ -607,6 +609,9 @@ void buidMainGui(const char *startdir)
 	gtk_container_add((GtkContainer*)mainWindow,mainVBox);
 	gtk_entry_set_text(locationTextBox,startdir);
 	gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
+//set left pane width
+	gtk_paned_set_position((GtkPaned*)mainHPane,leftPaneWidth);
+	
 	gtk_widget_show_all(mainWindow);
 }
 
