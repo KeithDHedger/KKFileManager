@@ -141,6 +141,7 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 						system(command);
 						free(path);
 						free(command);
+						updateDiskList();
 						free(mountpoint);
 					}
 				break;
