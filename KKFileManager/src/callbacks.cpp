@@ -53,6 +53,8 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	GtkTreeIter	iter;
 	gboolean	isdir;
 	int			result=0;
+	char		*validFilePath=NULL;
+	char		*validDirname=NULL;
 
 	switch(ctx->id)
 		{
@@ -93,6 +95,23 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 							sprintf(buffer,"rm \"%s\"",path);
 						system(buffer);
 					}
+				break;
+			case CONTEXTDUP:
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+				if(fileName!=NULL)
+					free(fileName);
+				validFilePath=getValidFilepath(path);
+				fileName=g_path_get_basename(validFilePath);
+				doAskForFilename(NULL,NULL);
+				if(validName==true)
+					{
+						validDirname=g_path_get_dirname(path);
+						sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",path,validDirname,fileName);
+						system(buffer);
+					}
+				free(validFilePath);
+				free(validDirname);
 				break;
 			default:
 				printf("unknown\n");
@@ -186,14 +205,22 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 			if(treepath!=NULL)
 				{
 					gtk_icon_view_select_path(page->iconView,treepath);
+//open file
 					menuitem=newMenuItem(CONTEXTOPEN,tabMenu);
 					contextMenus[CONTEXTOPEN]->page=page;
 					contextMenus[CONTEXTOPEN]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTOPEN]);
+//delete file
 					menuitem=newMenuItem(CONTEXTDELETE,tabMenu);
 					contextMenus[CONTEXTDELETE]->page=page;
 					contextMenus[CONTEXTDELETE]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTDELETE]);
+//duplicate file
+					menuitem=newImageMenuItem(CONTEXTDUP,tabMenu);
+					contextMenus[CONTEXTDUP]->page=page;
+					contextMenus[CONTEXTDUP]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTDUP]);
+
 				}
 			else
 				{

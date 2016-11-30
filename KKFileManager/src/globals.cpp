@@ -350,3 +350,27 @@ void writeExitData(void)
 	free(filename);
 	free(windowAllocData);
 }
+
+char* getValidFilepath(const char *filepath)
+{
+	char		buffer[PATH_MAX];
+	char		bufferbase[PATH_MAX];
+	unsigned	cnt;
+	char		*ptr;
+
+	sprintf(bufferbase,"%s",filepath);
+	if(g_file_test(bufferbase,G_FILE_TEST_EXISTS)==true)
+		{
+			cnt=1;
+			ptr=strrchr(bufferbase,'-');
+			if(ptr!=NULL)
+				*ptr=0;
+			sprintf(buffer,"%s-%u",bufferbase,cnt);
+			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+				{
+					cnt++;
+					sprintf(buffer,"%s-%u",bufferbase,cnt);
+				}
+		}
+	return(strdup(buffer));
+}

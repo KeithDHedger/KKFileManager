@@ -35,6 +35,7 @@ menuDataStruct	menuData[]=
 		{"New Folder",GTK_STOCK_DIRECTORY,0,0,NULL,"newfoldermenu",NULL},
 		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
+		{"Duplicate",GTK_STOCK_COPY,0,0,NULL,"duplicatemenu",NULL},
 //disk context
 		{"Mount",GTK_STOCK_HARDDISK,0,0,NULL,"mountdiskmenu",NULL},
 		{"Un-Mount",GTK_STOCK_HARDDISK,0,0,NULL,"unmountdiskmenu",NULL},

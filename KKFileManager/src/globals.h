@@ -35,6 +35,7 @@
 #include "gui.h"
 #include "callbacks.h"
 #include "prefs.h"
+#include "dialogs.h"
 
 #ifdef _USEGTK3_
 //menus
@@ -42,6 +43,7 @@
 #define GTK_STOCK_NEW "document-new"
 #define GTK_STOCK_OPEN "document-open"
 #define GTK_STOCK_DELETE "edit-delete"
+#define GTK_STOCK_COPY "edit-copy"
 //odds
 #define GTK_STOCK_ADD "list-add"
 #define GTK_STOCK_YES "Yes"
@@ -157,5 +159,6 @@ int yesNo(const char *question,char *file);
 char *getUniqueFilename(const char *path);
 int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
+char* getValidFilepath(const char *filepath);
 
 #endif
