@@ -85,14 +85,14 @@ content=gtk_dialog_get_content_area ((GtkDialog *)askentryWindow);
 	gtk_box_pack_start(GTK_BOX(content),(GtkWidget*)vbox,true,true,2);
 //	gtk_window_set_modal((GtkWindow*)askentryWindow,true);
 	gtk_window_set_transient_for((GtkWindow*)askentryWindow,(GtkWindow*)mainWindow);
-	gtk_widget_show_all(askentryWindow);
+	gtk_widget_show_all((GtkWidget*)vbox);
 	gtk_dialog_run((GtkDialog*)askentryWindow);
 }
 
 void setAskEntry(GtkWidget* widget,gpointer ptr)
 {
-	printf(">>%i<<\n",(int)(long)ptr);
-	printf("filname=%s\n",gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
+//	printf(">>%i<<\n",(int)(long)ptr);
+//	printf("filname=%s\n",gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
  	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)askentryText[ENTERFILENAMETXT])>0))
  		{
  			fileName=strdup(gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));

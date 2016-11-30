@@ -29,7 +29,7 @@ GtkWidget	*tabMenu;
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
-printf("folder=%s\n",page->thisFolder);
+//printf("folder=%s\n",page->thisFolder);
 	switch(event_type)
 		{
 			case G_FILE_MONITOR_EVENT_UNMOUNTED:
@@ -48,7 +48,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	char		buffer[PATH_MAX+20];
 	const char	*type="Folder";
 	const char	*command="mkdir";
-	unsigned	cnt=0;
 	gchar		*path;
 	GtkTreeIter	iter;
 	gboolean	isdir;
@@ -63,21 +62,17 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				command="touch";
 			case CONTEXTNEWFOLDER:
 				sprintf(buffer,"%s/New %s",ctx->page->thisFolder,type);
-				if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+				validFilePath=getValidFilepath(buffer);
+				fileName=g_path_get_basename(validFilePath);
+				doAskForFilename(NULL,NULL);
+				if(validName==true)
 					{
-						cnt=0;
-						while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-							{
-								cnt++;
-								sprintf(buffer,"%s/New %s %u",ctx->page->thisFolder,type,cnt);
-							}
-						sprintf(buffer,"%s \"%s/New %s %u\"",command,ctx->page->thisFolder,type,cnt);
+						validDirname=g_path_get_dirname(validFilePath);
+						sprintf(buffer,"%s \"%s/%s\"",command,validDirname,fileName);
+						system(buffer);
 					}
-				else
-					{
-						sprintf(buffer,"%s \"%s/New %s\"",command,ctx->page->thisFolder,type);
-					}
-				system(buffer);
+				free(validFilePath);
+				free(validDirname);
 				break;
 			case CONTEXTOPEN:
 				selectItem(ctx->page->iconView,ctx->treepath,ctx->page);

@@ -354,23 +354,29 @@ void writeExitData(void)
 char* getValidFilepath(const char *filepath)
 {
 	char		buffer[PATH_MAX];
-	char		bufferbase[PATH_MAX];
 	unsigned	cnt;
 	char		*ptr;
 
-	sprintf(bufferbase,"%s",filepath);
-	if(g_file_test(bufferbase,G_FILE_TEST_EXISTS)==true)
+	char		*dirname=g_path_get_dirname(filepath);
+	char		*filename=g_path_get_basename(filepath);
+
+	ptr=strrchr(filename,'-');
+	if(ptr!=NULL)
+		*ptr=0;
+
+	sprintf(buffer,"%s/%s",dirname,filename);
+	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 		{
-			cnt=1;
-			ptr=strrchr(bufferbase,'-');
-			if(ptr!=NULL)
-				*ptr=0;
-			sprintf(buffer,"%s-%u",bufferbase,cnt);
+			cnt=0;
 			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 				{
 					cnt++;
-					sprintf(buffer,"%s-%u",bufferbase,cnt);
+					sprintf(buffer,"%s/%s-%u",dirname,filename,cnt);
 				}
+		
 		}
+	else
+		sprintf(buffer,"%s",filepath);
+
 	return(strdup(buffer));
 }
