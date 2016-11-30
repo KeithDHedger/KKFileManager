@@ -29,9 +29,18 @@ GtkWidget	*tabMenu;
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
-//printf("folder=%s\n",page->thisFolder);
-	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_MOVED==event_type))
-		populatePageStore(page);
+printf("folder=%s\n",page->thisFolder);
+	switch(event_type)
+		{
+			case G_FILE_MONITOR_EVENT_UNMOUNTED:
+				closeTab(NULL,page);
+				updateDiskList();
+				break;
+			default:
+				populatePageStore(page);
+		}
+//	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_MOVED==event_type) || (G_FILE_MONITOR_EVENT_UNMOUNTED==event_type))
+//		populatePageStore(page);
 }
 
 void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
@@ -96,7 +105,7 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	GtkTreeIter	iter;
 	char		*command;
 	char		*mountpoint;
-
+	
 	switch(ctx->id)
 		{
 			case CONTEXTDISKMOUNT:
@@ -106,7 +115,15 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				if((mountpoint==NULL) ||(strcmp(mountpoint,"…")==0))
 					{
 						asprintf(&command,"udevil mount /dev/%s",path);
-						system(command);
+						sinkReturn=system(command);
+						if(sinkReturn!=0)
+							{
+								free(path);
+								free(command);
+								updateDiskList();
+								free(mountpoint);
+								return;
+							}
 						free(path);
 						free(command);
 						updateDiskList();
@@ -139,11 +156,11 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					{
 						asprintf(&command,"udevil umount \"%s\";eject \"%s\"",mountpoint,path);
 						system(command);
-						free(path);
 						free(command);
 						updateDiskList();
 						free(mountpoint);
 					}
+				free(path);
 				break;
 			default:
 				printf("unknown\n");
@@ -154,8 +171,8 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkWidget	*menuitem;
     GtkTreePath	*treepath;
-
 	fromPageID=page->pageID;
+
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
 			gtk_icon_view_unselect_all(page->iconView);
@@ -193,7 +210,6 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 			gtk_widget_show_all((GtkWidget*)tabMenu);
 			return(true);
 		}
-
 	return(false);
 }
 
@@ -380,6 +396,7 @@ gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned tim
 	frompage=getPageStructByIDFromList(fromPageID);
 	list=gtk_icon_view_get_selected_items((GtkIconView*)frompage->iconView);
 
+printf("numitems=%i\n",g_list_length (list));
 	treepath=gtk_icon_view_get_path_at_pos(page->iconView,x,y);
 	if(treepath!=NULL)
 		{
@@ -400,7 +417,7 @@ gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned tim
 		{
 			gtk_tree_model_get_iter((GtkTreeModel *)frompage->listStore,&iter,(GtkTreePath *)list->data);
 			gtk_tree_model_get(GTK_TREE_MODEL(frompage->listStore),&iter,FILEPATH,&frompath,ISDIR,&isdir,-1);
-			//printf(">>>from path=%s<<<\n",frompath);
+			printf(">>>from path=%s<<<\n",frompath);
 			fileAction(frompath,topath,isdir,action);
 			list=list->next;
 		}

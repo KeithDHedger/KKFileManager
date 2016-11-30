@@ -380,8 +380,8 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),TEXT_COLUMN);
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
-	g_signal_connect (page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
-	g_signal_connect (page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
+	g_signal_connect(page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
+	g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
 	populatePageStore(page);
 
 	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(page->iconView),GTK_SELECTION_MULTIPLE);
@@ -395,7 +395,7 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
 	gtk_icon_view_enable_model_drag_dest(page->iconView,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
 
-	g_signal_connect( G_OBJECT( page->iconView ), "drag-drop",G_CALLBACK(doDrop), (gpointer)page );
+	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(doDrop),(gpointer)page );
 
 	gtk_icon_view_set_item_width(page->iconView,iconSize);
 	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
