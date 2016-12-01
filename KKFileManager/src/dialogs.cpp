@@ -53,9 +53,9 @@ void doAskForFilename(GtkWidget* widget,gpointer data)
 	GtkWidget	*content;
 
 	askentryWindow=gtk_dialog_new();
+	content=gtk_dialog_get_content_area ((GtkDialog *)askentryWindow);
 	gtk_window_set_title((GtkWindow*)askentryWindow,"Enter Filename");
 	vbox=(GtkBox*)createNewBox(NEWVBOX,false,0);
-content=gtk_dialog_get_content_area ((GtkDialog *)askentryWindow);
 	makeAskEntryText(ENTERFILENAMETXT,"Enter Filename",fileName,vbox,true);
 #ifdef _USEGTK3_
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
