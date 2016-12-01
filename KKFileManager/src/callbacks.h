@@ -34,5 +34,6 @@ void setPrefs(GtkWidget* widget,gpointer ptr);
 void doShutdown(GtkWidget* widget,gpointer data);
 gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata);
 void runTerminalHere(GtkWidget* widget,gpointer data);
+void setAskEntry(GtkWidget* widget,gpointer ptr);
 
 #endif

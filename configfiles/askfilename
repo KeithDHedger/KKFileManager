@@ -1,0 +1,13 @@
+#base name for variables etc
+BASE:AskEntry
+DONAME:doAskForFilename
+INCLUDE:"globals.h"
+WINDOWTITLE:Enter Filename
+MAKEADIALOG
+
+#dont include create box code
+NOBOXCODE
+textbox:Enter Filename:fileName
+
+VARIABLE:char		*fileName:global
+VARIABLE:bool		validName:global

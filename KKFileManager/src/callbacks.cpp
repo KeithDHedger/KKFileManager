@@ -535,3 +535,15 @@ void runTerminalHere(GtkWidget* widget,gpointer data)
 	free(command);
 }
 
+void setAskEntry(GtkWidget* widget,gpointer ptr)
+{
+//	printf(">>%i<<\n",(int)(long)ptr);
+//	printf("filname=%s\n",gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
+ 	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)askentryText[ENTERFILENAMETXT])>0))
+ 		{
+ 			fileName=strdup(gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
+			validName=true;
+		}
+	gtk_widget_destroy(askentryWindow);
+//	    gtk_main_quit();
+}
