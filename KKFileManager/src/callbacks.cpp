@@ -116,7 +116,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
 				
 				sprintf(buffer,"mimetype --output-format=\"%%m\" \"%s\"",path);
-				printf("buffer in=%s\n",buffer);
 				output=oneLiner(buffer);
 				buffer[0]=0;
 				if((strcmp(output,"application/gzip")==0) || (strcmp(output,"application/x-bzip")==0) || (strcmp(output,"application/x-tar")==0) || (strcmp(output,"application/x-compressed-tar")==0) || (strcmp(output,"application/x-bzip-compressed-tar")==0))
@@ -125,8 +124,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					sprintf(buffer,"(cd \"%s\";unzip \"%s\")",ctx->page->thisFolder,path);
 				if(strlen(buffer)>0)
 					system(buffer);
-				printf("buffer=%s\n",buffer);
-				printf("output=%s\n",output);
 				free(output);
 				free(path);
 				break;
