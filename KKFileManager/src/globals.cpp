@@ -50,6 +50,7 @@ GtkWidget		*menuBar=NULL;
 //file menu
 GtkWidget		*fileMenu=NULL;
 GtkWidget		*menuItemNew=NULL;
+GtkWidget		*menuItemTerminal=NULL;
 GtkWidget		*menuItemPrefs=NULL;
 
 //tool bar
@@ -84,8 +85,9 @@ unsigned		maxTabChars=32;
 //prefs
 bool			showMenuIcons=true;
 char			*toolBarLayout=NULL;
-char			*diskIncludePattern;
-char			*diskExcludePattern;
+char			*diskIncludePattern=NULL;
+char			*diskExcludePattern=NULL;
+char			*terminalCommand=NULL;
 
 //save and load var lists
 char			*windowAllocData=NULL;
@@ -102,6 +104,7 @@ args			kkfilemanager_rc[]=
 	{"toolbarlayout",TYPESTRING,&toolBarLayout},
 	{"includedisks",TYPESTRING,&diskIncludePattern},
 	{"excludedisks",TYPESTRING,&diskExcludePattern},
+	{"terminalcommand",TYPESTRING,&terminalCommand},
 	{"windowsize",TYPESTRING,&windowAllocData},
 	//ints
 	{"leftpanesize",TYPEINT,&leftPaneWidth},

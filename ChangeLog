@@ -1,4 +1,5 @@
 0.0.3
+Added 'Extract' to context menu.
 Added duplicate menu item to pop up.
 Disks inserted/removed  now auto detected.
 Disk list include/exclude now sed tyoe regex eg include list:

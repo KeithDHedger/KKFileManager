@@ -54,6 +54,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	int			result=0;
 	char		*validFilePath=NULL;
 	char		*validDirname=NULL;
+	char		*output=NULL;
 
 	switch(ctx->id)
 		{
@@ -90,6 +91,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 							sprintf(buffer,"rm \"%s\"",path);
 						system(buffer);
 					}
+				free(path);
 				break;
 			case CONTEXTDUP:
 				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
@@ -107,6 +109,26 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					}
 				free(validFilePath);
 				free(validDirname);
+				free(path);
+				break;
+			case CONTEXTEXTRACT:
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+				
+				sprintf(buffer,"mimetype --output-format=\"%%m\" \"%s\"",path);
+				printf("buffer in=%s\n",buffer);
+				output=oneLiner(buffer);
+				buffer[0]=0;
+				if((strcmp(output,"application/gzip")==0) || (strcmp(output,"application/x-bzip")==0) || (strcmp(output,"application/x-tar")==0) || (strcmp(output,"application/x-compressed-tar")==0) || (strcmp(output,"application/x-bzip-compressed-tar")==0))
+					sprintf(buffer,"(cd \"%s\";tar -xvf \"%s\")",ctx->page->thisFolder,path);
+				if(strcmp(output,"application/zip")==0)
+					sprintf(buffer,"(cd \"%s\";unzip \"%s\")",ctx->page->thisFolder,path);
+				if(strlen(buffer)>0)
+					system(buffer);
+				printf("buffer=%s\n",buffer);
+				printf("output=%s\n",output);
+				free(output);
+				free(path);
 				break;
 			default:
 				printf("unknown\n");
@@ -215,6 +237,11 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTDUP]->page=page;
 					contextMenus[CONTEXTDUP]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTDUP]);
+//extractmenu
+					menuitem=newImageMenuItem(CONTEXTEXTRACT,tabMenu);
+					contextMenus[CONTEXTEXTRACT]->page=page;
+					contextMenus[CONTEXTEXTRACT]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTEXTRACT]);
 
 				}
 			else
@@ -480,6 +507,9 @@ void setPrefs(GtkWidget* widget,gpointer ptr)
 			gtk_box_pack_start(GTK_BOX(toolBarBox),(GtkWidget*)toolBar,true,true,0);
 			gtk_widget_show_all(toolBarBox);
 
+			if(terminalCommand!=NULL)
+				free(terminalCommand);
+			terminalCommand=strdup(gtk_entry_get_text((GtkEntry*)prefsText[TERMINALCOMMANDTXT]));
 
 			if(diskExcludePattern!=NULL)
 				free(diskExcludePattern);
@@ -497,3 +527,14 @@ void doShutdown(GtkWidget* widget,gpointer data)
 	writeExitData();
 	gtk_main_quit();
 }
+
+void runTerminalHere(GtkWidget* widget,gpointer data)
+{
+	char		*command;
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+
+	asprintf(&command,"(cd \"%s\";%s\"%s\") &",page->thisFolder,terminalCommand,page->thisFolder);
+	system(command);
+	free(command);
+}
+

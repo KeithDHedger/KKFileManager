@@ -59,6 +59,8 @@
 #define GTK_STOCK_HARDDISK "drive-harddisk"
 #define GTK_STOCK_QUIT "application-exit"
 #define GTK_STOCK_PREFERENCES "preferences-system"
+#define GTK_STOCK_EXECUTE "system-run"
+#define GTK_STOCK_CONVERT "stock_convert"
 #endif
 
 #define	APPEXECNAME "kkfilemanager" _EXECSUFFIX_
@@ -106,6 +108,7 @@ extern GtkWidget		*menuBar;
 //file menu
 extern GtkWidget		*fileMenu;
 extern GtkWidget		*menuItemNew;
+extern GtkWidget		*menuItemTerminal;
 extern GtkWidget		*menuItemPrefs;
 
 //tool bar
@@ -135,6 +138,7 @@ extern bool				showMenuIcons;
 extern char				*toolBarLayout;
 extern char				*diskIncludePattern;
 extern char				*diskExcludePattern;
+extern char				*terminalCommand;
 
 //save and load var lists
 extern char				*windowAllocData;

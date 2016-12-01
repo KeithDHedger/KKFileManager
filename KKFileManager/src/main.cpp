@@ -120,6 +120,7 @@ int main(int argc,char **argv)
 	toolBarLayout=strdup("NUBFHL");
 	diskIncludePattern=strdup("*sd?*");
 	diskExcludePattern=strdup("*");
+	terminalCommand=strdup("xterm -title ");
 
 	gtk_init(&argc,&argv);
 	defaultTheme=gtk_icon_theme_get_default();

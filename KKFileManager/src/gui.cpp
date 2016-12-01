@@ -36,12 +36,14 @@ menuDataStruct	menuData[]=
 		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
 		{"Duplicate",GTK_STOCK_COPY,0,0,NULL,"duplicatemenu",NULL},
+		{"Extract",GTK_STOCK_CONVERT,0,0,NULL,"extractmenu",NULL},
 //disk context
 		{"Mount",GTK_STOCK_HARDDISK,0,0,NULL,"mountdiskmenu",NULL},
 		{"Un-Mount",GTK_STOCK_HARDDISK,0,0,NULL,"unmountdiskmenu",NULL},
 		{"Eject",GTK_STOCK_HARDDISK,0,0,NULL,"ejectdiskmenu",NULL},
 //main
 		{"New Tab",GTK_STOCK_NEW,0,0,(void*)&goNew,"newtabmenu",NULL},
+		{"Terminal",GTK_STOCK_EXECUTE,0,0,(void*)&runTerminalHere,"terminalmenu",NULL},
 		{"Preferences",GTK_STOCK_PREFERENCES,0,0,(void*)&doPrefs,"prefsmenu",NULL},
 		{"Quit",GTK_STOCK_QUIT,0,0,(void*)&doShutdown,"quitmenu",NULL}
 	};
@@ -523,6 +525,9 @@ void buildMenus(void)
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenu),menu);
 //new
 	menuItemNew=newMenuItem(MAINFILENEW,menu);
+//terminals
+	menuItemTerminal=newImageMenuItem(MAINFILETERMINAL,menu);
+
 //prefs
 	menuItemPrefs=newMenuItem(MAINFILEPREFS,menu);
 	

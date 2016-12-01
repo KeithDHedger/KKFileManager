@@ -33,5 +33,6 @@ void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata);
 void setPrefs(GtkWidget* widget,gpointer ptr);
 void doShutdown(GtkWidget* widget,gpointer data);
 gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata);
+void runTerminalHere(GtkWidget* widget,gpointer data);
 
 #endif

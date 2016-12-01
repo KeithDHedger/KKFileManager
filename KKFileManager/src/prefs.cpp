@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Thu 24 Nov 20:13:52 GMT 2016
+*     ©keithhedger Thu  1 Dec 12:35:42 GMT 2016
 *     kdhedger68713@gmail.com
 *
 *     prefs.cpp
@@ -11,7 +11,7 @@
 #include "prefs.h"
 #include "globals.h"
 
-GtkWidget	*prefsText[3];
+GtkWidget	*prefsText[4];
 
 GtkWidget	*prefsWindow;
 
@@ -45,6 +45,12 @@ void doPrefs(GtkWidget* widget,gpointer data)
 	gtk_window_set_title((GtkWindow*)prefsWindow,"Preferences");
 	vbox=(GtkBox*)createNewBox(NEWVBOX,false,0);
 
+	makePrefsText(TERMINALCOMMANDTXT,"Terminal Command",terminalCommand,vbox,true);
+#ifdef _USEGTK3_
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
+#else
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),true,true,4);
+#endif
 	makePrefsText(TOOLBARLAYOUTTXT,"Toolbar Layout",toolBarLayout,vbox,true);
 	makePrefsText(INCLUDEDISKLISTTXT,"Include Disk List",diskIncludePattern,vbox,true);
 	makePrefsText(EXCLUDEDISKLISTTXT,"Exclude Disk List",diskExcludePattern,vbox,true);
@@ -74,5 +80,5 @@ void doPrefs(GtkWidget* widget,gpointer data)
 	g_signal_connect(G_OBJECT(item),"clicked",G_CALLBACK(setPrefs),(void*)-2);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,2);
 	gtk_container_add(GTK_CONTAINER(prefsWindow),(GtkWidget*)vbox);
-	gtk_widget_show_all(prefsWindow);
+gtk_widget_show_all(prefsWindow);
 }

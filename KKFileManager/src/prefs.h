@@ -1,6 +1,6 @@
 /******************************************************
 *
-*     ©keithhedger Thu 24 Nov 20:13:53 GMT 2016
+*     ©keithhedger Thu  1 Dec 12:35:42 GMT 2016
 *     kdhedger68713@gmail.com
 *
 *     prefs.h
@@ -12,7 +12,7 @@
 #ifndef _PREFS_
 #define _PREFS_
 
-enum {TOOLBARLAYOUTTXT=0,INCLUDEDISKLISTTXT,EXCLUDEDISKLISTTXT};
+enum {TERMINALCOMMANDTXT=0,TOOLBARLAYOUTTXT,INCLUDEDISKLISTTXT,EXCLUDEDISKLISTTXT};
 
 extern GtkWidget	*prefsText[];
 

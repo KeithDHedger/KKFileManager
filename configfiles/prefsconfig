@@ -5,7 +5,8 @@ NOBOXCODE
 DONAME:doPrefs
 INCLUDE:"globals.h"
 
-
+textbox:Terminal Command:terminalCommand
+HLINE
 textbox:Toolbar Layout:toolBarLayout
 textbox:Include Disk List:diskIncludePattern
 textbox:Exclude Disk List:diskExcludePattern
