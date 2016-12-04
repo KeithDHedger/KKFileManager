@@ -565,7 +565,8 @@ void buidMainGui(const char *startdir)
 	mainNotebook=(GtkNotebook*)gtk_notebook_new();
 	g_signal_connect(G_OBJECT(mainNotebook),"switch-page",G_CALLBACK(switchPage),NULL);
 
-	addNewPage((char*)startdir);
+//	if(openDefault==true)
+//		addNewPage(getenv("HOME"));
 	mainVBox=createNewBox(NEWVBOX,false,0);
 
 //main menus
@@ -626,14 +627,20 @@ void buidMainGui(const char *startdir)
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainHPane,true,true,0);
 
 	gtk_container_add((GtkContainer*)mainWindow,mainVBox);
-	gtk_entry_set_text(locationTextBox,startdir);
-	gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
+//printf("thisfolder=%s\n",startdir);
+
+//	gtk_entry_set_text(locationTextBox,startdir);
+//	gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
+
+	if(openDefault==true)
+		addNewPage(getenv("HOME"));
+
 //set left pane width
 	gtk_paned_set_position((GtkPaned*)mainHPane,leftPaneWidth);
 	
 	gtk_widget_show_all(mainWindow);
 //	g_timeout_add(1000,updateDiskListTimer,NULL);
-monitorDevFolder();
+	monitorDevFolder();
 }
 
 void updateTabLabel(pageStruct	*page)

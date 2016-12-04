@@ -10,10 +10,17 @@
 #include <gtk/gtk.h>
 #include <map>
 
+#include <X11/Xatom.h>
+#include <gdk/gdkx.h>
+//#include <sys/msg.h>
+
 #include "globals.h"
 #include "gui.h"
 
 int			cnt=0;
+bool	singleOverRide=false;
+//const char	*startdir=NULL;
+
 const char	*mimetypestocache[]=
 {
 		"application/x-executable",
@@ -101,28 +108,93 @@ void loadPrefs(void)
 	free(filename);
 }
 
-int main(int argc,char **argv)
+int getWorkspaceNumber(void)
 {
+	GdkDisplay		*display;
+	GdkWindow		*root_win;
+	Atom			_net_current_desktop,type;
+	int				format;
+	unsigned long	n_items, bytes_after;
+	unsigned char	*data_return=0;
+	int				retnum=0;
+
+	display=gdk_screen_get_display(gdk_screen_get_default());
+	root_win=gdk_screen_get_root_window(gdk_screen_get_default());
+
+	_net_current_desktop=gdk_x11_get_xatom_by_name_for_display(display,"_NET_CURRENT_DESKTOP");
+
+	XGetWindowProperty(GDK_DISPLAY_XDISPLAY(display),GDK_WINDOW_XID(root_win),_net_current_desktop,0,G_MAXLONG,False,XA_CARDINAL,&type,&format,&n_items,&bytes_after,&data_return);
+
+	if(type==XA_CARDINAL && format==32 && n_items>0)
+		{
+			retnum=(int)data_return[0];
+			XFree(data_return);
+		}
+	return retnum;
+}
+
+void activate(GApplication *application)
+{
+	if(mainWindow!=NULL)
+		gtk_window_present((GtkWindow*)mainWindow);
+	//getMsg();
+}
+
+void open(GApplication *application,GFile** files,gint n_files,const gchar *hint)
+{
+	char	*filepath=NULL;
+	char	*linenum=NULL;
+	int		line=0;
+
+	g_application_hold(application);
+	//fromGOpen=true;
+
+	if(mainWindow!=NULL)
+		gtk_window_present((GtkWindow*)mainWindow);
+	for(int i=0; i<n_files; i++)
+		{
+			filepath=g_file_get_path(files[i]);
+//			linenum=strrchr(filepath,'@');
+//			if(linenum!=NULL)
+//				{
+//					*linenum=0;
+//					linenum++;
+//					line=atoi(linenum);
+//				}
+//			
+			if(filepath!=NULL)
+				addNewPage(filepath);
+
+//				{
+//					openFile(filepath,line,true);
+//					ERRDATA g_free(filepath);
+//				}
+		}
+//
+//	fromGOpen=false;
+//	if(waitForFinish==true)
+//		{
+//			waitForFinish=false;
+//			sendOK();
+//		}
+	g_application_release(application);
+}
+
+void appStart(GApplication  *application,gpointer data)
+{
+//	int	w,h;
 	GtkIconInfo	*info;
-	const char	*startdir;
+//	const char	*startdir;
 	char		*origpath=NULL;
 
-	if(argc>1)
-		{
-			origpath=realpath(argv[1],NULL);
-			if(origpath!=NULL)
-				startdir=origpath;
-			else
-				startdir=(char*)"/";
-		}
-	else
-		startdir=(char*)"/";
+	g_application_hold(application);
+
 	toolBarLayout=strdup("NUBFHL");
 	diskIncludePattern=strdup("*sd?*");
 	diskExcludePattern=strdup("*");
 	terminalCommand=strdup("xterm -title ");
+//	startdir=getenv("HOME");
 
-	gtk_init(&argc,&argv);
 	defaultTheme=gtk_icon_theme_get_default();
 	gnomeTheme=gtk_icon_theme_new();
 	gtk_icon_theme_set_custom_theme(gnomeTheme,"gnome");
@@ -148,14 +220,112 @@ int main(int argc,char **argv)
 
 	loadPrefs();
 
-	buidMainGui(startdir);
+printf("00000000000000\n");
+	buidMainGui(NULL);
 
-	free(origpath);
+//	free(origpath);
 
 
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
-	gtk_main();
 
-	g_object_unref(defaultTheme);
+
+}
+
+int main(int argc,char **argv)
+{
+//	GtkIconInfo	*info;
+//	const char	*startdir;
+	char		*origpath=NULL;
+//
+	int				status;
+	char			*dbusname;
+	GOptionContext	*context;
+
+	GOptionEntry	entries[]=
+{
+    {"multiple",'m',0,G_OPTION_ARG_NONE,&singleOverRide,"Multiple instance mode",NULL},
+    {"sessionid",'i',0,G_OPTION_ARG_INT,&sessionID,"Set an ID to be used for (new) instance",NULL},
+    { NULL }
+};
+
+	context=g_option_context_new(NULL);
+	g_option_context_add_main_entries(context,entries,NULL);
+	g_option_context_set_help_enabled(context,true); 
+	g_option_context_parse(context,&argc,&argv,NULL);
+
+	gtk_init(&argc,&argv);
+	if(sessionID==-1)
+		sinkReturn=asprintf(&dbusname,"org.keithhedger%i." APPEXECNAME,getWorkspaceNumber());
+	else
+		sinkReturn=asprintf(&dbusname,"org.keithhedger%i." APPEXECNAME,sessionID);
+
+	if(singleOverRide==true)
+		mainApp=g_application_new(dbusname,(GApplicationFlags)(G_APPLICATION_NON_UNIQUE|G_APPLICATION_HANDLES_OPEN));
+	else
+		mainApp=g_application_new(dbusname,(GApplicationFlags)(G_APPLICATION_HANDLES_OPEN));
+
+	if(argc==1)
+		openDefault=true;
+	else
+		openDefault=false;
+//		{
+//			origpath=realpath(argv[1],NULL);
+//			if(origpath!=NULL)
+//				startdir=origpath;
+//			else
+////				startdir=(char*)"/";
+//				startdir=(char*)getenv("HOME");
+//		}
+//	else
+////		startdir=(char*)"/";
+//		startdir=(char*)getenv("HOME");
+
+//	toolBarLayout=strdup("NUBFHL");
+//	diskIncludePattern=strdup("*sd?*");
+//	diskExcludePattern=strdup("*");
+//	terminalCommand=strdup("xterm -title ");
+//
+//	gtk_init(&argc,&argv);
+//	defaultTheme=gtk_icon_theme_get_default();
+//	gnomeTheme=gtk_icon_theme_new();
+//	gtk_icon_theme_set_custom_theme(gnomeTheme,"gnome");
+//
+//	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-symbolic-link",16,(GtkIconLookupFlags)0);
+//	symLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
+//#ifdef _USEGTK3_
+//	g_object_unref(info);
+//#else
+//	gtk_icon_info_free(info);
+//#endif
+//	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-unreadable",16,(GtkIconLookupFlags)0);
+//	brokenLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
+//#ifdef _USEGTK3_
+//	g_object_unref(info);
+//#else
+//	gtk_icon_info_free(info);
+//#endif
+//
+//	magicInstance=magic_open(MAGIC_MIME_TYPE);
+//	magic_load(magicInstance,NULL);
+//	g_timeout_add (50,loadCache,NULL);
+//
+//	loadPrefs();
+//
+//	buidMainGui(startdir);
+//
+//	free(origpath);
+//
+//
+//	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
+//	gtk_main();
+	g_signal_connect(mainApp,"activate",G_CALLBACK(activate),NULL);
+	g_signal_connect(mainApp,"startup",G_CALLBACK(appStart),NULL);
+	g_signal_connect(mainApp,"open",G_CALLBACK(open),NULL);
+
+	status=g_application_run(mainApp,argc,argv);
+	g_object_unref(mainApp);
+	free(origpath);
+	if(G_IS_OBJECT(defaultTheme))
+		g_object_unref(defaultTheme);
 	magic_close(magicInstance);
 }

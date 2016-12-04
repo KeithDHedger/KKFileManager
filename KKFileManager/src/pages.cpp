@@ -75,6 +75,10 @@ void addNewPage(char *startdir)
 	g_object_set_data(G_OBJECT(page->vBox),"pageid",(gpointer)(long)page->pageID);
 	gtk_widget_show_all((GtkWidget*)mainNotebook);
 	pageCnt++;
+	gtk_entry_set_text(locationTextBox,startdir);
+	gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
+
+	gtk_notebook_set_current_page(mainNotebook,gtk_notebook_get_n_pages(mainNotebook)-1);
 	free(basename);
 }
 

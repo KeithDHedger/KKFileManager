@@ -522,7 +522,8 @@ void setPrefs(GtkWidget* widget,gpointer ptr)
 void doShutdown(GtkWidget* widget,gpointer data)
 {
 	writeExitData();
-	gtk_main_quit();
+//	gtk_main_quit();
+	g_application_quit(mainApp);
 }
 
 void runTerminalHere(GtkWidget* widget,gpointer data)

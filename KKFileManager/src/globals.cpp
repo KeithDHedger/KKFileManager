@@ -46,6 +46,9 @@ GtkListStore	*diskList=NULL;
 GtkTreeView		*diskView=NULL;
 GtkWidget		*bookmarkList=NULL;
 GtkWidget		*menuBar=NULL;
+int					sessionID=-1;
+GApplication		*mainApp;
+bool			openDefault=false;
 
 //file menu
 GtkWidget		*fileMenu=NULL;
@@ -152,6 +155,8 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
 
 	if(strcmp(page->thisFolder,newfolder)==0)
 		return;
+
+
 	if(newfolder!=NULL && strlen(newfolder)>0)
 		{
 			free(page->thisFolder);

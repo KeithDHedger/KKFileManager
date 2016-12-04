@@ -104,6 +104,9 @@ extern GtkListStore		*diskList;
 extern GtkTreeView		*diskView;
 extern GtkWidget		*bookmarkList;
 extern GtkWidget		*menuBar;
+extern int				sessionID;
+extern GApplication		*mainApp;
+extern bool			openDefault;
 
 //file menu
 extern GtkWidget		*fileMenu;
