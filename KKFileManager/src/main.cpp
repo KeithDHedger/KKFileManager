@@ -1,7 +1,21 @@
 /*
  *
- * K.D.Hedger 2012 <kdhedger68713@gmail.com>
- *
+ * ©K. D. Hedger. Mon  5 Dec 13:02:43 GMT 2016 kdhedger68713@gmail.com
+
+ * This file (main.cpp) is part of KKFileManager.
+
+ * KKFileManager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * at your option) any later version.
+
+ * KKFileManager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdlib.h>
@@ -19,7 +33,6 @@
 
 int			cnt=0;
 bool	singleOverRide=false;
-//const char	*startdir=NULL;
 
 const char	*mimetypestocache[]=
 {
@@ -143,35 +156,19 @@ void activate(GApplication *application)
 void open(GApplication *application,GFile** files,gint n_files,const gchar *hint)
 {
 	char	*filepath=NULL;
-	char	*linenum=NULL;
-	int		line=0;
 
 	g_application_hold(application);
-	//fromGOpen=true;
 
 	if(mainWindow!=NULL)
 		gtk_window_present((GtkWindow*)mainWindow);
+
 	for(int i=0; i<n_files; i++)
 		{
 			filepath=g_file_get_path(files[i]);
-//			linenum=strrchr(filepath,'@');
-//			if(linenum!=NULL)
-//				{
-//					*linenum=0;
-//					linenum++;
-//					line=atoi(linenum);
-//				}
-//			
 			if(filepath!=NULL)
 				addNewPage(filepath);
-
-//				{
-//					openFile(filepath,line,true);
-//					ERRDATA g_free(filepath);
-//				}
 		}
-//
-//	fromGOpen=false;
+
 //	if(waitForFinish==true)
 //		{
 //			waitForFinish=false;
@@ -182,10 +179,7 @@ void open(GApplication *application,GFile** files,gint n_files,const gchar *hint
 
 void appStart(GApplication  *application,gpointer data)
 {
-//	int	w,h;
 	GtkIconInfo	*info;
-//	const char	*startdir;
-	char		*origpath=NULL;
 
 	g_application_hold(application);
 
@@ -193,7 +187,6 @@ void appStart(GApplication  *application,gpointer data)
 	diskIncludePattern=strdup("*sd?*");
 	diskExcludePattern=strdup("*");
 	terminalCommand=strdup("xterm -title ");
-//	startdir=getenv("HOME");
 
 	defaultTheme=gtk_icon_theme_get_default();
 	gnomeTheme=gtk_icon_theme_new();
@@ -220,23 +213,14 @@ void appStart(GApplication  *application,gpointer data)
 
 	loadPrefs();
 
-printf("00000000000000\n");
 	buidMainGui(NULL);
 
-//	free(origpath);
-
-
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
-
-
 }
 
 int main(int argc,char **argv)
 {
-//	GtkIconInfo	*info;
-//	const char	*startdir;
-	char		*origpath=NULL;
-//
+	char			*origpath=NULL;
 	int				status;
 	char			*dbusname;
 	GOptionContext	*context;
@@ -268,56 +252,7 @@ int main(int argc,char **argv)
 		openDefault=true;
 	else
 		openDefault=false;
-//		{
-//			origpath=realpath(argv[1],NULL);
-//			if(origpath!=NULL)
-//				startdir=origpath;
-//			else
-////				startdir=(char*)"/";
-//				startdir=(char*)getenv("HOME");
-//		}
-//	else
-////		startdir=(char*)"/";
-//		startdir=(char*)getenv("HOME");
 
-//	toolBarLayout=strdup("NUBFHL");
-//	diskIncludePattern=strdup("*sd?*");
-//	diskExcludePattern=strdup("*");
-//	terminalCommand=strdup("xterm -title ");
-//
-//	gtk_init(&argc,&argv);
-//	defaultTheme=gtk_icon_theme_get_default();
-//	gnomeTheme=gtk_icon_theme_new();
-//	gtk_icon_theme_set_custom_theme(gnomeTheme,"gnome");
-//
-//	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-symbolic-link",16,(GtkIconLookupFlags)0);
-//	symLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
-//#ifdef _USEGTK3_
-//	g_object_unref(info);
-//#else
-//	gtk_icon_info_free(info);
-//#endif
-//	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-unreadable",16,(GtkIconLookupFlags)0);
-//	brokenLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
-//#ifdef _USEGTK3_
-//	g_object_unref(info);
-//#else
-//	gtk_icon_info_free(info);
-//#endif
-//
-//	magicInstance=magic_open(MAGIC_MIME_TYPE);
-//	magic_load(magicInstance,NULL);
-//	g_timeout_add (50,loadCache,NULL);
-//
-//	loadPrefs();
-//
-//	buidMainGui(startdir);
-//
-//	free(origpath);
-//
-//
-//	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
-//	gtk_main();
 	g_signal_connect(mainApp,"activate",G_CALLBACK(activate),NULL);
 	g_signal_connect(mainApp,"startup",G_CALLBACK(appStart),NULL);
 	g_signal_connect(mainApp,"open",G_CALLBACK(open),NULL);
@@ -328,4 +263,5 @@ int main(int argc,char **argv)
 	if(G_IS_OBJECT(defaultTheme))
 		g_object_unref(defaultTheme);
 	magic_close(magicInstance);
+	return(status);
 }

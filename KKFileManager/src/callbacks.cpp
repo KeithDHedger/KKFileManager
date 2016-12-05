@@ -39,8 +39,6 @@ void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitor
 			default:
 				populatePageStore(page);
 		}
-//	if((G_FILE_MONITOR_EVENT_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_DELETED==event_type) || (G_FILE_MONITOR_EVENT_CREATED==event_type) || (G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED==event_type) || (G_FILE_MONITOR_EVENT_MOVED==event_type) || (G_FILE_MONITOR_EVENT_UNMOUNTED==event_type))
-//		populatePageStore(page);
 }
 
 void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
@@ -403,22 +401,6 @@ void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 	free(uniquetopath);
 }
 
-#if 0
-void updateDuplicates(pageStruct *page)
-{
-	GList	*list;
-
-	list=pageList;
-	while(list!=NULL)
-		{
-			if(strcmp(page->thisFolder,((pageStruct*)list->data)->thisFolder)==0)
-				populatePageStore((pageStruct*)list->data);
-			list=list->next;
-		}
-}
-
-#endif
-
 gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page)
 {
 //printf("dand\n");
@@ -437,25 +419,22 @@ gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned tim
 	action=gdk_drag_context_get_actions(context);
 //	printf("action=%u copy=%u move=%u link=%u default=%u\n",action,GDK_ACTION_COPY,GDK_ACTION_MOVE,GDK_ACTION_LINK,GDK_ACTION_DEFAULT);
 	pageStruct	*frompage;
-//	pageStruct	*topage;
 
 	frompage=getPageStructByIDFromList(fromPageID);
 	list=gtk_icon_view_get_selected_items((GtkIconView*)frompage->iconView);
 
-printf("numitems=%i\n",g_list_length (list));
+//printf("numitems=%i\n",g_list_length (list));
 	treepath=gtk_icon_view_get_path_at_pos(page->iconView,x,y);
 	if(treepath!=NULL)
 		{
 			gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,treepath);
 			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&topath,ISDIR,&isdir,-1);
 			//printf(">>>to path=%s<<<\n",topath);
-			//topage=page;
 			retval=true;
 		}
 	else
 		{
 			topath=page->thisFolder;
-			//topage=page;
 		//printf(">>>to path=%s<<<\n",topath);
 		}
 
@@ -463,7 +442,7 @@ printf("numitems=%i\n",g_list_length (list));
 		{
 			gtk_tree_model_get_iter((GtkTreeModel *)frompage->listStore,&iter,(GtkTreePath *)list->data);
 			gtk_tree_model_get(GTK_TREE_MODEL(frompage->listStore),&iter,FILEPATH,&frompath,ISDIR,&isdir,-1);
-			printf(">>>from path=%s<<<\n",frompath);
+			//printf(">>>from path=%s<<<\n",frompath);
 			fileAction(frompath,topath,isdir,action);
 			list=list->next;
 		}
@@ -522,7 +501,6 @@ void setPrefs(GtkWidget* widget,gpointer ptr)
 void doShutdown(GtkWidget* widget,gpointer data)
 {
 	writeExitData();
-//	gtk_main_quit();
 	g_application_quit(mainApp);
 }
 
@@ -538,13 +516,10 @@ void runTerminalHere(GtkWidget* widget,gpointer data)
 
 void setAskEntry(GtkWidget* widget,gpointer ptr)
 {
-//	printf(">>%i<<\n",(int)(long)ptr);
-//	printf("filname=%s\n",gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
  	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)askentryText[ENTERFILENAMETXT])>0))
  		{
  			fileName=strdup(gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
 			validName=true;
 		}
 	gtk_widget_destroy(askentryWindow);
-//	    gtk_main_quit();
 }

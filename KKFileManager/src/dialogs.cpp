@@ -1,12 +1,22 @@
+/*
+ *
+ * ©K. D. Hedger. Mon  5 Dec 13:19:36 GMT 2016 kdhedger68713@gmail.com
 
-/******************************************************
-*
-*     ©keithhedger Thu  1 Dec 17:21:03 GMT 2016
-*     kdhedger68713@gmail.com
-*
-*     dialogs.cpp
-* 
-******************************************************/
+ * This file (dialogs.cpp) is part of KKFileManager.
+
+ * KKFileManager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * at your option) any later version.
+
+ * KKFileManager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "dialogs.h"
 #include "globals.h"
@@ -41,7 +51,6 @@ void doAskForFilename(GtkWidget* widget,gpointer data)
 {
 	GtkBox		*vbox;
 	GtkWidget	*hbox;
-	GtkBox		*tbox;
 	GtkWidget	*item;
 
 	GtkWidget *content;

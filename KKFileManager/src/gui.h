@@ -21,7 +21,6 @@
 #ifndef _GUI_
 #define _GUI_
 
-//#include "pages.h"
 #include "globals.h"
 
 struct	menuDataStruct

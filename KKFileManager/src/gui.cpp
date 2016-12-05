@@ -164,9 +164,7 @@ GtkWidget* newImageMenuItem(unsigned menunumber,GtkWidget *parent)
 			image=gtk_image_new_from_icon_name(menuData[menunumber].stockID,GTK_ICON_SIZE_MENU);
 			gtk_box_pack_start((GtkBox*)menuhbox,image,false,false,0);
 
-			//gtk_box_pack_start(GTK_BOX(menuhbox),gtk_label_new(" "),false,false,0);
 			asprintf(&labelwithspace," %s",menuData[menunumber].menuLabel);
-			//gtk_box_pack_start(GTK_BOX(menuhbox),gtk_label_new_with_mnemonic((menuData[menunumber].menuLabel)),false,false,0);
 			gtk_box_pack_start(GTK_BOX(menuhbox),gtk_label_new_with_mnemonic(labelwithspace),false,false,0);
 			free(labelwithspace);
 			gtk_box_pack_start(GTK_BOX(menuhbox),pad,true,true,0);
@@ -329,7 +327,6 @@ void populatePageStore(pageStruct *page)
 	int				cnt=0;
 	int				upcnt=0;
 
-	//gtk_widget_freeze_child_notify((GtkWidget*)page->iconView);
 	gtk_list_store_clear(page->listStore);
 	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
 	fp=popen(command,"r");
@@ -359,9 +356,7 @@ void populatePageStore(pageStruct *page)
 					upcnt++;
 					if(upcnt>20)
 						{
-							//gtk_widget_thaw_child_notify((GtkWidget*)iconView);
 							gtk_main_iteration_do (false);
-							//gtk_widget_freeze_child_notify((GtkWidget*)iconView);
 							upcnt=0;
 						}
 					cnt++;
@@ -487,8 +482,8 @@ void updateDiskList(void)
 	char	*label=NULL;
 
 	gtk_list_store_clear(diskList);
-//	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1 -iname \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
 	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
+//printf("command=%s\n",command);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -550,7 +545,6 @@ void buidMainGui(const char *startdir)
 	GtkWidget			*scrollbox;
 	GtkCellRenderer		*renderer;
 
-	//pixbuft=gdk_pixbuf_new_from_file_at_size("/media/LinuxData/Development64/Projects/KKFileManager/KKFileManager/resources/pixmaps/KKFileManager.png",-1,48,NULL);
 
 	mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(mainWindow),windowWidth,windowHeight);
@@ -565,8 +559,6 @@ void buidMainGui(const char *startdir)
 	mainNotebook=(GtkNotebook*)gtk_notebook_new();
 	g_signal_connect(G_OBJECT(mainNotebook),"switch-page",G_CALLBACK(switchPage),NULL);
 
-//	if(openDefault==true)
-//		addNewPage(getenv("HOME"));
 	mainVBox=createNewBox(NEWVBOX,false,0);
 
 //main menus
@@ -627,10 +619,6 @@ void buidMainGui(const char *startdir)
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainHPane,true,true,0);
 
 	gtk_container_add((GtkContainer*)mainWindow,mainVBox);
-//printf("thisfolder=%s\n",startdir);
-
-//	gtk_entry_set_text(locationTextBox,startdir);
-//	gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
 
 	if(openDefault==true)
 		addNewPage(getenv("HOME"));
@@ -639,7 +627,6 @@ void buidMainGui(const char *startdir)
 	gtk_paned_set_position((GtkPaned*)mainHPane,leftPaneWidth);
 	
 	gtk_widget_show_all(mainWindow);
-//	g_timeout_add(1000,updateDiskListTimer,NULL);
 	monitorDevFolder();
 }
 
