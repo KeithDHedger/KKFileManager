@@ -273,8 +273,8 @@ GdkPixbuf* getPixBuf(const char *file)
 					symlink=strdup(mime);
 					symlink=strncpy(symlink,"sym",3);
 					hash=hashMimeType(symlink);
-		free(symlink);
-		free(newf);
+					free(symlink);
+					free(newf);
 				}
 		}
 	else
@@ -289,18 +289,9 @@ GdkPixbuf* getPixBuf(const char *file)
 	icon=g_content_type_get_icon(mime);
 	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
 	if(info==NULL)
-		{
-			icon=g_content_type_get_icon("text-x-generic");
-			info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
-			if(info==NULL)
-				{
-					icon=g_content_type_get_icon("text-x-generic");
-					info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,48,(GtkIconLookupFlags)0);
-				}
-		}
-
-	pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
-//	pb=gdk_pixbuf_new_from_file(gtk_icon_info_get_filename(info),NULL);
+		pb=genericText;
+	else
+		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
 
 	if(issymlink==true)
 		gdk_pixbuf_composite(symLink,pb,48-16,48-16,16,16,48-16,48-16,1.0,1.0,GDK_INTERP_NEAREST,255);
@@ -311,7 +302,8 @@ GdkPixbuf* getPixBuf(const char *file)
 	pixBuffCache[hash]=pb;
 	free(mime);
 	g_object_unref(icon);
-	gtk_icon_info_free(info);
+	if(info!=NULL)
+		gtk_icon_info_free(info);
 	return(pb);
 }
 

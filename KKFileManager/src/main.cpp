@@ -31,7 +31,7 @@
 #include "globals.h"
 #include "gui.h"
 
-int			cnt=0;
+int		cnt=0;
 bool	singleOverRide=false;
 
 const char	*mimetypestocache[]=
@@ -85,22 +85,14 @@ gboolean loadCache(gpointer data)
 	icon=g_content_type_get_icon(mimetypestocache[cnt]);
 	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
 	if(info==NULL)
-		{
-			icon=g_content_type_get_icon("text-x-generic");
-			info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
-			if(info==NULL)
-				{
-					icon=g_content_type_get_icon("text-x-generic");
-					info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,48,(GtkIconLookupFlags)0);
-				}
-		}
+		pb=genericText;
 	else
-		{
-			icon=g_content_type_get_icon(mimetypestocache[cnt]);
-		}
-
-	pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
+		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
 	pixBuffCache[hash]=pb;
+	//printf("gicon str=%s\n",g_icon_to_string (icon));
+	g_object_unref(icon);
+	if(info!=NULL)
+		gtk_icon_info_free(info);
 	cnt++;
 	return(true);
 }
@@ -179,7 +171,8 @@ void open(GApplication *application,GFile** files,gint n_files,const gchar *hint
 
 void appStart(GApplication  *application,gpointer data)
 {
-	GtkIconInfo	*info;
+	GIcon		*icon=NULL;
+	GtkIconInfo	*info=NULL;
 
 	g_application_hold(application);
 
@@ -191,6 +184,15 @@ void appStart(GApplication  *application,gpointer data)
 	defaultTheme=gtk_icon_theme_get_default();
 	gnomeTheme=gtk_icon_theme_new();
 	gtk_icon_theme_set_custom_theme(gnomeTheme,"gnome");
+
+	icon=g_content_type_get_icon("text-x-generic");
+	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
+	if(info==NULL)
+		{
+			icon=g_content_type_get_icon("text-x-generic");
+			info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,48,(GtkIconLookupFlags)0);
+		}
+	genericText=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
 
 	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-symbolic-link",16,(GtkIconLookupFlags)0);
 	symLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
@@ -209,7 +211,7 @@ void appStart(GApplication  *application,gpointer data)
 
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
-	g_timeout_add (50,loadCache,NULL);
+	g_timeout_add(10,loadCache,NULL);
 
 	loadPrefs();
 

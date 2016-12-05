@@ -103,6 +103,9 @@ int				leftPaneWidth=260;
 //tests
 GdkPixbuf		*testpb=NULL;
 
+//pixmaps
+GdkPixbuf		*genericText=NULL;
+
 args			kkfilemanager_rc[]=
 {
 	//bools
