@@ -252,7 +252,9 @@ GdkPixbuf* getPixBuf(const char *file)
 	char			*newf=NULL;
 	bool			isbrokenlink=false;
 
-	mime=getMimeType(file); 
+//return(testpb);
+	mime=getMimeType(file);
+//mime=strdup("application-octet-stream");
 //printf("mime=%s file %s\n",mime,file);
 	if(g_file_test(file,G_FILE_TEST_IS_SYMLINK)==true)
 		{
@@ -271,15 +273,12 @@ GdkPixbuf* getPixBuf(const char *file)
 					symlink=strdup(mime);
 					symlink=strncpy(symlink,"sym",3);
 					hash=hashMimeType(symlink);
+		free(symlink);
+		free(newf);
 				}
 		}
 	else
 		hash=hashMimeType(mime);
-
-		if(symlink!=NULL)
-			free(symlink);
-		if(newf!=NULL)
-			free(newf);
 
 	if(pixBuffCache.find(hash)!=pixBuffCache.end())
 		{
@@ -299,12 +298,9 @@ GdkPixbuf* getPixBuf(const char *file)
 					info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,48,(GtkIconLookupFlags)0);
 				}
 		}
-	else
-		{
-			icon=g_content_type_get_icon(mime);
-		}
 
 	pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
+//	pb=gdk_pixbuf_new_from_file(gtk_icon_info_get_filename(info),NULL);
 
 	if(issymlink==true)
 		gdk_pixbuf_composite(symLink,pb,48-16,48-16,16,16,48-16,48-16,1.0,1.0,GDK_INTERP_NEAREST,255);
@@ -314,6 +310,8 @@ GdkPixbuf* getPixBuf(const char *file)
 
 	pixBuffCache[hash]=pb;
 	free(mime);
+	g_object_unref(icon);
+	gtk_icon_info_free(info);
 	return(pb);
 }
 
@@ -353,6 +351,7 @@ void populatePageStore(pageStruct *page)
 						buffer[strlen(buffer)-1]=0;
 					pixbuf=getPixBuf(buffer);
 					setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
+//					setNewPagePixbuf(testpb,basename(buffer),buffer,false,page);
 					upcnt++;
 					if(upcnt>20)
 						{

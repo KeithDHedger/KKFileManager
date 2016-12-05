@@ -158,6 +158,9 @@ extern unsigned			fromPageID;
 //odds
 extern int				sinkReturn;
 
+//tests
+extern GdkPixbuf		*testpb;
+
 //global functions
 char* oneLiner(const char *command);
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);

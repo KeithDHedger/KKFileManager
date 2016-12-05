@@ -215,6 +215,7 @@ void appStart(GApplication  *application,gpointer data)
 
 	buidMainGui(NULL);
 
+	testpb=gdk_pixbuf_new_from_file_at_size("/usr/share/icons/gnome/48x48/mimetypes/application-x-executable.png",-1,48,NULL);
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
 }
 

@@ -100,6 +100,9 @@ int				windowWidth=1000;
 int				windowHeight=600;
 int				leftPaneWidth=260;
 
+//tests
+GdkPixbuf		*testpb=NULL;
+
 args			kkfilemanager_rc[]=
 {
 	//bools
