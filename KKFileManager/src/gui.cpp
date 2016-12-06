@@ -29,14 +29,6 @@
 
 GdkPixbuf *pixbuft;
 
-//struct folderBGLoadStruct
-//{
-//	pageStruct	*page;
-//	FILE		*fp;
-//	bool		doLoop;
-//};
-
-
 menuDataStruct	menuData[]=
 	{
 //context
@@ -61,11 +53,6 @@ menuDataStruct	menuData[]=
 
 contextStruct	**contextMenus;
 GtkTargetEntry	*target=NULL;
-GFile			*devPath;
-GFileMonitor	*monitorDev;
-
-//FILE	*fp=NULL;
-//bool	doloop;
 
 GtkWidget *createNewBox(int orient,bool homog,int spacing)
 {
@@ -586,13 +573,6 @@ void buildMenus(void)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),fileMenu);
 }
 
-void monitorDevFolder(void)
-{
-	devPath=g_file_new_for_path("/dev/disk/by-uuid");
-	monitorDev=g_file_monitor_directory(devPath,(GFileMonitorFlags)G_FILE_MONITOR_NONE,NULL,NULL);
-	g_signal_connect(G_OBJECT(monitorDev),"changed",G_CALLBACK(updateDiskList),NULL);
-}
-
 void buidMainGui(const char *startdir)
 {
 	GtkWidget			*scrollbox;
@@ -680,7 +660,6 @@ void buidMainGui(const char *startdir)
 	gtk_paned_set_position((GtkPaned*)mainHPane,leftPaneWidth);
 	
 	gtk_widget_show_all(mainWindow);
-	monitorDevFolder();
 }
 
 void updateTabLabel(pageStruct	*page)

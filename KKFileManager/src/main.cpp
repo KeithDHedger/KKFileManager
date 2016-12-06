@@ -33,6 +33,7 @@
 
 int		cnt=0;
 bool	singleOverRide=false;
+gchar	*mounts=NULL;
 
 const char	*mimetypestocache[]=
 {
@@ -174,6 +175,22 @@ void open(GApplication *application,GFile** files,gint n_files,const gchar *hint
 	g_application_release(application);
 }
 
+gboolean checkDisks(gpointer data)
+{
+	gchar	*temp=NULL;
+	g_file_get_contents("/proc/mounts",&temp,NULL,NULL);
+	if(strcmp(temp,mounts)!=0)
+		{
+			if(mounts!=NULL)
+				g_free(mounts);
+			mounts=temp;
+			updateDiskList();
+		}
+	else
+		g_free(temp);
+	return(true);
+}
+
 void appStart(GApplication  *application,gpointer data)
 {
 	GIcon		*icon=NULL;
@@ -224,6 +241,9 @@ void appStart(GApplication  *application,gpointer data)
 
 	testpb=gdk_pixbuf_new_from_file_at_size("/usr/share/icons/gnome/48x48/mimetypes/application-x-executable.png",-1,48,NULL);
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
+
+	mounts=strdup("");
+	g_timeout_add(1000,checkDisks,NULL);
 }
 
 int main(int argc,char **argv)
@@ -271,5 +291,7 @@ int main(int argc,char **argv)
 	if(G_IS_OBJECT(defaultTheme))
 		g_object_unref(defaultTheme);
 	magic_close(magicInstance);
+	if(mounts!=NULL)
+		g_free(mounts);
 	return(status);
 }

@@ -1,4 +1,6 @@
 0.0.3
+Fixed disks being mounted/unmounted outside of app being missed.
+Buffered loading of folders with large contents.
 Made single instance app.
 Added 'Extract' to context menu.
 Added duplicate menu item to pop up.
