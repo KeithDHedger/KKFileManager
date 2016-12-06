@@ -28,6 +28,15 @@
 #include "globals.h"
 
 GdkPixbuf *pixbuft;
+
+//struct folderBGLoadStruct
+//{
+//	pageStruct	*page;
+//	FILE		*fp;
+//	bool		doLoop;
+//};
+
+
 menuDataStruct	menuData[]=
 	{
 //context
@@ -48,11 +57,15 @@ menuDataStruct	menuData[]=
 		{"Quit",GTK_STOCK_QUIT,0,0,(void*)&doShutdown,"quitmenu",NULL}
 	};
 
+
+
 contextStruct	**contextMenus;
 GtkTargetEntry	*target=NULL;
 GFile			*devPath;
 GFileMonitor	*monitorDev;
 
+//FILE	*fp=NULL;
+//bool	doloop;
 
 GtkWidget *createNewBox(int orient,bool homog,int spacing)
 {
@@ -213,8 +226,9 @@ void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool i
 	GtkTreeIter iter;
 
 	gtk_list_store_append(page->listStore, &iter);
-	if(pixbuf!=NULL)
-		gtk_list_store_set(page->listStore,&iter,PIXBUF_COLUMN,pixbuf,TEXT_COLUMN,type,FILEPATH,path,ISDIR,isdir,-1);
+	if(pixbuf==NULL)
+		pixbuf=genericText;
+	gtk_list_store_set(page->listStore,&iter,PIXBUF_COLUMN,pixbuf,TEXT_COLUMN,type,FILEPATH,path,ISDIR,isdir,-1);
 }
 
 char *getMimeType(const char *path)
@@ -303,19 +317,68 @@ GdkPixbuf* getPixBuf(const char *file)
 	free(mime);
 	g_object_unref(icon);
 	if(info!=NULL)
+#ifndef _USEGTK3_
 		gtk_icon_info_free(info);
+#else
+		g_object_unref(info);
+#endif
 	return(pb);
+}
+
+gboolean loadFiles(gpointer data)
+{
+	char		buffer[2048];
+	GdkPixbuf	*pixbuf;
+	pageStruct	*page=(pageStruct*)data;
+
+	if(page->fp==NULL)
+		{
+			page->doLoop=false;
+			return(false);
+		}
+
+	if(page->doLoop==false)
+		{
+			pclose(page->fp);
+			page->fp=NULL;
+			return(false);
+		}
+
+	if(page==NULL)
+		{
+			pclose(page->fp);
+			page->fp=NULL;
+			page->doLoop=false;
+			return(false);
+		}
+
+	for(int j=0;j<LOADICONCNT;j++)
+		{
+			if(fgets(buffer,2048,page->fp))
+				{
+					if(strlen(buffer)>0)
+						buffer[strlen(buffer)-1]=0;
+					pixbuf=getPixBuf(buffer);
+					setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
+				}
+			else
+				{
+					page->doLoop=false;
+					return(true);
+				}
+		}
+	return(true);
 }
 
 void populatePageStore(pageStruct *page)
 {
-	GdkPixbuf		*pixbuf;
+	GdkPixbuf	*pixbuf;
+	FILE		*fp=NULL;
+	char		*command;
+	char		buffer[2048];
+	int			cnt=0;
 
-	char			*command;
-	FILE			*fp=NULL;
-	char			buffer[2048];
-	int				cnt=0;
-	int				upcnt=0;
+	flushFolderBuffer(page);
 
 	gtk_list_store_clear(page->listStore);
 	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
@@ -343,16 +406,15 @@ void populatePageStore(pageStruct *page)
 						buffer[strlen(buffer)-1]=0;
 					pixbuf=getPixBuf(buffer);
 					setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
-//					setNewPagePixbuf(testpb,basename(buffer),buffer,false,page);
-					upcnt++;
-					if(upcnt>20)
-						{
-							gtk_main_iteration_do (false);
-							upcnt=0;
-						}
 					cnt++;
+					if(cnt>LOADICONCNT)
+					{
+						page->fp=fp;
+						page->doLoop=true;
+						g_timeout_add(50,loadFiles,(gpointer)page);
+						break;
+					}
 				}
-			pclose(fp);
 		}
 	free(command);
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);

@@ -35,11 +35,14 @@ struct pageStruct
 	char				*thisFolder;
 	GtkWidget			*tabBox;
 	GtkLabel			*tabLabel;
+	FILE				*fp;
+	bool				doLoop;
 };
 
 unsigned getPageIdFromTab(void);
 pageStruct *getPageStructByIDFromList(unsigned pageid);
 void addNewPage(char *startdir);
 void monitorFolderForPage(pageStruct *page);
+void flushFolderBuffer(pageStruct *page);
 
 #endif

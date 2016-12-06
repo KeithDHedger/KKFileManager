@@ -318,8 +318,6 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 			page->thisFolder=strdup(path);
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
 			gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
-			populatePageStore(page);
-			monitorFolderForPage(page);
 		}
 	else
 		{

@@ -95,3 +95,19 @@ void monitorFolderForPage(pageStruct *page)
 			g_signal_connect(G_OBJECT(page->monitorDir),"changed",G_CALLBACK(dirChanged),page);
 		}
 }
+
+void flushFolderBuffer(pageStruct *page)
+{
+	char	buffer[2048];
+
+	if(page->fp!=NULL)
+		{
+			while(fgets(buffer,2048,page->fp));
+			pclose(page->fp);
+		}
+	page->fp=NULL;
+	page->doLoop=false;
+}
+
+
+

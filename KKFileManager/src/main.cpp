@@ -92,7 +92,12 @@ gboolean loadCache(gpointer data)
 	//printf("gicon str=%s\n",g_icon_to_string (icon));
 	g_object_unref(icon);
 	if(info!=NULL)
+#ifndef _USEGTK3_
 		gtk_icon_info_free(info);
+#else
+		g_object_unref(info);
+#endif
+
 	cnt++;
 	return(true);
 }

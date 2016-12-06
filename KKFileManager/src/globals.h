@@ -66,6 +66,8 @@
 #define	APPEXECNAME "kkfilemanager" _EXECSUFFIX_
 #define APPFOLDENAME "." PACKAGE _EXECSUFFIX_
 
+#define LOADICONCNT 64
+
 struct	args
 {
 	const char	*name;
