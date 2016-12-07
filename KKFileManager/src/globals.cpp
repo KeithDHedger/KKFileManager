@@ -44,10 +44,11 @@ GtkWidget		*leftVBox=NULL;
 GtkWidget		*leftVPane=NULL;
 GtkListStore	*diskList=NULL;
 GtkTreeView		*diskView=NULL;
-GtkWidget		*bookmarkList=NULL;
+GtkListStore	*bmList=NULL;
+GtkTreeView		*bmView=NULL;
 GtkWidget		*menuBar=NULL;
-int					sessionID=-1;
-GApplication		*mainApp;
+int				sessionID=-1;
+GApplication	*mainApp;
 bool			openDefault=false;
 
 //file menu
@@ -99,13 +100,7 @@ int				windowY=-1;
 int				windowWidth=1000;
 int				windowHeight=600;
 int				leftPaneWidth=260;
-
-//tests
-GdkPixbuf		*testpb=NULL;
-
-//pixmaps
-GdkPixbuf		*genericText=NULL;
-
+int				leftPaneHeight=400;
 args			kkfilemanager_rc[]=
 {
 	//bools
@@ -116,16 +111,25 @@ args			kkfilemanager_rc[]=
 	{"terminalcommand",TYPESTRING,&terminalCommand},
 	{"windowsize",TYPESTRING,&windowAllocData},
 	//ints
-	{"leftpanesize",TYPEINT,&leftPaneWidth},
+	{"leftpanewidth",TYPEINT,&leftPaneWidth},
+	{"leftpanehite",TYPEINT,&leftPaneHeight},
 	//lists
 	{NULL,0,NULL}
 };
+
+//tests
+GdkPixbuf		*testpb=NULL;
+
+//pixmaps
+GdkPixbuf		*genericText=NULL;
+
 
 //dand
 unsigned		fromPageID=0;
 
 //odds
 int				sinkReturn;
+GList			*bookmarkList=NULL;
 
 //global functions
 char* oneLiner(const char *command)
@@ -353,6 +357,7 @@ void writeExitData(void)
 		sinkReturn=asprintf(&windowAllocData,"%i %i %i %i",alloc.width,alloc.height,winx,winy);
 
 	leftPaneWidth=gtk_paned_get_position((GtkPaned*)mainHPane);
+	leftPaneHeight=gtk_paned_get_position((GtkPaned*)leftVPane);
 
 	sinkReturn=asprintf(&filename,"%s/%s",getenv("HOME"),APPFOLDENAME);
 	g_mkdir_with_parents(filename,493);

@@ -430,10 +430,10 @@ void newIconView(pageStruct *page)
 	target->target=(gchar*)"InternalTarget";
 	target->flags=GTK_TARGET_SAME_APP;
 	target->info=0;
-	gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
-	gtk_icon_view_enable_model_drag_dest(page->iconView,target,1,(GdkDragAction)(GDK_ACTION_MOVE|GDK_ACTION_COPY|GDK_ACTION_LINK));
+	gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,target,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
+	gtk_icon_view_enable_model_drag_dest(page->iconView,target,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
 
-	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(doDrop),(gpointer)page );
+	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(doDrop),(gpointer)page);
 
 	gtk_icon_view_set_item_width(page->iconView,iconSize);
 	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
@@ -510,6 +510,38 @@ GtkWidget *makeNewTab(char *name,pageStruct *page)
 	return(evbox);
 }
 
+void updateBMList(void)
+{
+	GtkTreeIter	iter;
+	FILE		*fp;
+	char		*filepath;
+	char		buffer[PATH_MAX+1];
+
+	gtk_list_store_clear(bmList);
+	gtk_list_store_append(bmList,&iter);
+	gtk_list_store_set(bmList,&iter,BMLABEL,"Home",BMPATH,getenv("HOME"),-1);
+	gtk_list_store_append(bmList,&iter);
+	sprintf(buffer,"%s/Desktop",getenv("HOME"));
+	gtk_list_store_set(bmList,&iter,BMLABEL,"Desktop",BMPATH,buffer,-1);
+	gtk_list_store_append(bmList,&iter);
+	gtk_list_store_set(bmList,&iter,BMLABEL,"Computer",BMPATH,"/",-1);
+
+	asprintf(&filepath,"%s/.KKFileManager/bookmarks",getenv("HOME"));
+	fp=fopen(filepath,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(buffer,PATH_MAX,fp))
+				{
+					if(strlen(buffer)>1)
+						buffer[strlen(buffer)-1]=0;
+					gtk_list_store_append(bmList,&iter);
+					gtk_list_store_set(bmList,&iter,BMPATH,buffer,BMLABEL,basename(buffer),-1);
+				}
+			fclose(fp);
+		}
+	free(filepath);
+}
+
 void updateDiskList(void)
 {
 	char		*command;
@@ -577,7 +609,8 @@ void buidMainGui(const char *startdir)
 {
 	GtkWidget			*scrollbox;
 	GtkCellRenderer		*renderer;
-
+	GtkWidget			*label;
+	GtkWidget			*labelbox;
 
 	mainWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(mainWindow),windowWidth,windowHeight);
@@ -619,9 +652,17 @@ void buidMainGui(const char *startdir)
 #else
 	leftVPane=gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 #endif
+//disk list
 	scrollbox=gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
-	gtk_paned_add1((GtkPaned*)leftVPane,scrollbox);
+	label=gtk_label_new("");
+	gtk_label_set_markup((GtkLabel*)label,"<b>DISKS</b>");
+	labelbox=createNewBox(NEWVBOX,false,0);
+	gtk_box_pack_start(GTK_BOX(labelbox),label,false,false,0);
+
+	gtk_box_pack_start(GTK_BOX(labelbox),(GtkWidget*)scrollbox,true,true,0);
+
+	gtk_paned_add1((GtkPaned*)leftVPane,labelbox);
 	gtk_box_pack_start(GTK_BOX(leftVBox),leftVPane,true,true,2);
 
 	diskList=gtk_list_store_new(NUMDISKCOLS,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
@@ -643,6 +684,30 @@ void buidMainGui(const char *startdir)
 	updateDiskList();
 
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)diskView);
+
+//bookmark list
+	scrollbox=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+	label=gtk_label_new("");
+	gtk_label_set_markup((GtkLabel*)label,"<b>PLACES</b>");
+	labelbox=createNewBox(NEWVBOX,false,0);
+	gtk_box_pack_start(GTK_BOX(labelbox),label,false,false,0);
+
+	gtk_box_pack_start(GTK_BOX(labelbox),(GtkWidget*)scrollbox,true,true,0);
+	gtk_paned_add2((GtkPaned*)leftVPane,labelbox);
+
+	bmList=gtk_list_store_new(NUMBMS,G_TYPE_STRING,G_TYPE_STRING);
+	bmView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)bmList);
+	gtk_tree_view_set_headers_visible(bmView,false);
+	g_signal_connect(bmView,"row-activated",G_CALLBACK(openBM),NULL);	
+//	g_signal_connect(bmView,"button-press-event",G_CALLBACK(buttonDownDisk),NULL);	
+//bm label
+	renderer=gtk_cell_renderer_text_new();
+	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)bmView,-1,"label",renderer,"text",BMLABEL,NULL);
+
+	updateBMList();
+	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)bmView);
+
 	gtk_widget_show_all((GtkWidget*)mainHPane);
 
 //notbook
@@ -658,6 +723,8 @@ void buidMainGui(const char *startdir)
 
 //set left pane width
 	gtk_paned_set_position((GtkPaned*)mainHPane,leftPaneWidth);
+//set disk hite
+	gtk_paned_set_position((GtkPaned*)leftVPane,leftPaneHeight);
 	
 	gtk_widget_show_all(mainWindow);
 }

@@ -84,6 +84,7 @@ struct varStrings
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN=0,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
 enum {DEVPATH=0,DISKNAME,MOUNTPATH,MOUNTED,NUMDISKCOLS};
+enum {BMLABEL=0,BMPATH,NUMBMS};
 enum {NOERR=0,NOOPENFILE,NOSAVEFILE};
 enum {TYPEINT=1,TYPESTRING,TYPEBOOL,TYPELIST};
 
@@ -104,11 +105,12 @@ extern GtkWidget		*leftVBox;
 extern GtkWidget		*leftVPane;
 extern GtkListStore		*diskList;
 extern GtkTreeView		*diskView;
-extern GtkWidget		*bookmarkList;
+extern GtkListStore		*bmList;
+extern GtkTreeView		*bmView;
 extern GtkWidget		*menuBar;
 extern int				sessionID;
 extern GApplication		*mainApp;
-extern bool			openDefault;
+extern bool				openDefault;
 
 //file menu
 extern GtkWidget		*fileMenu;
@@ -147,18 +149,20 @@ extern char				*terminalCommand;
 
 //save and load var lists
 extern char				*windowAllocData;
-extern args				kkfilemanager_rc[];
 extern int				windowX;
 extern int				windowY;
 extern int				windowWidth;
 extern int				windowHeight;
 extern int				leftPaneWidth;
+extern int				leftPaneHeight;
+extern args				kkfilemanager_rc[];
 
 //dand
 extern unsigned			fromPageID;
 
 //odds
 extern int				sinkReturn;
+extern GList			*bookmarkList;
 
 //tests
 extern GdkPixbuf		*testpb;

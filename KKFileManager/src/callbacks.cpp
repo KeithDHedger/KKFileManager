@@ -328,6 +328,21 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 	free(path);
 }
 
+void openBM(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
+{
+	gchar			*path;
+	GtkTreeIter		iter;
+
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(bmList),&iter,tree_path);
+	gtk_tree_model_get(GTK_TREE_MODEL(bmList),&iter,BMPATH,&path,-1);
+	if(path!=NULL)
+		{
+			pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+			setCurrentFolderForTab(path,page);
+			free(path);
+		}
+}
+
 void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 {
 	gchar			*path;
@@ -351,7 +366,9 @@ printf("path=%s, mountpoint=%s\n",path,mountpoint);
 			gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
 		}
 
-	addNewPage(mountpoint);
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+	setCurrentFolderForTab(mountpoint,page);
+
 	free(path);
 }
 
