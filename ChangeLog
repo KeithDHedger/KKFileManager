@@ -1,4 +1,5 @@
 0.0.3
+Added 'New Bookmark' to iconview context menu.
 Added bookmarks pane, uses ~/.KKFileManager/bookmarks list of paths to folders.
 Fixed disks being mounted/unmounted outside of app being missed.
 Buffered loading of folders with large contents.

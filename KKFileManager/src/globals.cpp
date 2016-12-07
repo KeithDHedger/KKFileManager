@@ -350,6 +350,10 @@ void writeExitData(void)
 	char			*filename;
 	int				winx;
 	int				winy;
+	GtkTreeIter		iter;
+	char			*path;
+	bool			validiter=false;
+	FILE			*fp=NULL;
 
 	gtk_widget_get_allocation(mainWindow,&alloc);
 	gtk_window_get_position((GtkWindow*)mainWindow,&winx,&winy);
@@ -368,6 +372,26 @@ void writeExitData(void)
 
 	free(filename);
 	free(windowAllocData);
+
+	validiter=gtk_tree_model_get_iter_first(GTK_TREE_MODEL(bmList),&iter);
+	for(int j=0;j<3;j++)
+		validiter=gtk_tree_model_iter_next(GTK_TREE_MODEL(bmList),&iter);
+
+	asprintf(&filename,"%s/.KKFileManager/bookmarks",getenv("HOME"));
+	fp=fopen(filename,"w");
+	if(fp!=NULL)
+		{
+			while(validiter==true)
+				{
+					gtk_tree_model_get(GTK_TREE_MODEL(bmList),&iter,BMPATH,&path,-1);
+					fputs(path,fp);
+					fputc('\n',fp);
+					free(path);
+					validiter=gtk_tree_model_iter_next(GTK_TREE_MODEL(bmList),&iter);
+				}
+			fclose(fp);
+		}
+	free(filename);
 }
 
 char* getValidFilepath(const char *filepath)

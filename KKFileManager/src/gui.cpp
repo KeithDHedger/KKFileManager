@@ -34,6 +34,7 @@ menuDataStruct	menuData[]=
 //context
 		{"New File",GTK_STOCK_NEW,0,0,NULL,"newfilemenu",NULL},
 		{"New Folder",GTK_STOCK_DIRECTORY,0,0,NULL,"newfoldermenu",NULL},
+		{"New Bookmark",GTK_STOCK_NEW,0,0,NULL,"newbmmenu",NULL},
 		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
 		{"Duplicate",GTK_STOCK_COPY,0,0,NULL,"duplicatemenu",NULL},
@@ -42,6 +43,10 @@ menuDataStruct	menuData[]=
 		{"Mount",GTK_STOCK_HARDDISK,0,0,NULL,"mountdiskmenu",NULL},
 		{"Un-Mount",GTK_STOCK_HARDDISK,0,0,NULL,"unmountdiskmenu",NULL},
 		{"Eject",GTK_STOCK_HARDDISK,0,0,NULL,"ejectdiskmenu",NULL},
+//bm context
+		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openbmmenu",NULL},
+		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletebmmenu",NULL},
+
 //main
 		{"New Tab",GTK_STOCK_NEW,0,0,(void*)&goNew,"newtabmenu",NULL},
 		{"Terminal",GTK_STOCK_EXECUTE,0,0,(void*)&runTerminalHere,"terminalmenu",NULL},

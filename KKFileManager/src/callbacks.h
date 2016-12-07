@@ -36,5 +36,6 @@ gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *user
 void runTerminalHere(GtkWidget* widget,gpointer data);
 void setAskEntry(GtkWidget* widget,gpointer ptr);
 void openBM(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata);
+gboolean buttonDownBM(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata);
 
 #endif

@@ -25,7 +25,8 @@
 
 #include "globals.h"
 
-GtkWidget	*tabMenu;
+GtkWidget	*tabMenu=NULL;
+GtkWidget	*bmContextMenu=NULL;
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
@@ -72,6 +73,12 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					}
 				free(validFilePath);
 				free(validDirname);
+				break;
+			case CONTEXTBMNEW:
+				gtk_list_store_append(bmList,&iter);
+				sprintf(buffer,"%s",ctx->page->thisFolder);
+				gtk_list_store_set(bmList,&iter,BMPATH,buffer,BMLABEL,basename(buffer),-1);
+				printf("CONTEXTBMNEW\n");
 				break;
 			case CONTEXTOPEN:
 				selectItem(ctx->page->iconView,ctx->treepath,ctx->page);
@@ -139,6 +146,22 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	
 	switch(ctx->id)
 		{
+			case CONTEXTBMOPEN:
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(bmList),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(bmList),&iter,BMPATH,&path,-1);
+				if(path!=NULL)
+					{
+						pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+						setCurrentFolderForTab(path,page);
+						free(path);
+					}
+				break;
+			case CONTEXTBMNEW:
+				printf("CONTEXTBMNEW\n");
+				break;
+			case CONTEXTBMDELETE:
+				printf("CONTEXTBMDELETE\n");
+				break;
 			case CONTEXTDISKMOUNT:
 				gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,ctx->treepath);
 				gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
@@ -241,14 +264,21 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 				}
 			else
 				{
+//new file
 					menuitem=newImageMenuItem(CONTEXTNEWFILE,tabMenu);
 					contextMenus[CONTEXTNEWFILE]->page=page;
 					contextMenus[CONTEXTNEWFILE]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTNEWFILE]);
+//new folder
 					menuitem=newImageMenuItem(CONTEXTNEWFOLDER,tabMenu);
 					contextMenus[CONTEXTNEWFOLDER]->page=page;
 					contextMenus[CONTEXTNEWFOLDER]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTNEWFOLDER]);
+//new bm
+					menuitem=newImageMenuItem(CONTEXTBMNEW,tabMenu);
+					contextMenus[CONTEXTBMNEW]->page=page;
+					contextMenus[CONTEXTBMNEW]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTBMNEW]);
 				}
 			gtk_menu_popup(GTK_MENU(tabMenu),NULL,NULL,NULL,NULL,event->button,event->time);
 			gtk_widget_show_all((GtkWidget*)tabMenu);
@@ -265,6 +295,40 @@ gboolean buttonDownBM(GtkTreeView *widget,GdkEventButton *event,gpointer *userda
 	GtkTreeSelection	*selection;
 
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
+		{
+			selection=gtk_tree_view_get_selection(widget);
+			gtk_tree_view_get_path_at_pos((GtkTreeView*)widget,event->x, event->y,&treepath,&column,NULL,NULL);
+			if(G_IS_OBJECT(bmContextMenu))
+				{
+					g_object_ref_sink(bmContextMenu);
+					g_object_unref(bmContextMenu);
+				}
+			bmContextMenu=gtk_menu_new();
+			if(treepath!=NULL)
+				{
+					gtk_tree_selection_select_path(selection,treepath);
+//open
+					menuitem=newImageMenuItem(CONTEXTBMOPEN,bmContextMenu);
+					contextMenus[CONTEXTBMOPEN]->tree=widget;
+					contextMenus[CONTEXTBMOPEN]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTBMOPEN]);
+//new
+					menuitem=newImageMenuItem(CONTEXTBMNEW,bmContextMenu);
+					contextMenus[CONTEXTBMNEW]->tree=widget;
+					contextMenus[CONTEXTBMNEW]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTBMNEW]);
+//delete
+					menuitem=newImageMenuItem(CONTEXTBMDELETE,bmContextMenu);
+					contextMenus[CONTEXTBMDELETE]->tree=widget;
+					contextMenus[CONTEXTBMDELETE]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTBMDELETE]);
+
+					gtk_menu_popup(GTK_MENU(bmContextMenu),NULL,NULL,NULL,NULL,event->button,event->time);
+					gtk_widget_show_all((GtkWidget*)bmContextMenu);
+					return(true);
+				}
+		}
+	return(false);
 }
 
 gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata)
@@ -288,14 +352,17 @@ gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *user
 			if(treepath!=NULL)
 				{
 					gtk_tree_selection_select_path(selection,treepath);
+//mount
 					menuitem=newImageMenuItem(CONTEXTDISKMOUNT,tabMenu);
 					contextMenus[CONTEXTDISKMOUNT]->tree=widget;
 					contextMenus[CONTEXTDISKMOUNT]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTDISKMOUNT]);
+//umount
 					menuitem=newImageMenuItem(CONTEXTDISKUNMOUNT,tabMenu);
 					contextMenus[CONTEXTDISKUNMOUNT]->tree=widget;
 					contextMenus[CONTEXTDISKUNMOUNT]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextDiskMenuActivate),(void*)contextMenus[CONTEXTDISKUNMOUNT]);
+//eject
 					menuitem=newImageMenuItem(CONTEXTDISKEJECT,tabMenu);
 					contextMenus[CONTEXTDISKEJECT]->tree=widget;
 					contextMenus[CONTEXTDISKEJECT]->treepath=treepath;
