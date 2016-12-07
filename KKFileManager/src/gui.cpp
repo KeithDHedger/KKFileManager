@@ -700,7 +700,7 @@ void buidMainGui(const char *startdir)
 	bmView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)bmList);
 	gtk_tree_view_set_headers_visible(bmView,false);
 	g_signal_connect(bmView,"row-activated",G_CALLBACK(openBM),NULL);	
-//	g_signal_connect(bmView,"button-press-event",G_CALLBACK(buttonDownDisk),NULL);	
+	g_signal_connect(bmView,"button-press-event",G_CALLBACK(buttonDownBM),NULL);	
 //bm label
 	renderer=gtk_cell_renderer_text_new();
 	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)bmView,-1,"label",renderer,"text",BMLABEL,NULL);

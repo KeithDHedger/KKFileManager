@@ -257,6 +257,16 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	return(false);
 }
 
+gboolean buttonDownBM(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata)
+{
+	GtkWidget			*menuitem;
+    GtkTreePath			*treepath;
+	GtkTreeViewColumn	*column;
+	GtkTreeSelection	*selection;
+
+	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
+}
+
 gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata)
 {
 	GtkWidget			*menuitem;
