@@ -78,7 +78,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				gtk_list_store_append(bmList,&iter);
 				sprintf(buffer,"%s",ctx->page->thisFolder);
 				gtk_list_store_set(bmList,&iter,BMPATH,buffer,BMLABEL,basename(buffer),-1);
-				printf("CONTEXTBMNEW\n");
 				break;
 			case CONTEXTOPEN:
 				selectItem(ctx->page->iconView,ctx->treepath,ctx->page);
