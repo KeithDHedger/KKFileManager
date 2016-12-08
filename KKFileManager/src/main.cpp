@@ -224,7 +224,6 @@ void appStart(GApplication  *application,gpointer data)
 	gtk_icon_info_free(info);
 #endif
 
-
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
 

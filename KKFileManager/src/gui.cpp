@@ -28,7 +28,7 @@
 #include "globals.h"
 
 GdkPixbuf		*pixbuft;
-const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk"};
+const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical"};
 
 menuDataStruct	menuData[]=
 	{
@@ -118,6 +118,7 @@ GtkWidget* newMenuItem(unsigned menunumber,GtkWidget *parent)
 			pad=createNewBox(NEWHBOX,false,0);
 
 			image=gtk_image_new_from_icon_name(menuData[menunumber].stockID,GTK_ICON_SIZE_MENU);
+			gtk_image_set_pixel_size((GtkImage*)image,16);
 			gtk_box_pack_start((GtkBox*)menuhbox,image,false,false,0);
 
 			asprintf(&labelwithspace," %s",menuData[menunumber].menuLabel);
@@ -168,6 +169,7 @@ GtkWidget* newImageMenuItem(unsigned menunumber,GtkWidget *parent)
 			pad=createNewBox(NEWHBOX,false,0);
 
 			image=gtk_image_new_from_icon_name(menuData[menunumber].stockID,GTK_ICON_SIZE_MENU);
+			gtk_image_set_pixel_size ((GtkImage*)image,16);
 			gtk_box_pack_start((GtkBox*)menuhbox,image,false,false,0);
 
 			asprintf(&labelwithspace," %s",menuData[menunumber].menuLabel);
@@ -564,7 +566,8 @@ void updateDiskList(void)
 	char		*mountpath=NULL;
 	char		*label=NULL;
 	char		*isusb=NULL;
-	GdkPixbuf	*drive;
+	char		*isdvd=NULL;
+	GdkPixbuf	*drive=NULL;
 
 	gtk_list_store_clear(diskList);
 	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
@@ -586,14 +589,26 @@ void updateDiskList(void)
 						ptr=strrchr(buffer,'/');
 						ptr++;
 						
+//generic disk
+						drive=guiPixbufs[HDDRIVEPB];
+//usb disk
 						sprintf(buffercommand,"udevadm info --query=all --name=\"%s\" |grep -i usb",ptr);
 						isusb=oneLiner(buffercommand);
-						drive=guiPixbufs[HDDRIVE];
 						if((isusb!=NULL) && (strlen(isusb)>0))
 							{
-								drive=guiPixbufs[USBDISK];
+								drive=guiPixbufs[USBDISKPB];
 								free(isusb);
 							}
+//dvd disk
+						sprintf(buffercommand,"udevadm info --query=all --name=\"%s\" |grep -i dvd",ptr);
+						isdvd=oneLiner(buffercommand);
+						//drive=guiPixbufs[HDDRIVEPB];
+						if((isdvd!=NULL) && (strlen(isdvd)>0))
+							{
+								drive=guiPixbufs[DVDPB];
+								free(isdvd);
+							}
+
 						gtk_list_store_append(diskList,&iter);
 						gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
 				}
@@ -778,7 +793,6 @@ void loadPixbufs(void)
 	GtkIconInfo	*info=NULL;
 	GIcon		*icon=NULL;
 	int			iconsize=24;
-	GdkPixbuf	*brokenpb;
 
 	icon=g_content_type_get_icon("text-x-generic");
 	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,iconSize,(GtkIconLookupFlags)0);
@@ -825,10 +839,15 @@ void loadPixbufs(void)
 #endif
 		}
 
-	if(guiPixbufs[USBDISK]==NULL)
+	if(guiPixbufs[USBDISKPB]==NULL)
 		{
-			guiPixbufs[USBDISK]=guiPixbufs[HDDRIVE];
-			g_object_ref(guiPixbufs[USBDISK]);
+			guiPixbufs[USBDISKPB]=guiPixbufs[HDDRIVEPB];
+			g_object_ref(guiPixbufs[USBDISKPB]);
+		}
+	if(guiPixbufs[DVDPB]==NULL)
+		{
+			guiPixbufs[DVDPB]=guiPixbufs[HDDRIVEPB];
+			g_object_ref(guiPixbufs[DVDPB]);
 		}
 }
 
