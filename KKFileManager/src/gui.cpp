@@ -27,7 +27,8 @@
 
 #include "globals.h"
 
-GdkPixbuf *pixbuft;
+GdkPixbuf		*pixbuft;
+const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk"};
 
 menuDataStruct	menuData[]=
 	{
@@ -293,17 +294,17 @@ GdkPixbuf* getPixBuf(const char *file)
 		}
 
 	icon=g_content_type_get_icon(mime);
-	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
+	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,iconSize,(GtkIconLookupFlags)0);
 	if(info==NULL)
 		pb=genericText;
 	else
-		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
+		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,iconSize,NULL);
 
 	if(issymlink==true)
-		gdk_pixbuf_composite(symLink,pb,48-16,48-16,16,16,48-16,48-16,1.0,1.0,GDK_INTERP_NEAREST,255);
+		gdk_pixbuf_composite(symLink,pb,iconSize-16,iconSize-16,16,16,iconSize-16,iconSize-16,1.0,1.0,GDK_INTERP_NEAREST,255);
 
 	if(isbrokenlink==true)
-		gdk_pixbuf_composite(brokenLink,pb,0,48-16,16,16,0,48-16,1.0,1.0,GDK_INTERP_NEAREST,255);
+		gdk_pixbuf_composite(brokenLink,pb,0,iconSize-16,16,16,0,iconSize-16,1.0,1.0,GDK_INTERP_NEAREST,255);
 
 	pixBuffCache[hash]=pb;
 	free(mime);
@@ -416,6 +417,8 @@ void newIconView(pageStruct *page)
 {
 	char	buffer[64];
 	sprintf(buffer,"GtkIconView-%u",pageCnt);
+//TODO//
+//gtk_tree_view_column_set_min_width
 
 	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
 	page->iconView=(GtkIconView*)gtk_icon_view_new();
@@ -423,6 +426,7 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),TEXT_COLUMN);
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
+
 	g_signal_connect(page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
 	g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
 	populatePageStore(page);
@@ -440,8 +444,10 @@ void newIconView(pageStruct *page)
 
 	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(doDrop),(gpointer)page);
 
-	gtk_icon_view_set_item_width(page->iconView,iconSize);
 	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
+	gtk_icon_view_set_item_width (page->iconView,iconSize*iconSize3);
+
+
 	gtk_widget_set_name((GtkWidget*)page->iconView,buffer);
 }
 
@@ -524,12 +530,12 @@ void updateBMList(void)
 
 	gtk_list_store_clear(bmList);
 	gtk_list_store_append(bmList,&iter);
-	gtk_list_store_set(bmList,&iter,BMLABEL,"Home",BMPATH,getenv("HOME"),-1);
+	gtk_list_store_set(bmList,&iter,BMPIXBUF,guiPixbufs[HOMEPB],BMLABEL,"Home",BMPATH,getenv("HOME"),-1);
 	gtk_list_store_append(bmList,&iter);
 	sprintf(buffer,"%s/Desktop",getenv("HOME"));
-	gtk_list_store_set(bmList,&iter,BMLABEL,"Desktop",BMPATH,buffer,-1);
+	gtk_list_store_set(bmList,&iter,BMPIXBUF,guiPixbufs[DESKTOPPB],BMLABEL,"Desktop",BMPATH,buffer,-1);
 	gtk_list_store_append(bmList,&iter);
-	gtk_list_store_set(bmList,&iter,BMLABEL,"Computer",BMPATH,"/",-1);
+	gtk_list_store_set(bmList,&iter,BMPIXBUF,guiPixbufs[COMPUTERPB],BMLABEL,"Computer",BMPATH,"/",-1);
 
 	asprintf(&filepath,"%s/.KKFileManager/bookmarks",getenv("HOME"));
 	fp=fopen(filepath,"r");
@@ -540,7 +546,7 @@ void updateBMList(void)
 					if(strlen(buffer)>1)
 						buffer[strlen(buffer)-1]=0;
 					gtk_list_store_append(bmList,&iter);
-					gtk_list_store_set(bmList,&iter,BMPATH,buffer,BMLABEL,basename(buffer),-1);
+					gtk_list_store_set(bmList,&iter,BMPIXBUF,guiPixbufs[BOOKMARKPB],BMPATH,buffer,BMLABEL,basename(buffer),-1);
 				}
 			fclose(fp);
 		}
@@ -555,8 +561,10 @@ void updateDiskList(void)
 	GtkTreeIter	iter;
 	char		*ptr;
 	char		buffercommand[2048];
-	char	*mountpath=NULL;
-	char	*label=NULL;
+	char		*mountpath=NULL;
+	char		*label=NULL;
+	char		*isusb=NULL;
+	GdkPixbuf	*drive;
 
 	gtk_list_store_clear(diskList);
 	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
@@ -574,10 +582,20 @@ void updateDiskList(void)
 							mountpath=strdup("…");
 						sprintf(buffercommand,"lsblk -no label \"%s\"",buffer);
 						label=oneLiner(buffercommand);
+
 						ptr=strrchr(buffer,'/');
 						ptr++;
+						
+						sprintf(buffercommand,"udevadm info --query=all --name=\"%s\" |grep -i usb",ptr);
+						isusb=oneLiner(buffercommand);
+						drive=guiPixbufs[HDDRIVE];
+						if((isusb!=NULL) && (strlen(isusb)>0))
+							{
+								drive=guiPixbufs[USBDISK];
+								free(isusb);
+							}
 						gtk_list_store_append(diskList,&iter);
-						gtk_list_store_set(diskList,&iter,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
+						gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
 				}
 			pclose(fp);
 		}
@@ -670,11 +688,14 @@ void buidMainGui(const char *startdir)
 	gtk_paned_add1((GtkPaned*)leftVPane,labelbox);
 	gtk_box_pack_start(GTK_BOX(leftVBox),leftVPane,true,true,2);
 
-	diskList=gtk_list_store_new(NUMDISKCOLS,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
+	diskList=gtk_list_store_new(NUMDISKCOLS,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_BOOLEAN);
 	diskView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)diskList);
 	gtk_tree_view_set_headers_visible(diskView,false);
 	g_signal_connect(diskView,"row-activated",G_CALLBACK(openDisk),NULL);	
 	g_signal_connect(diskView,"button-press-event",G_CALLBACK(buttonDownDisk),NULL);	
+//pix buf
+	renderer=gtk_cell_renderer_pixbuf_new();
+	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)diskView,-1,"icon",renderer,"pixbuf",DEVPIXBUF,NULL);
 //dev num
 	renderer=gtk_cell_renderer_text_new();
 	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)diskView,-1,"dev",renderer,"text",DEVPATH,NULL);
@@ -701,11 +722,16 @@ void buidMainGui(const char *startdir)
 	gtk_box_pack_start(GTK_BOX(labelbox),(GtkWidget*)scrollbox,true,true,0);
 	gtk_paned_add2((GtkPaned*)leftVPane,labelbox);
 
-	bmList=gtk_list_store_new(NUMBMS,G_TYPE_STRING,G_TYPE_STRING);
+	bmList=gtk_list_store_new(NUMBMS,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_STRING);
 	bmView=(GtkTreeView*)gtk_tree_view_new_with_model((GtkTreeModel*)bmList);
 	gtk_tree_view_set_headers_visible(bmView,false);
+	gtk_tree_view_set_reorderable(bmView,true);
+
 	g_signal_connect(bmView,"row-activated",G_CALLBACK(openBM),NULL);	
 	g_signal_connect(bmView,"button-press-event",G_CALLBACK(buttonDownBM),NULL);	
+//bm pix buf
+	renderer=gtk_cell_renderer_pixbuf_new();
+	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)bmView,-1,"icon",renderer,"pixbuf",BMPIXBUF,NULL);
 //bm label
 	renderer=gtk_cell_renderer_text_new();
 	gtk_tree_view_insert_column_with_attributes((GtkTreeView*)bmView,-1,"label",renderer,"text",BMLABEL,NULL);
@@ -746,3 +772,68 @@ void updateTabLabel(pageStruct	*page)
 	free(correctedname);
 	free(basename);
 }
+
+void loadPixbufs(void)
+{
+	GtkIconInfo	*info=NULL;
+	GIcon		*icon=NULL;
+	int			iconsize=24;
+	GdkPixbuf	*brokenpb;
+
+	icon=g_content_type_get_icon("text-x-generic");
+	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,iconSize,(GtkIconLookupFlags)0);
+	if(info==NULL)
+		info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,iconSize,(GtkIconLookupFlags)0);
+
+	if(genericText!=NULL)
+		{
+			if(G_IS_OBJECT(genericText))
+				g_object_unref(genericText);
+		}
+	
+	genericText=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,iconSize,NULL);
+	if(G_IS_OBJECT(icon))
+		g_object_unref(icon);
+#ifdef _USEGTK3_
+	if(G_IS_OBJECT(info))
+		g_object_unref(info);
+#else
+	if(info!=NULL)
+		gtk_icon_info_free(info);
+#endif
+
+	for(int j=0;j<NUMPBS;j++)
+		{
+			if(guiPixbufs[j]!=NULL)
+				{
+					g_object_unref(guiPixbufs[j]);
+					guiPixbufs[j]=NULL;
+				}
+			info=gtk_icon_theme_lookup_icon(defaultTheme,iconNames[j],iconsize,(GtkIconLookupFlags)0);
+			if(info==NULL)
+				info=gtk_icon_theme_lookup_icon(gnomeTheme,iconNames[j],iconsize,(GtkIconLookupFlags)0);			
+			if(info==NULL)
+				guiPixbufs[j]=NULL;
+			else
+				guiPixbufs[j]=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,iconsize,NULL);
+#ifdef _USEGTK3_
+			if(G_IS_OBJECT(info))
+				g_object_unref(info);
+#else
+			if(info!=NULL)
+				gtk_icon_info_free(info);
+#endif
+		}
+
+	if(guiPixbufs[USBDISK]==NULL)
+		{
+			guiPixbufs[USBDISK]=guiPixbufs[HDDRIVE];
+			g_object_ref(guiPixbufs[USBDISK]);
+		}
+}
+
+
+
+
+
+

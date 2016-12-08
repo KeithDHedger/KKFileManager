@@ -57,6 +57,9 @@ void themeChanged(GtkIconTheme *icon_theme,gpointer user_data)
 	pageStruct	*page;
 
 	pixBuffCache.clear();
+	loadPixbufs();
+	updateBMList();
+	updateDiskList();
 	for(int j=0;j<gtk_notebook_get_n_pages(mainNotebook);j++)
 		{
 			widg=gtk_notebook_get_nth_page(mainNotebook,j);
@@ -84,11 +87,11 @@ gboolean loadCache(gpointer data)
 		}
 
 	icon=g_content_type_get_icon(mimetypestocache[cnt]);
-	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
+	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,iconSize,(GtkIconLookupFlags)0);
 	if(info==NULL)
 		pb=genericText;
 	else
-		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
+		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,iconSize,NULL);
 	pixBuffCache[hash]=pb;
 	//printf("gicon str=%s\n",g_icon_to_string (icon));
 	g_object_unref(icon);
@@ -193,7 +196,6 @@ gboolean checkDisks(gpointer data)
 
 void appStart(GApplication  *application,gpointer data)
 {
-	GIcon		*icon=NULL;
 	GtkIconInfo	*info=NULL;
 
 	g_application_hold(application);
@@ -206,15 +208,6 @@ void appStart(GApplication  *application,gpointer data)
 	defaultTheme=gtk_icon_theme_get_default();
 	gnomeTheme=gtk_icon_theme_new();
 	gtk_icon_theme_set_custom_theme(gnomeTheme,"gnome");
-
-	icon=g_content_type_get_icon("text-x-generic");
-	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,48,(GtkIconLookupFlags)0);
-	if(info==NULL)
-		{
-			icon=g_content_type_get_icon("text-x-generic");
-			info=gtk_icon_theme_lookup_by_gicon(gnomeTheme,icon,48,(GtkIconLookupFlags)0);
-		}
-	genericText=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,48,NULL);
 
 	info=gtk_icon_theme_lookup_icon(gnomeTheme,"emblem-symbolic-link",16,(GtkIconLookupFlags)0);
 	symLink=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,16,NULL);
@@ -231,11 +224,20 @@ void appStart(GApplication  *application,gpointer data)
 	gtk_icon_info_free(info);
 #endif
 
+
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
-	g_timeout_add(10,loadCache,NULL);
 
+	iconSize=ICONSIZE;
 	loadPrefs();
+#ifdef _USEGTK3_
+	iconSize3=1;
+#else
+	iconSize3=2;
+#endif
+
+	loadPixbufs();
+	g_timeout_add(10,loadCache,NULL);
 
 	buidMainGui(NULL);
 

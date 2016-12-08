@@ -63,6 +63,8 @@
 #define GTK_STOCK_CONVERT "stock_convert"
 #endif
 
+#define ICONSIZE 48
+
 #define	APPEXECNAME "kkfilemanager" _EXECSUFFIX_
 #define APPFOLDENAME "." PACKAGE _EXECSUFFIX_
 
@@ -83,10 +85,11 @@ struct varStrings
 
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN=0,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
-enum {DEVPATH=0,DISKNAME,MOUNTPATH,MOUNTED,NUMDISKCOLS};
-enum {BMLABEL=0,BMPATH,NUMBMS};
+enum {DEVPIXBUF=0,DEVPATH,DISKNAME,MOUNTPATH,MOUNTED,NUMDISKCOLS};
+enum {BMPIXBUF=0,BMLABEL,BMPATH,NUMBMS};
 enum {NOERR=0,NOOPENFILE,NOSAVEFILE};
 enum {TYPEINT=1,TYPESTRING,TYPEBOOL,TYPELIST};
+enum {HOMEPB=0,DESKTOPPB,COMPUTERPB,BOOKMARKPB,USBDISK,HDDRIVE,NUMPBS};
 
 //main app
 extern GtkToolbar		*toolBar;
@@ -129,14 +132,13 @@ extern GtkEntry			*locationTextBox;
 
 //mimes and stuff
 extern std::map<unsigned,GdkPixbuf*>	pixBuffCache;
-extern GdkPixbuf		*symLink;
-extern GdkPixbuf		*brokenLink;
 extern GFile			*dirPath;
 extern GFileMonitor		*monitorDir;
 
 //tabs
 extern unsigned			pageCnt;
 extern unsigned			iconSize;
+extern unsigned			iconSize3;
 extern unsigned			iconPadding;
 extern unsigned			maxTabChars;
 
@@ -162,13 +164,19 @@ extern unsigned			fromPageID;
 
 //odds
 extern int				sinkReturn;
-extern GList			*bookmarkList;
 
 //tests
 extern GdkPixbuf		*testpb;
 
 //pixmaps
 extern GdkPixbuf		*genericText;
+extern GdkPixbuf		*diskPB;
+extern GdkPixbuf		*bookmarkPB;
+extern GdkPixbuf		*homePB;
+extern GdkPixbuf		*computerPB;
+extern GdkPixbuf		*symLink;
+extern GdkPixbuf		*brokenLink;
+extern GdkPixbuf		*guiPixbufs[NUMPBS];
 
 //global functions
 char* oneLiner(const char *command);

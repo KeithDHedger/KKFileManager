@@ -160,6 +160,8 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				break;
 			case CONTEXTBMDELETE:
 				printf("CONTEXTBMDELETE\n");
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(bmList),&iter,ctx->treepath);
+				gtk_list_store_remove(bmList,&iter);
 				break;
 			case CONTEXTDISKMOUNT:
 				gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,ctx->treepath);

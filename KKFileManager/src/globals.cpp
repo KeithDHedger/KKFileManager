@@ -67,21 +67,15 @@ GtkToolItem		*locationButton=NULL;
 GtkEntry		*locationTextBox=NULL;
 
 //mimes and stuff
-std::map<unsigned,GdkPixbuf*>	pixBuffCache;
-GdkPixbuf		*symLink=NULL;
-GdkPixbuf		*brokenLink=NULL;
+std::map<unsigned,GdkPixbuf*> pixBuffCache;
 GFile			*dirPath=NULL;
 GFileMonitor	*monitorDir=NULL;
 
 //tabs
 unsigned		pageCnt=1000;
-#ifdef _USEGTK3_
-unsigned		iconSize=48;
 unsigned		iconPadding=16;
-#else
-unsigned		iconSize=96;
-unsigned		iconPadding=16;
-#endif
+unsigned		iconSize=ICONSIZE;
+unsigned		iconSize3=ICONSIZE;
 unsigned		maxTabChars=32;
 
 //menus
@@ -122,14 +116,20 @@ GdkPixbuf		*testpb=NULL;
 
 //pixmaps
 GdkPixbuf		*genericText=NULL;
+GdkPixbuf		*diskPB=NULL;
+GdkPixbuf		*bookmarkPB=NULL;
+GdkPixbuf		*homePB=NULL;
+GdkPixbuf		*computerPB=NULL;
+GdkPixbuf		*symLink=NULL;
+GdkPixbuf		*brokenLink=NULL;
 
+GdkPixbuf		*guiPixbufs[NUMPBS]={NULL,};
 
 //dand
 unsigned		fromPageID=0;
 
 //odds
 int				sinkReturn;
-GList			*bookmarkList=NULL;
 
 //global functions
 char* oneLiner(const char *command)
@@ -354,6 +354,7 @@ void writeExitData(void)
 	char			*path;
 	bool			validiter=false;
 	FILE			*fp=NULL;
+	char			*label=NULL;
 
 	gtk_widget_get_allocation(mainWindow,&alloc);
 	gtk_window_get_position((GtkWindow*)mainWindow,&winx,&winy);
@@ -374,19 +375,35 @@ void writeExitData(void)
 	free(windowAllocData);
 
 	validiter=gtk_tree_model_get_iter_first(GTK_TREE_MODEL(bmList),&iter);
-	for(int j=0;j<3;j++)
-		validiter=gtk_tree_model_iter_next(GTK_TREE_MODEL(bmList),&iter);
-
 	asprintf(&filename,"%s/.KKFileManager/bookmarks",getenv("HOME"));
 	fp=fopen(filename,"w");
 	if(fp!=NULL)
 		{
 			while(validiter==true)
 				{
-					gtk_tree_model_get(GTK_TREE_MODEL(bmList),&iter,BMPATH,&path,-1);
-					fputs(path,fp);
-					fputc('\n',fp);
-					free(path);
+					gtk_tree_model_get(GTK_TREE_MODEL(bmList),&iter,BMPATH,&path,BMLABEL,&label,-1);
+					if(strcmp(label,"Home")==0)
+						{
+							free(label);
+							label=NULL;
+						}
+					else if(strcmp(label,"Computer")==0)
+						{
+							free(label);
+							label=NULL;
+						}
+					else if(strcmp(label,"Desktop")==0)
+						{
+							free(label);
+							label=NULL;
+						}
+					if(label!=NULL)
+						{
+							fputs(path,fp);
+							fputc('\n',fp);
+							free(path);
+							free(label);
+						}
 					validiter=gtk_tree_model_iter_next(GTK_TREE_MODEL(bmList),&iter);
 				}
 			fclose(fp);

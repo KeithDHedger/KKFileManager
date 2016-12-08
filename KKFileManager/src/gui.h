@@ -59,5 +59,7 @@ char *truncateWithElipses(char *str,unsigned int maxlen);
 void updateTabLabel(pageStruct	*page);
 void updateDiskList(void);
 gboolean loadFiles(gpointer data);
+void loadPixbufs(void);
+void updateBMList(void);
 
 #endif
