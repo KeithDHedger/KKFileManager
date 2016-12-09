@@ -28,7 +28,7 @@
 #include "globals.h"
 
 GdkPixbuf		*pixbuft;
-const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical"};
+const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical","gnome-dev-disc-dvdrom","gnome-dev-cdrom"};
 
 menuDataStruct	menuData[]=
 	{
@@ -600,17 +600,30 @@ void updateDiskList(void)
 								free(isusb);
 							}
 //dvd disk
-						sprintf(buffercommand,"udevadm info --query=all --name=\"%s\" |grep -i dvd",ptr);
+bool	gotrom=false;
+						sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_DVD",ptr);
 						isdvd=oneLiner(buffercommand);
-						//drive=guiPixbufs[HDDRIVEPB];
 						if((isdvd!=NULL) && (strlen(isdvd)>0))
 							{
-								drive=guiPixbufs[DVDPB];
+								drive=guiPixbufs[DVDROMPB];
+								gotrom=true;
+								free(isdvd);
+							}
+//cdrom
+						sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_CD",ptr);
+						isdvd=oneLiner(buffercommand);
+						if((isdvd!=NULL) && (strlen(isdvd)>0))
+							{
+								drive=guiPixbufs[CDROMPB];
+								gotrom=true;
 								free(isdvd);
 							}
 
-						gtk_list_store_append(diskList,&iter);
-						gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
+						if((gotrom==true) || (strcmp(ptr,"sr0")!=0))
+							{
+								gtk_list_store_append(diskList,&iter);
+								gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
+							}
 				}
 			pclose(fp);
 		}
@@ -844,10 +857,20 @@ void loadPixbufs(void)
 			guiPixbufs[USBDISKPB]=guiPixbufs[HDDRIVEPB];
 			g_object_ref(guiPixbufs[USBDISKPB]);
 		}
-	if(guiPixbufs[DVDPB]==NULL)
+	if(guiPixbufs[ROMPB]==NULL)
 		{
-			guiPixbufs[DVDPB]=guiPixbufs[HDDRIVEPB];
-			g_object_ref(guiPixbufs[DVDPB]);
+			guiPixbufs[ROMPB]=guiPixbufs[HDDRIVEPB];
+			g_object_ref(guiPixbufs[ROMPB]);
+		}
+	if(guiPixbufs[DVDROMPB]==NULL)
+		{
+			guiPixbufs[DVDROMPB]=guiPixbufs[ROMPB];
+			g_object_ref(guiPixbufs[DVDROMPB]);
+		}
+	if(guiPixbufs[CDROMPB]==NULL)
+		{
+			guiPixbufs[CDROMPB]=guiPixbufs[DVDROMPB];
+			g_object_ref(guiPixbufs[CDROMPB]);
 		}
 }
 

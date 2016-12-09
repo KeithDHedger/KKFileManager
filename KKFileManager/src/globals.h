@@ -89,7 +89,7 @@ enum {DEVPIXBUF=0,DEVPATH,DISKNAME,MOUNTPATH,MOUNTED,NUMDISKCOLS};
 enum {BMPIXBUF=0,BMLABEL,BMPATH,NUMBMS};
 enum {NOERR=0,NOOPENFILE,NOSAVEFILE};
 enum {TYPEINT=1,TYPESTRING,TYPEBOOL,TYPELIST};
-enum {HOMEPB=0,DESKTOPPB,COMPUTERPB,BOOKMARKPB,USBDISKPB,HDDRIVEPB,DVDPB,NUMPBS};
+enum {HOMEPB=0,DESKTOPPB,COMPUTERPB,BOOKMARKPB,USBDISKPB,HDDRIVEPB,ROMPB,DVDROMPB,CDROMPB,NUMPBS};
 
 //main app
 extern GtkToolbar		*toolBar;
@@ -131,7 +131,7 @@ extern GtkToolItem		*locationButton;
 extern GtkEntry			*locationTextBox;
 
 //mimes and stuff
-extern std::map<unsigned,GdkPixbuf*>	pixBuffCache;
+extern std::map<unsigned,GdkPixbuf*> pixBuffCache;
 extern GFile			*dirPath;
 extern GFileMonitor		*monitorDir;
 

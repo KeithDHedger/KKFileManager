@@ -1,4 +1,5 @@
 0.0.3
+Now dvd/cdrom only shown when media inserted.
 Fixed wrong sized icons in menus and toolbar for certain themes in gtk3 version.
 Added icons to disk list and bm list.
 Added 'New Bookmark' to iconview context menu.
