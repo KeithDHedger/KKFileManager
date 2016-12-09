@@ -556,6 +556,24 @@ void updateBMList(void)
 }
 
 int romcnt=0;
+int diskcnt=0;
+
+bool checkDisksChanged(void)
+{
+	char	*command;
+	int		cnt=0;;
+	
+	command=oneLiner("ls /dev/disk/by-path -1|wc -l");
+	cnt=atoi(command);
+	free(command);
+	if(cnt!=diskcnt)
+		{
+			diskcnt=cnt;
+			return(true);
+		}
+	diskcnt=cnt;
+	return(false);
+}
 
 bool checkCDROMChanged(void)
 {
