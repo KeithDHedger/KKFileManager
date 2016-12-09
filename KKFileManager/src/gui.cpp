@@ -600,26 +600,35 @@ void updateDiskList(void)
 								free(isusb);
 							}
 //dvd disk
-bool	gotrom=false;
-						sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_DVD",ptr);
+						sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM",ptr);
 						isdvd=oneLiner(buffercommand);
-						if((isdvd!=NULL) && (strlen(isdvd)>0))
+						if(isdvd!=NULL)
 							{
-								drive=guiPixbufs[DVDROMPB];
-								gotrom=true;
-								free(isdvd);
-							}
+								bool	gotrom=false;
+								sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_DVD",ptr);
+								isdvd=oneLiner(buffercommand);
+								if((isdvd!=NULL) && (strlen(isdvd)>0))
+									{
+										drive=guiPixbufs[DVDROMPB];
+										gotrom=true;
+										free(isdvd);
+									}
 //cdrom
-						sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_CD",ptr);
-						isdvd=oneLiner(buffercommand);
-						if((isdvd!=NULL) && (strlen(isdvd)>0))
-							{
-								drive=guiPixbufs[CDROMPB];
-								gotrom=true;
-								free(isdvd);
+								sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_CD",ptr);
+								isdvd=oneLiner(buffercommand);
+								if((isdvd!=NULL) && (strlen(isdvd)>0))
+									{
+										drive=guiPixbufs[CDROMPB];
+										gotrom=true;
+										free(isdvd);
+									}
+								if(gotrom==true)
+									{
+										gtk_list_store_append(diskList,&iter);
+										gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
+									}
 							}
-
-						if((gotrom==true) || (strcmp(ptr,"sr0")!=0))
+						else
 							{
 								gtk_list_store_append(diskList,&iter);
 								gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
