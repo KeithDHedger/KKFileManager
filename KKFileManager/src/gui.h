@@ -61,5 +61,6 @@ void updateDiskList(void);
 gboolean loadFiles(gpointer data);
 void loadPixbufs(void);
 void updateBMList(void);
+bool checkCDROMChanged(void);
 
 #endif

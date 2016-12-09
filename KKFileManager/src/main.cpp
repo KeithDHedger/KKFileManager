@@ -190,7 +190,12 @@ gboolean checkDisks(gpointer data)
 			updateDiskList();
 		}
 	else
-		g_free(temp);
+		{
+			g_free(temp);
+			if(checkCDROMChanged()==true)
+				updateDiskList();
+		}
+
 	return(true);
 }
 

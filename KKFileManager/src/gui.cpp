@@ -555,6 +555,46 @@ void updateBMList(void)
 	free(filepath);
 }
 
+int romcnt=0;
+
+bool checkCDROMChanged(void)
+{
+	char		*command;
+	FILE		*fp=NULL;
+	char		buffer[2048];
+	char		buffercommand[2048];
+	char		*isdvd=NULL;
+	bool		retval=false;
+	int			mult=1;
+	int			last=romcnt;
+
+	romcnt=0;
+	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(buffer,2048,fp))
+				{
+					if(strlen(buffer)>0)
+						buffer[strlen(buffer)-1]=0;
+
+					sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_",buffer);
+					isdvd=oneLiner(buffercommand);
+					if(isdvd!=NULL)
+						{
+							romcnt=romcnt+(mult*1);
+							mult*=10;
+							free(isdvd);
+							isdvd=NULL;
+						}
+				}
+			pclose(fp);
+		}
+	if(last!=romcnt)
+		return(true);
+	return(false);
+}
+
 void updateDiskList(void)
 {
 	char		*command;
@@ -568,6 +608,7 @@ void updateDiskList(void)
 	char		*isusb=NULL;
 	char		*isdvd=NULL;
 	GdkPixbuf	*drive=NULL;
+	bool		gotrom=false;
 
 	gtk_list_store_clear(diskList);
 	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
@@ -604,7 +645,9 @@ void updateDiskList(void)
 						isdvd=oneLiner(buffercommand);
 						if(isdvd!=NULL)
 							{
-								bool	gotrom=false;
+								free(isdvd);
+								isdvd=NULL;
+								gotrom=false;
 								sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_DVD",ptr);
 								isdvd=oneLiner(buffercommand);
 								if((isdvd!=NULL) && (strlen(isdvd)>0))
