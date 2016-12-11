@@ -504,40 +504,58 @@ printf("path=%s, mountpoint=%s\n",path,mountpoint);
 
 	free(path);
 }
+#include <libgen.h>
 
 void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 {
 	char		*command=NULL;
 	const char	*recursive;
-	char		*uniquetopath;
 	char		*newtopath=NULL;
+	char		tofilepathbuffer[PATH_MAX];
+	char		*frompathfilename=g_path_get_basename(frompath);
 
 	if(isdir==true)
 		recursive="-r";
 	else
 		recursive="";
 
-	if(g_file_test(topath,G_FILE_TEST_IS_DIR)==true)
+	sprintf(tofilepathbuffer,"%s/%s",topath,frompathfilename);
+	char	*validfilepath=getValidFilepath(tofilepathbuffer);
+	char	*tovalidname=g_path_get_basename(validfilepath);
+	fileName=tovalidname;
+
+	doAskForFilename(NULL,NULL);
+	free(frompathfilename);
+	free(validfilepath);
+
+	if(validName==false)
 		{
-			newtopath=g_path_get_basename(frompath);
-			asprintf(&command,"%s/%s",topath,newtopath);
-			g_free(newtopath);
-			uniquetopath=getUniqueFilename(command);
-			g_free(command);
+			//free(tovalidname);
+			fileName=NULL;
+			return;
 		}
-	else
-		uniquetopath=getUniqueFilename(topath);
+
+	sprintf(tofilepathbuffer,"%s/%s",topath,fileName);
+	free(tovalidname);
+	fileName=NULL;
+	if((g_file_test(tofilepathbuffer,G_FILE_TEST_EXISTS)==true) && (validName==true))
+		{
+			if(yesNo("Really overwrite",tofilepathbuffer)==GTK_RESPONSE_CANCEL)
+				return;
+
+		}
 
 	switch(action)
 		{
 			case GDK_ACTION_COPY:
-				asprintf(&command,"cp %s \"%s\" \"%s\"",recursive,frompath,uniquetopath);
+				asprintf(&command,"cp %s \"%s\" \"%s\"",recursive,frompath,tofilepathbuffer);
 				break;
 			case GDK_ACTION_LINK:
-				asprintf(&command,"ln -sv \"%s\" \"%s\"",frompath,uniquetopath);
+				asprintf(&command,"ln -sv \"%s\" \"%s\"",frompath,tofilepathbuffer);
 				break;
 			default:
-				asprintf(&command,"mv \"%s\" \"%s\"",frompath,uniquetopath);
+				if(strcmp(frompath,tofilepathbuffer)!=0)
+					asprintf(&command,"mv \"%s\" \"%s\"",frompath,tofilepathbuffer);
 				break;
 		}
 	if(command!=NULL)
@@ -546,7 +564,7 @@ void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 			system(command);
 			free(command);
 		}
-	free(uniquetopath);
+//	free(uniquetopath);
 }
 
 gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page)
@@ -664,6 +682,10 @@ void runTerminalHere(GtkWidget* widget,gpointer data)
 
 void setAskEntry(GtkWidget* widget,gpointer ptr)
 {
+	if(fileName!=NULL)
+		free(fileName);
+	validName=false;
+
  	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)askentryText[ENTERFILENAMETXT])>0))
  		{
  			fileName=strdup(gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
