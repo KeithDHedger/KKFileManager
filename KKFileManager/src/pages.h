@@ -37,6 +37,10 @@ struct pageStruct
 	GtkLabel			*tabLabel;
 	FILE				*fp;
 	bool				doLoop;
+	bool				toggleOff;
+	bool				startedDrag;
+	bool				stdBehaviour;
+	bool				toggle;
 };
 
 unsigned getPageIdFromTab(void);

@@ -222,16 +222,71 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 		}
 }
 
+void doDragBegin(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page)
+{
+	page->toggleOff=false;
+}
+
+gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
+{
+	GtkTreePath	*treepath;
+	GList		*l;
+
+	if(page->stdBehaviour==true)
+		return(false);
+
+	l=gtk_icon_view_get_selected_items (page->iconView);
+
+	if((g_list_length(l)>1) && (page->startedDrag)==false)
+		{
+			if(page->toggleOff==true)
+				gtk_icon_view_unselect_all(page->iconView);
+		}
+	g_list_foreach(l,(GFunc)gtk_tree_path_free,NULL);
+	g_list_free(l);
+	treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
+	if(treepath!=NULL)
+		{
+			gtk_icon_view_select_path(page->iconView,treepath);
+			gtk_tree_path_free(treepath);
+		}
+	return(false);
+}
+
 gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkWidget	*menuitem;
     GtkTreePath	*treepath;
+  
 	fromPageID=page->pageID;
+
+	treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
+	if(event->state==0)
+		{
+			if(treepath==NULL)
+				{
+					page->toggle=true;
+					page->startedDrag=true;
+					gtk_icon_view_unselect_all(page->iconView);
+					page->toggleOff=false;
+				}
+			else
+				{
+					event->state=4;
+					page->toggle=false;
+					page->startedDrag=false;
+					page->toggleOff=true;		
+					gtk_icon_view_unselect_path (page->iconView,treepath);
+				}
+			page->stdBehaviour=false;
+		}
+	else
+		page->stdBehaviour=true;
 
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
 			gtk_icon_view_unselect_all(page->iconView);
-			treepath=gtk_icon_view_get_path_at_pos (page->iconView,event->x, event->y);
+			treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
 			if(G_IS_OBJECT(tabMenu))
 				{
 					g_object_ref_sink(tabMenu);
@@ -496,7 +551,7 @@ void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 
 gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page)
 {
-//printf("dand\n");
+printf("dand\n");
 	gchar			*topath;
 	gchar			*frompath;
 	GtkTreeIter		iter;

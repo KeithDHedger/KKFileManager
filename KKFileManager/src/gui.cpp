@@ -59,6 +59,9 @@ menuDataStruct	menuData[]=
 
 contextStruct	**contextMenus;
 GtkTargetEntry	*target=NULL;
+int				romCnt=0;
+int				diskCnt=0;
+
 
 GtkWidget *createNewBox(int orient,bool homog,int spacing)
 {
@@ -415,12 +418,34 @@ void populatePageStore(pageStruct *page)
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);
 }
 
+/*
+GtkTreeSelection  *selection;
+
+    ...
+
+    view = gtk_tree_view_new();
+
+    ...
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+
+    gtk_tree_selection_set_select_function(selection, view_selection_func, NULL, NULL);
+*/ 
+//void rochanged (GtkTreeModel *tree_model,
+//               GtkTreePath  *path,
+//               GtkTreeIter  *iter,
+//               gpointer      user_data)
+//{
+//printf("row changed\n");
+//}
+
 void newIconView(pageStruct *page)
 {
 	char	buffer[64];
 	sprintf(buffer,"GtkIconView-%u",pageCnt);
 //TODO//
 //gtk_tree_view_column_set_min_width
+//GtkTreeSelection  *selection;
 
 	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
 	page->iconView=(GtkIconView*)gtk_icon_view_new();
@@ -429,8 +454,15 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
 
+//GtkTreeView *tv=(GtkTreeView*)page->listStore;
+//selection = gtk_tree_view_get_selection(tv);
+
+
 	g_signal_connect(page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
 	g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
+	g_signal_connect(page->iconView,"button-release-event",G_CALLBACK(buttonUp),page);	
+//	g_signal_connect(page->iconView,"selection-changed",G_CALLBACK(rochanged),page);	
+
 	populatePageStore(page);
 
 	gtk_icon_view_set_selection_mode(GTK_ICON_VIEW(page->iconView),GTK_SELECTION_MULTIPLE);
@@ -445,12 +477,14 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_enable_model_drag_dest(page->iconView,target,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
 
 	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(doDrop),(gpointer)page);
+	g_signal_connect(G_OBJECT(page->iconView),"drag-begin",G_CALLBACK(doDragBegin),(gpointer)page);
 
 	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
 	gtk_icon_view_set_item_width (page->iconView,iconSize*iconSize3);
 
 
 	gtk_widget_set_name((GtkWidget*)page->iconView,buffer);
+
 }
 
 void setUpContextMenus(void)
@@ -555,9 +589,6 @@ void updateBMList(void)
 	free(filepath);
 }
 
-int romcnt=0;
-int diskcnt=0;
-
 bool checkDisksChanged(void)
 {
 	char	*command;
@@ -566,12 +597,12 @@ bool checkDisksChanged(void)
 	command=oneLiner("ls /dev/disk/by-path -1|wc -l");
 	cnt=atoi(command);
 	free(command);
-	if(cnt!=diskcnt)
+	if(cnt!=diskCnt)
 		{
-			diskcnt=cnt;
+			diskCnt=cnt;
 			return(true);
 		}
-	diskcnt=cnt;
+	diskCnt=cnt;
 	return(false);
 }
 
@@ -582,11 +613,10 @@ bool checkCDROMChanged(void)
 	char		buffer[2048];
 	char		buffercommand[2048];
 	char		*isdvd=NULL;
-	bool		retval=false;
 	int			mult=1;
-	int			last=romcnt;
+	int			last=romCnt;
 
-	romcnt=0;
+	romCnt=0;
 	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
 	fp=popen(command,"r");
 	if(fp!=NULL)
@@ -600,7 +630,7 @@ bool checkCDROMChanged(void)
 					isdvd=oneLiner(buffercommand);
 					if(isdvd!=NULL)
 						{
-							romcnt=romcnt+(mult*1);
+							romCnt=romCnt+(mult*1);
 							mult*=10;
 							free(isdvd);
 							isdvd=NULL;
@@ -608,7 +638,7 @@ bool checkCDROMChanged(void)
 				}
 			pclose(fp);
 		}
-	if(last!=romcnt)
+	if(last!=romCnt)
 		return(true);
 	return(false);
 }

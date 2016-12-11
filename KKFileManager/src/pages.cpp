@@ -59,6 +59,10 @@ void addNewPage(char *startdir)
 	page->pageID=pageCnt;
 	basename=g_path_get_basename(page->thisFolder);
 	page->tabBox=makeNewTab(basename,page);
+	page->toggleOff=false;
+	page->startedDrag=false;
+	page->stdBehaviour=false;
+	page->toggle=false;
 
 	pageList=g_list_prepend(pageList,(gpointer)page);
 

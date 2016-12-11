@@ -1,5 +1,6 @@
 0.0.3
-now detects disk physically removed from system ( eg sd cards ).
+Beat gtk's iconview into submission! DandD now works as properly.
+Now detects disk physically removed from system ( eg sd cards ).
 Now detects blank cd/dvd inserted/ejected, in multiple cd drives.
 Now dvd/cdrom only shown when media inserted.
 Fixed wrong sized icons in menus and toolbar for certain themes in gtk3 version.
