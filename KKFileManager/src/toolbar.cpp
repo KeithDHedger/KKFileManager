@@ -32,6 +32,7 @@ GtkToolItem *createNewToolItem(const char *stock,const char *label)
 #ifdef _USEGTK3_
 	GtkWidget	*image;
 	image=gtk_image_new_from_icon_name(stock,GTK_ICON_SIZE_LARGE_TOOLBAR);
+	gtk_image_set_pixel_size((GtkImage*)image,24);
 	button=gtk_tool_button_new(image,label);
 #else
 	button=gtk_tool_button_new_from_stock(stock);
@@ -190,6 +191,8 @@ void setUpToolBar(void)
 					case 'B':
 #ifdef _USEGTK3_
 						image=gtk_image_new_from_icon_name(GTK_STOCK_GO_BACK,GTK_ICON_SIZE_LARGE_TOOLBAR);
+						gtk_image_set_pixel_size((GtkImage*)image,24);
+
 						backButton=gtk_menu_tool_button_new(image,"Back");
 #else
 						backButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
@@ -212,6 +215,7 @@ void setUpToolBar(void)
 					case 'F':
 #ifdef _USEGTK3_
 						image=gtk_image_new_from_icon_name(GTK_STOCK_GO_FORWARD,GTK_ICON_SIZE_LARGE_TOOLBAR);
+						gtk_image_set_pixel_size((GtkImage*)image,24);
 						forwardButton=gtk_menu_tool_button_new(image,"Forward");
 #else
 						forwardButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_GO_FORWARD);

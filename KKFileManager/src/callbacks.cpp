@@ -227,6 +227,18 @@ void doDragBegin(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page
 	page->toggleOff=false;
 }
 
+void doDragEnd(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page)
+{
+	page->toggleOff=true;
+	page->startedDrag=false;
+	page->stdBehaviour=false;
+
+char *hold=page->thisFolder;
+//free(page->thisFolder);
+page->thisFolder=NULL;
+setCurrentFolderForTab(hold,page);
+}
+
 gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkTreePath	*treepath;
@@ -261,11 +273,12 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	fromPageID=page->pageID;
 
 	treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
+
 	if(event->state==0)
 		{
+			page->stdBehaviour=false;
 			if(treepath==NULL)
 				{
-					page->toggle=true;
 					page->startedDrag=true;
 					gtk_icon_view_unselect_all(page->iconView);
 					page->toggleOff=false;
@@ -273,12 +286,10 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 			else
 				{
 					event->state=4;
-					page->toggle=false;
 					page->startedDrag=false;
 					page->toggleOff=true;		
 					gtk_icon_view_unselect_path (page->iconView,treepath);
 				}
-			page->stdBehaviour=false;
 		}
 	else
 		page->stdBehaviour=true;
@@ -434,7 +445,7 @@ gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *user
 
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 {
-	printf("clicked\n");
+	printf(">>>>>>>>>>clicked<<<<<<<<<<<<<<\n");
 	gchar			*path;
 	GtkTreeIter		iter;
 	gboolean		isdir;
@@ -531,7 +542,7 @@ void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 	if(validName==false)
 		{
 			//free(tovalidname);
-			fileName=NULL;
+			//fileName=NULL;
 			return;
 		}
 
@@ -614,7 +625,25 @@ printf("dand\n");
 		}
 	g_list_foreach(list,(GFunc)gtk_tree_path_free,NULL);
 	g_list_free(list);
+//	frompage->toggleOff=false;
+//	frompage->startedDrag=false;
+//	frompage->stdBehaviour=false;
+//	page->toggleOff=false;
+	page->startedDrag=false;
+//	page->stdBehaviour=false;
+//while(gtk_events_pending())
+//	gtk_main_iteration_do(false);
+//g_signal_handler_disconnect (page->iconView,page->bdownsignal);
+//g_signal_handler_disconnect (page->iconView,page->bupsignal);
+//g_signal_handler_disconnect (page->iconView,page->selectsignal);
+//while(gtk_events_pending())
+//	gtk_main_iteration_do(false);
+//	page->selectsignal=g_signal_connect(page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
+//	page->bdownsignal=g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
+//	page->bupsignal=g_signal_connect(page->iconView,"button-release-event",G_CALLBACK(buttonUp),page);	
+
     return(retval);
+  //  return(true);
 }
 
 void closeTab(GtkButton *button,pageStruct *page)

@@ -458,9 +458,9 @@ void newIconView(pageStruct *page)
 //selection = gtk_tree_view_get_selection(tv);
 
 
-	g_signal_connect(page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
-	g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
-	g_signal_connect(page->iconView,"button-release-event",G_CALLBACK(buttonUp),page);	
+	page->selectsignal=g_signal_connect(page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
+	page->bdownsignal=g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
+	page->bupsignal=g_signal_connect(page->iconView,"button-release-event",G_CALLBACK(buttonUp),page);	
 //	g_signal_connect(page->iconView,"selection-changed",G_CALLBACK(rochanged),page);	
 
 	populatePageStore(page);
@@ -478,6 +478,7 @@ void newIconView(pageStruct *page)
 
 	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(doDrop),(gpointer)page);
 	g_signal_connect(G_OBJECT(page->iconView),"drag-begin",G_CALLBACK(doDragBegin),(gpointer)page);
+	//g_signal_connect(G_OBJECT(page->iconView),"drag-end",G_CALLBACK(doDragEnd),(gpointer)page);
 
 	gtk_icon_view_set_column_spacing(page->iconView,iconPadding);
 	gtk_icon_view_set_item_width (page->iconView,iconSize*iconSize3);
@@ -785,6 +786,7 @@ void buidMainGui(const char *startdir)
 
 //add toolbar
 	toolBar=(GtkToolbar*)gtk_toolbar_new();
+	gtk_toolbar_set_style((GtkToolbar*)toolBar,GTK_TOOLBAR_BOTH);
 	setUpToolBar();
 	toolBarBox=createNewBox(NEWHBOX,true,0);
 	gtk_box_pack_start(GTK_BOX(toolBarBox),(GtkWidget*)toolBar,true,true,0);

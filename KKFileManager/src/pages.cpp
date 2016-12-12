@@ -62,7 +62,6 @@ void addNewPage(char *startdir)
 	page->toggleOff=false;
 	page->startedDrag=false;
 	page->stdBehaviour=false;
-	page->toggle=false;
 
 	pageList=g_list_prepend(pageList,(gpointer)page);
 

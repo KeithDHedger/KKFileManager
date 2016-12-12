@@ -40,7 +40,10 @@ struct pageStruct
 	bool				toggleOff;
 	bool				startedDrag;
 	bool				stdBehaviour;
-	bool				toggle;
+	guint				bupsignal;
+	guint				bdownsignal;
+	guint				selectsignal;
+	
 };
 
 unsigned getPageIdFromTab(void);

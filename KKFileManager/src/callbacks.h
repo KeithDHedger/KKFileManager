@@ -39,5 +39,6 @@ void openBM(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata);
 gboolean buttonDownBM(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata);
 gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
 void doDragBegin(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page);
+void doDragEnd(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page);
 
 #endif
