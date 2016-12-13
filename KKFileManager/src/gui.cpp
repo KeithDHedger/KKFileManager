@@ -40,6 +40,8 @@ menuDataStruct	menuData[]=
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
 		{"Duplicate",GTK_STOCK_COPY,0,0,NULL,"duplicatemenu",NULL},
 		{"Extract",GTK_STOCK_CONVERT,0,0,NULL,"extractmenu",NULL},
+		{"Copy",GTK_STOCK_COPY,0,0,NULL,"copymenu",NULL},
+		{"Paste",GTK_STOCK_PASTE,0,0,NULL,"pastemenu",NULL},
 //disk context
 		{"Mount",GTK_STOCK_HARDDISK,0,0,NULL,"mountdiskmenu",NULL},
 		{"Un-Mount",GTK_STOCK_HARDDISK,0,0,NULL,"unmountdiskmenu",NULL},

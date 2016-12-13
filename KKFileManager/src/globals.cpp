@@ -50,6 +50,7 @@ GtkWidget		*menuBar=NULL;
 int				sessionID=-1;
 GApplication	*mainApp;
 bool			openDefault=false;
+GtkClipboard	*mainClipboard=NULL;
 
 //file menu
 GtkWidget		*fileMenu=NULL;
@@ -413,24 +414,18 @@ void writeExitData(void)
 	free(filename);
 }
 
-//char* getValidFilepath(const char *filepath)
 filePathStruct* getValidFilepath(const char *filepath)
 {
 	char			buffer[PATH_MAX];
 	unsigned		cnt;
-	char			*ptr;
 	filePathStruct	*fs=(filePathStruct*)calloc(1,sizeof(filePathStruct));
-//	char		*dirname=g_path_get_dirname(filepath);
-
-	char		*filename=g_path_get_basename(filepath);
+	char			*filename=g_path_get_basename(filepath);
 
 	fs->dirPath=g_path_get_dirname(filepath);
-	
-	ptr=strrchr(filename,'-');
-	if(ptr!=NULL)
-		*ptr=0;
+	fs->modified=false;
 
 	sprintf(buffer,"%s/%s",fs->dirPath,filename);
+
 	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 		{
 			cnt=0;
@@ -439,7 +434,7 @@ filePathStruct* getValidFilepath(const char *filepath)
 					cnt++;
 					sprintf(buffer,"%s/%s-%u",fs->dirPath,filename,cnt);
 				}
-		
+			fs->modified=true;
 		}
 	else
 		sprintf(buffer,"%s",filepath);
@@ -448,5 +443,12 @@ filePathStruct* getValidFilepath(const char *filepath)
 	fs->fileName=g_path_get_basename(buffer);
 	free(filename);
 	return(fs);
-//	return(strdup(buffer));
+}
+
+void freefilePathStruct(filePathStruct* fs)
+{
+	free(fs->dirPath);
+	free(fs->fileName);
+	free(fs->filePath);
+	free(fs);
 }

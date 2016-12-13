@@ -89,6 +89,7 @@ struct	filePathStruct
 	char	*dirPath;
 	char	*fileName;
 	char	*filePath;
+	bool	modified;
 };
 
 enum {NEWVBOX=0,NEWHBOX};
@@ -122,6 +123,7 @@ extern GtkWidget		*menuBar;
 extern int				sessionID;
 extern GApplication		*mainApp;
 extern bool				openDefault;
+extern GtkClipboard		*mainClipboard;
 
 //file menu
 extern GtkWidget		*fileMenu;
@@ -197,4 +199,6 @@ int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
 //char* getValidFilepath(const char *filepath);
 filePathStruct* getValidFilepath(const char *filepath);
+void freefilePathStruct(filePathStruct* fs);
+
 #endif

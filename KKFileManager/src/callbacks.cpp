@@ -52,10 +52,11 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	GtkTreeIter		iter;
 	gboolean		isdir;
 	int				result=0;
-	char			*validFilePath=NULL;
-	char			*validDirname=NULL;
 	char			*output=NULL;
 	filePathStruct	*fs;
+	GList			*list=NULL;
+	GString			*str=NULL;
+	int				cnt;
 
 	switch(ctx->id)
 		{
@@ -65,81 +66,120 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 			case CONTEXTNEWFOLDER:
 				sprintf(buffer,"%s/New %s",ctx->page->thisFolder,type);
 				fs=getValidFilepath(buffer);
-				//validFilePath=getValidFilepath(buffer);
-				//fileName=g_path_get_basename(validFilePath);
 				doAskForFilename(fs->fileName);
 				if(validName==true)
 					{
-					//printf("dir=>%s<,file=>%s<,path=>%s<\n",fs->dirPath,fs->fileName,fs->filePath);
-					//printf("fileName=>%s<\n",fileName);
-						//validDirname=g_path_get_dirname(validFilePath);
-//						sprintf(buffer,"%s \"%s/%s\"",command,validDirname,fileName);
 						sprintf(buffer,"%s/%s",fs->dirPath,fileName);
 						if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-							if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL
-								return;
+							{
+								if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
+									{
+										freefilePathStruct(fs);
+										return;
+									}
+							}
 						sprintf(buffer,"%s \"%s/%s\"",command,fs->dirPath,fileName);
 						system(buffer);
 					}
-				//free(validFilePath);
-				//free(validDirname);
+				freefilePathStruct(fs);
 				break;
 			case CONTEXTBMNEW:
-//				gtk_list_store_append(bmList,&iter);
-//				sprintf(buffer,"%s",ctx->page->thisFolder);
+				gtk_list_store_append(bmList,&iter);
+				sprintf(buffer,"%s",ctx->page->thisFolder);
 				gtk_list_store_set(bmList,&iter,BMPATH,buffer,BMLABEL,basename(buffer),-1);
 				break;
 			case CONTEXTOPEN:
 				selectItem(ctx->page->iconView,ctx->treepath,ctx->page);
 				break;
 			case CONTEXTDELETE:
-//				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
-//				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-//
-//				result=yesNo("Really delete\n",path);
-//				if(result==GTK_RESPONSE_YES)
-//					{
-//						if(isdir==true)
-//							sprintf(buffer,"rm -r \"%s\"",path);
-//						else
-//							sprintf(buffer,"rm \"%s\"",path);
-//						system(buffer);
-//					}
-//				free(path);
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+
+				result=yesNo("Really delete\n",path);
+				if(result==GTK_RESPONSE_YES)
+					{
+						if(isdir==true)
+							sprintf(buffer,"rm -r \"%s\"",path);
+						else
+							sprintf(buffer,"rm \"%s\"",path);
+						system(buffer);
+					}
+				free(path);
 				break;
 			case CONTEXTDUP:
-//				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
-//				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-//				if(fileName!=NULL)
-//					free(fileName);
-//				validFilePath=getValidFilepath(path);
-//				fileName=g_path_get_basename(validFilePath);
-//				doAskForFilename(NULL,NULL);
-//				if(validName==true)
-//					{
-//						validDirname=g_path_get_dirname(path);
-//						sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",path,validDirname,fileName);
-//						system(buffer);
-//					}
-//				free(validFilePath);
-//				free(validDirname);
-//				free(path);
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+
+				fs=getValidFilepath(path);
+				doAskForFilename(fs->fileName);
+				if(validName==true)
+					{
+						sprintf(buffer,"%s/%s",fs->dirPath,fileName);
+						if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+							{
+								if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
+									{
+										freefilePathStruct(fs);
+										return;
+									}
+							}
+						sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",path,fs->dirPath,fileName);
+						printf("buffer=>%s<\n",buffer);
+						system(buffer);
+					}
+				freefilePathStruct(fs);
 				break;
 			case CONTEXTEXTRACT:
-//				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
-//				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-//				
-//				sprintf(buffer,"mimetype --output-format=\"%%m\" \"%s\"",path);
-//				output=oneLiner(buffer);
-//				buffer[0]=0;
-//				if((strcmp(output,"application/gzip")==0) || (strcmp(output,"application/x-bzip")==0) || (strcmp(output,"application/x-tar")==0) || (strcmp(output,"application/x-compressed-tar")==0) || (strcmp(output,"application/x-bzip-compressed-tar")==0))
-//					sprintf(buffer,"(cd \"%s\";tar -xvf \"%s\")",ctx->page->thisFolder,path);
-//				if(strcmp(output,"application/zip")==0)
-//					sprintf(buffer,"(cd \"%s\";unzip \"%s\")",ctx->page->thisFolder,path);
-//				if(strlen(buffer)>0)
-//					system(buffer);
-//				free(output);
-//				free(path);
+				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
+				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+				
+				sprintf(buffer,"mimetype --output-format=\"%%m\" \"%s\"",path);
+				output=oneLiner(buffer);
+				buffer[0]=0;
+				if((strcmp(output,"application/gzip")==0) || (strcmp(output,"application/x-bzip")==0) || (strcmp(output,"application/x-tar")==0) || (strcmp(output,"application/x-compressed-tar")==0) || (strcmp(output,"application/x-bzip-compressed-tar")==0))
+					sprintf(buffer,"(cd \"%s\";tar -xvf \"%s\")",ctx->page->thisFolder,path);
+				if(strcmp(output,"application/zip")==0)
+					sprintf(buffer,"(cd \"%s\";unzip \"%s\")",ctx->page->thisFolder,path);
+				if(strlen(buffer)>0)
+					system(buffer);
+				free(output);
+				free(path);
+				break;
+//copy
+			case CONTEXTCOPY:
+				str=g_string_new(NULL);
+				list=gtk_icon_view_get_selected_items(ctx->page->iconView);
+				while(list!=NULL)
+					{
+						gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,(GtkTreePath *)list->data);
+						gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+						g_string_append(str,path);
+						g_string_append_c(str,'\n');
+						free(path);
+						list=list->next;
+					}
+				gtk_clipboard_set_text(mainClipboard,str->str,-1);
+				g_list_foreach(list,(GFunc)gtk_tree_path_free,NULL);
+				g_list_free(list);
+				g_string_free(str,true);
+				break;
+//paste
+			case CONTEXTPASTE:
+				path=gtk_clipboard_wait_for_text(mainClipboard);
+//				str=g_string_new(NULL);
+				printf("clips=\n%s\n",path);
+				if(path!=NULL)
+					{
+						gchar **array=g_strsplit(path,"\n",-1);
+						cnt=0;
+						while(array[cnt]!=NULL)
+							{
+								printf("array %i =%s\n",cnt,array[cnt]);
+								cnt++;
+							}
+						g_strfreev(array);
+					}
+				free(path);
 				break;
 			default:
 				printf("unknown\n");
@@ -249,8 +289,6 @@ void doDragEnd(GtkWidget *widget,GdkDragContext *context,pageStruct *page)
 	gtk_container_add((GtkContainer*)page->scrollBox,(GtkWidget*)page->iconView);
 	setCurrentFolderForTab(page->thisFolder,page,true);
 #endif
-
-	gtk_drag_finish(context,true,false,GDK_CURRENT_TIME);
 	return;
 }
 
@@ -311,7 +349,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
-			gtk_icon_view_unselect_all(page->iconView);
+			//gtk_icon_view_unselect_all(page->iconView);
 			treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
 			if(G_IS_OBJECT(tabMenu))
 				{
@@ -342,7 +380,11 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTEXTRACT]->page=page;
 					contextMenus[CONTEXTEXTRACT]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTEXTRACT]);
-
+//copy
+					menuitem=newImageMenuItem(CONTEXTCOPY,tabMenu);
+					contextMenus[CONTEXTCOPY]->page=page;
+					contextMenus[CONTEXTCOPY]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTCOPY]);
 				}
 			else
 				{
@@ -356,6 +398,11 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTNEWFOLDER]->page=page;
 					contextMenus[CONTEXTNEWFOLDER]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTNEWFOLDER]);
+//paste
+					menuitem=newImageMenuItem(CONTEXTPASTE,tabMenu);
+					contextMenus[CONTEXTPASTE]->page=page;
+					contextMenus[CONTEXTPASTE]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTPASTE]);
 //new bm
 					menuitem=newImageMenuItem(CONTEXTBMNEW,tabMenu);
 					contextMenus[CONTEXTBMNEW]->page=page;
@@ -460,7 +507,7 @@ gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *user
 
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 {
-	printf(">>>>>>>>>>clicked<<<<<<<<<<<<<<\n");
+//	printf(">>>>>>>>>>clicked<<<<<<<<<<<<<<\n");
 
 	gchar			*path;
 	GtkTreeIter		iter;
@@ -469,8 +516,6 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,tree_path);
 	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-//	printf("path=%s\n",path);
-	//printf("---%i\n",isdir);
 	if(isdir==true)
 		{
 			setCurrentFolderForTab(path,page,false);
@@ -534,54 +579,67 @@ printf("path=%s, mountpoint=%s\n",path,mountpoint);
 
 void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 {
-#if 0
-	char		*command=NULL;
-	const char	*recursive;
-	char		tofilepathbuffer[PATH_MAX];
-	char		*frompathfilename=g_path_get_basename(frompath);
+	char			*command=NULL;
+	const char		*recursive;
+	char			tofilepathbuffer[PATH_MAX];
+	filePathStruct	* fs;
+	char			tobuffer[PATH_MAX];
+	char			*fromfilename;
+	char			buffer[PATH_MAX];
+	char			*tofilepath;
 
 	if(isdir==true)
 		recursive="-r";
 	else
 		recursive="";
 
-	sprintf(tofilepathbuffer,"%s/%s",topath,frompathfilename);
-	char	*validfilepath=getValidFilepath(tofilepathbuffer);
-	char	*tovalidname=g_path_get_basename(validfilepath);
-	fileName=tovalidname;
+	sprintf(tobuffer,"%s",frompath);
+	fromfilename=basename(tobuffer);
+	sprintf(buffer,"%s/%s",topath,fromfilename);
+	fs=getValidFilepath(buffer);
 
-	doAskForFilename(NULL,NULL);
-	free(frompathfilename);
-	free(validfilepath);
+	if(fs->modified==true)
+		tofilepath=strdup(fs->filePath);
+	else
+		tofilepath=strdup(buffer);
 
-	if(validName==false)
+
+
+	if(fs->modified==true)
 		{
-			//free(tovalidname);
-			//fileName=NULL;
-			return;
-		}
-
-	sprintf(tofilepathbuffer,"%s/%s",topath,fileName);
-	free(tovalidname);
-	fileName=NULL;
-	if((g_file_test(tofilepathbuffer,G_FILE_TEST_EXISTS)==true) && (validName==true))
-		{
-			if(yesNo("Really overwrite",tofilepathbuffer)==GTK_RESPONSE_CANCEL)
-				return;
-
+			doAskForFilename(fs->fileName);
+			if(validName==true)
+				{
+					sprintf(buffer,"%s/%s",fs->dirPath,fileName);
+					if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+						{
+							if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
+								{
+									freefilePathStruct(fs);
+									free(tofilepath);
+									return;
+								}
+						}
+				}
+			else
+				{
+					freefilePathStruct(fs);
+					free(tofilepath);
+					return;
+				}
 		}
 
 	switch(action)
 		{
 			case GDK_ACTION_COPY:
-				asprintf(&command,"cp %s \"%s\" \"%s\"",recursive,frompath,tofilepathbuffer);
+				asprintf(&command,"cp %s \"%s\" \"%s\"",recursive,frompath,tofilepath);
 				break;
 			case GDK_ACTION_LINK:
-				asprintf(&command,"ln -sv \"%s\" \"%s\"",frompath,tofilepathbuffer);
+				asprintf(&command,"ln -sv \"%s\" \"%s\"",frompath,tofilepath);
 				break;
 			default:
 				if(strcmp(frompath,tofilepathbuffer)!=0)
-					asprintf(&command,"mv \"%s\" \"%s\"",frompath,tofilepathbuffer);
+					asprintf(&command,"mv \"%s\" \"%s\"",frompath,tofilepath);
 				break;
 		}
 	if(command!=NULL)
@@ -590,13 +648,13 @@ void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 			system(command);
 			free(command);
 		}
-//	free(uniquetopath);
-#endif
+	free(tofilepath);
 }
 
 gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page)
 {
 printf("dand\n");
+
 	gchar			*topath;
 	gchar			*frompath;
 	GtkTreeIter		iter;
@@ -619,7 +677,7 @@ printf("dand\n");
 		{
 			gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,treepath);
 			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&topath,ISDIR,&isdir,-1);
-			//printf(">>>to path=%s<<<\n",topath);
+			printf(">>>to path=%s<<<\n",topath);
 			retval=true;
 		}
 	else
@@ -632,7 +690,7 @@ printf("dand\n");
 		{
 			gtk_tree_model_get_iter((GtkTreeModel *)frompage->listStore,&iter,(GtkTreePath *)list->data);
 			gtk_tree_model_get(GTK_TREE_MODEL(frompage->listStore),&iter,FILEPATH,&frompath,ISDIR,&isdir,-1);
-			//printf(">>>from path=%s<<<\n",frompath);
+			printf(">>>from path=%s<<<\n",frompath);
 			fileAction(frompath,topath,isdir,action);
 			list=list->next;
 		}
@@ -645,6 +703,7 @@ printf("dand\n");
  //g_signal_emit_by_name (page->iconView,"item-activated",NULL,NULL,NULL);
   //selectItem(NULL,NULL,NULL);
 //buttonDown(NULL,NULL,NULL);
+	gtk_drag_finish(context,retval,false,time);
     return(retval);
   //  return(true);
 }
