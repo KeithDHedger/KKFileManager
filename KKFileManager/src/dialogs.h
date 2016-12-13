@@ -26,14 +26,13 @@
 enum {ENTERFILENAMETXT=0};
 
 #define _ISDIALOG_
-extern char *fileName;
-extern bool validName;
+extern char			*fileName;
+extern bool			validName;
 
 extern GtkWidget	*askentryText[];
-
 extern GtkWidget	*askentryWindow;
 
-void doAskForFilename(GtkWidget* widget,gpointer data);
+void doAskForFilename(const char* filename);
 
 #endif
 

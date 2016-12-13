@@ -25,10 +25,9 @@ char		*fileName;
 bool		validName;
 
 GtkWidget	*askentryText[1];
-
 GtkWidget	*askentryWindow;
 
-void makeAskEntryText(int widgnum,const char *label,char *defaulttxt,GtkBox *box,bool showlabel)
+void makeAskEntryText(int widgnum,const char *label,const char *defaulttxt,GtkBox *box,bool showlabel)
 {
 	GtkWidget	*hbox=createNewBox(NEWHBOX,false,0);
 	GtkWidget	*pad=createNewBox(NEWHBOX,false,0);
@@ -47,7 +46,7 @@ void makeAskEntryText(int widgnum,const char *label,char *defaulttxt,GtkBox *box
 		gtk_box_pack_start(box,askentryText[widgnum],false,false,0);
 }
 
-void doAskForFilename(GtkWidget* widget,gpointer data)
+void doAskForFilename(const char* filename)
 {
 	GtkBox		*vbox;
 	GtkWidget	*hbox;
@@ -60,7 +59,7 @@ void doAskForFilename(GtkWidget* widget,gpointer data)
 	gtk_window_set_title((GtkWindow*)askentryWindow,"Enter Filename");
 	vbox=(GtkBox*)createNewBox(NEWVBOX,false,0);
 
-	makeAskEntryText(ENTERFILENAMETXT,"Enter Filename",fileName,vbox,true);
+	makeAskEntryText(ENTERFILENAMETXT,"Enter Filename",filename,vbox,true);
 #ifdef _USEGTK3_
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
 #else

@@ -413,32 +413,40 @@ void writeExitData(void)
 	free(filename);
 }
 
-char* getValidFilepath(const char *filepath)
+//char* getValidFilepath(const char *filepath)
+filePathStruct* getValidFilepath(const char *filepath)
 {
-	char		buffer[PATH_MAX];
-	unsigned	cnt;
-	char		*ptr;
+	char			buffer[PATH_MAX];
+	unsigned		cnt;
+	char			*ptr;
+	filePathStruct	*fs=(filePathStruct*)calloc(1,sizeof(filePathStruct));
+//	char		*dirname=g_path_get_dirname(filepath);
 
-	char		*dirname=g_path_get_dirname(filepath);
 	char		*filename=g_path_get_basename(filepath);
 
+	fs->dirPath=g_path_get_dirname(filepath);
+	
 	ptr=strrchr(filename,'-');
 	if(ptr!=NULL)
 		*ptr=0;
 
-	sprintf(buffer,"%s/%s",dirname,filename);
+	sprintf(buffer,"%s/%s",fs->dirPath,filename);
 	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 		{
 			cnt=0;
 			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 				{
 					cnt++;
-					sprintf(buffer,"%s/%s-%u",dirname,filename,cnt);
+					sprintf(buffer,"%s/%s-%u",fs->dirPath,filename,cnt);
 				}
 		
 		}
 	else
 		sprintf(buffer,"%s",filepath);
 
-	return(strdup(buffer));
+	fs->filePath=strdup(buffer);
+	fs->fileName=g_path_get_basename(buffer);
+	free(filename);
+	return(fs);
+//	return(strdup(buffer));
 }

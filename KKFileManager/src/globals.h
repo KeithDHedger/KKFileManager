@@ -80,8 +80,15 @@ struct	args
 
 struct varStrings
 {
-	char				*name;
-	char				*data;
+	char		*name;
+	char		*data;
+};
+
+struct	filePathStruct
+{
+	char	*dirPath;
+	char	*fileName;
+	char	*filePath;
 };
 
 enum {NEWVBOX=0,NEWHBOX};
@@ -188,6 +195,6 @@ int yesNo(const char *question,char *file);
 char *getUniqueFilename(const char *path);
 int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
-char* getValidFilepath(const char *filepath);
-
+//char* getValidFilepath(const char *filepath);
+filePathStruct* getValidFilepath(const char *filepath);
 #endif
