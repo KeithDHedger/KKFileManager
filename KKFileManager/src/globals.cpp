@@ -58,6 +58,7 @@ GtkWidget		*menuItemTerminal=NULL;
 GtkWidget		*menuItemPrefs=NULL;
 
 //tool bar
+GtkToolItem		*refreshButton=NULL;
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
 GtkToolItem		*forwardButton=NULL;
@@ -155,22 +156,23 @@ char* oneLiner(const char *command)
 	return(retstr);
 }
 
-void setCurrentFolderForTab(const char *newfolder,pageStruct *page)
+void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool force)
 {
 	GtkEntryCompletion	*completion;
 	GtkListStore		*list;
+	char				*holdfolder=NULL;
 
 	if(g_file_test(newfolder,G_FILE_TEST_IS_DIR)==false)
 		return;
 
-	if(strcmp(page->thisFolder,newfolder)==0)
+	if((force==false) && (strcmp(page->thisFolder,newfolder)==0))
 		return;
-
 
 	if(newfolder!=NULL && strlen(newfolder)>0)
 		{
+			holdfolder=strdup(newfolder);
 			free(page->thisFolder);
-			page->thisFolder=strdup((char*)newfolder);
+			page->thisFolder=holdfolder;
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
 			gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
 			populatePageStore(page);

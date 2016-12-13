@@ -207,7 +207,7 @@ void appStart(GApplication  *application,gpointer data)
 
 	g_application_hold(application);
 
-	toolBarLayout=strdup("NUBFHL");
+	toolBarLayout=strdup("NUBFHLR");
 	diskIncludePattern=strdup("*sd?*");
 	diskExcludePattern=strdup("*");
 	terminalCommand=strdup("xterm -title ");

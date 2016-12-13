@@ -48,14 +48,22 @@ void goUp(GtkWidget *widget,gpointer data)
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
 	hold=g_path_get_dirname(page->thisFolder);
-	setCurrentFolderForTab(hold,page);
+	setCurrentFolderForTab(hold,page,false);
 	free(hold);
 }
+
+void refreshView(GtkWidget *widget,gpointer data)
+{
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+
+	setCurrentFolderForTab(page->thisFolder,page,true);
+}
+
 
 void goHome(GtkWidget *widget,gpointer data)
 {
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-	setCurrentFolderForTab(g_get_home_dir(),page);
+	setCurrentFolderForTab(g_get_home_dir(),page,false);
 }
 
 void goNew(GtkWidget *widget,gpointer data)
@@ -79,7 +87,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 			free(command);
 			return;
 		}
-	setCurrentFolderForTab(gtk_entry_get_text(entry),page);
+	setCurrentFolderForTab(gtk_entry_get_text(entry),page,true);
 }
 
 gboolean trapTabKey(GtkEntry *entry,GdkEvent *event,gpointer data)
@@ -187,6 +195,13 @@ void setUpToolBar(void)
 						gtk_toolbar_insert(toolBar,upButton,-1);
 						g_signal_connect(G_OBJECT(upButton),"clicked",G_CALLBACK(goUp),NULL);
 						break;
+//refresh
+					case 'R':
+						refreshButton=createNewToolItem(GTK_STOCK_REFRESH,"Refresh");
+						gtk_toolbar_insert(toolBar,refreshButton,-1);
+						g_signal_connect(G_OBJECT(refreshButton),"clicked",G_CALLBACK(refreshView),NULL);
+						break;
+
 //go back
 					case 'B':
 #ifdef _USEGTK3_

@@ -151,7 +151,7 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				if(path!=NULL)
 					{
 						pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-						setCurrentFolderForTab(path,page);
+						setCurrentFolderForTab(path,page,false);
 						free(path);
 					}
 				break;
@@ -233,10 +233,13 @@ void doDragEnd(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page)
 	page->startedDrag=false;
 	page->stdBehaviour=false;
 
-char *hold=page->thisFolder;
-//free(page->thisFolder);
-page->thisFolder=NULL;
-setCurrentFolderForTab(hold,page);
+#ifndef _USEGTK3_
+	gtk_widget_destroy((GtkWidget*)page->iconView);
+	newIconView(page);
+	gtk_container_add((GtkContainer*)page->scrollBox,(GtkWidget*)page->iconView);
+	setCurrentFolderForTab(page->thisFolder,page,true);
+#endif
+	return;
 }
 
 gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
@@ -269,7 +272,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkWidget	*menuitem;
     GtkTreePath	*treepath;
-  
+
 	fromPageID=page->pageID;
 
 	treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
@@ -288,7 +291,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					event->state=4;
 					page->startedDrag=false;
 					page->toggleOff=true;		
-					gtk_icon_view_unselect_path (page->iconView,treepath);
+					gtk_icon_view_unselect_path(page->iconView,treepath);
 				}
 		}
 	else
@@ -446,6 +449,7 @@ gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *user
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 {
 	printf(">>>>>>>>>>clicked<<<<<<<<<<<<<<\n");
+
 	gchar			*path;
 	GtkTreeIter		iter;
 	gboolean		isdir;
@@ -457,7 +461,7 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 	//printf("---%i\n",isdir);
 	if(isdir==true)
 		{
-			setCurrentFolderForTab(path,page);
+			setCurrentFolderForTab(path,page,false);
 			free(page->thisFolder);
 			page->thisFolder=strdup(path);
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
@@ -482,7 +486,7 @@ void openBM(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 	if(path!=NULL)
 		{
 			pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-			setCurrentFolderForTab(path,page);
+			setCurrentFolderForTab(path,page,false);
 			free(path);
 		}
 }
@@ -511,7 +515,7 @@ printf("path=%s, mountpoint=%s\n",path,mountpoint);
 		}
 
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-	setCurrentFolderForTab(mountpoint,page);
+	setCurrentFolderForTab(mountpoint,page,false);
 
 	free(path);
 }
@@ -521,7 +525,6 @@ void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 {
 	char		*command=NULL;
 	const char	*recursive;
-	char		*newtopath=NULL;
 	char		tofilepathbuffer[PATH_MAX];
 	char		*frompathfilename=g_path_get_basename(frompath);
 
@@ -581,6 +584,18 @@ void fileAction(const char *frompath,const char *topath,bool isdir,int action)
 gboolean doDrop(GtkWidget *icon,GdkDragContext *context,int x,int y,unsigned time,pageStruct *page)
 {
 printf("dand\n");
+
+
+//    GdkAtom target_type;
+//
+//    g_print( "Detected drop on %s\n", gtk_widget_get_name( icon ) );
+//
+//    target_type = GDK_POINTER_TO_ATOM( context->targets->data );
+//    gtk_drag_get_data( icon, context, target_type, time );
+//
+//    return( TRUE );
+//
+
 	gchar			*topath;
 	gchar			*frompath;
 	GtkTreeIter		iter;
@@ -589,7 +604,6 @@ printf("dand\n");
 	GList			*list=NULL;
 	bool			retval=false;
 	GdkDragAction	action;
-
 //	printf("to pageid=%u\n",page->pageID);
 //	printf("from pageid=%u\n",fromPageID);
 
@@ -628,9 +642,9 @@ printf("dand\n");
 //	frompage->toggleOff=false;
 //	frompage->startedDrag=false;
 //	frompage->stdBehaviour=false;
-//	page->toggleOff=false;
+	page->toggleOff=false;
 	page->startedDrag=false;
-//	page->stdBehaviour=false;
+	page->stdBehaviour=true;
 //while(gtk_events_pending())
 //	gtk_main_iteration_do(false);
 //g_signal_handler_disconnect (page->iconView,page->bdownsignal);
@@ -642,6 +656,16 @@ printf("dand\n");
 //	page->bdownsignal=g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
 //	page->bupsignal=g_signal_connect(page->iconView,"button-release-event",G_CALLBACK(buttonUp),page);	
 
+//GdkAtom targ;
+//gtk_drag_get_data(icon,context,targ,time);
+
+
+	gtk_drag_finish(context,retval,false,time);
+ 
+// bool sink=false;
+ //g_signal_emit_by_name (page->iconView,"item-activated",NULL,NULL,NULL);
+  //selectItem(NULL,NULL,NULL);
+//buttonDown(NULL,NULL,NULL);
     return(retval);
   //  return(true);
 }

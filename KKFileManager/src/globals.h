@@ -53,6 +53,7 @@
 #define GTK_STOCK_GO_FORWARD "go-next"
 #define GTK_STOCK_GO_BACK "go-previous"
 #define GTK_STOCK_GO_UP "go-up"
+#define GTK_STOCK_REFRESH "view-refresh"
 #define GTK_STOCK_HOME "go-home"
 #define GTK_STOCK_DIRECTORY "folder"
 #define GTK_STOCK_CLOSE "window-close"
@@ -123,6 +124,7 @@ extern GtkWidget		*menuItemPrefs;
 
 //tool bar
 extern GtkToolItem		*upButton;
+extern GtkToolItem		*refreshButton;
 extern GtkToolItem		*backButton;
 extern GtkToolItem		*forwardButton;
 extern GtkToolItem		*homeButton;
@@ -181,7 +183,7 @@ extern GdkPixbuf		*guiPixbufs[NUMPBS];
 //global functions
 char* oneLiner(const char *command);
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);
-void setCurrentFolderForTab(const char *newfolder,pageStruct *page);
+void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool force);
 int yesNo(const char *question,char *file);
 char *getUniqueFilename(const char *path);
 int loadVarsFromFile(char *filepath,args *dataptr);
