@@ -70,10 +70,14 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				doAskForFilename(fs->fileName);
 				if(validName==true)
 					{
-					printf("dir=>%s<,file=>%s<,path=>%s<\n",fs->dirPath,fs->fileName,fs->filePath);
-					printf("fileName=>%s<\n",fileName);
+					//printf("dir=>%s<,file=>%s<,path=>%s<\n",fs->dirPath,fs->fileName,fs->filePath);
+					//printf("fileName=>%s<\n",fileName);
 						//validDirname=g_path_get_dirname(validFilePath);
 //						sprintf(buffer,"%s \"%s/%s\"",command,validDirname,fileName);
+						sprintf(buffer,"%s/%s",fs->dirPath,fileName);
+						if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+							if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL
+								return;
 						sprintf(buffer,"%s \"%s/%s\"",command,fs->dirPath,fileName);
 						system(buffer);
 					}
@@ -718,8 +722,6 @@ void setAskEntry(GtkWidget* widget,gpointer ptr)
  	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)askentryText[ENTERFILENAMETXT])>0))
  		{
 			fileName=strdup(gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
- //			fileName=gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]);
- 		printf(">>>%s<<<\n",fileName);
 			validName=true;
 		}
 	gtk_widget_destroy(askentryWindow);
