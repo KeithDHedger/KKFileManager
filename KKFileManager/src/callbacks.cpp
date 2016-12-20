@@ -201,7 +201,7 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				if(path!=NULL)
 					{
 						pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-						setCurrentFolderForTab(path,page,false);
+						setCurrentFolderForTab(path,page,true,false);
 						free(path);
 					}
 				break;
@@ -287,7 +287,7 @@ void doDragEnd(GtkWidget *widget,GdkDragContext *context,pageStruct *page)
 	gtk_widget_destroy((GtkWidget*)page->iconView);
 	newIconView(page);
 	gtk_container_add((GtkContainer*)page->scrollBox,(GtkWidget*)page->iconView);
-	setCurrentFolderForTab(page->thisFolder,page,true);
+	setCurrentFolderForTab(page->thisFolder,page,true,true);
 #endif
 	return;
 }
@@ -518,7 +518,11 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
 	if(isdir==true)
 		{
-			setCurrentFolderForTab(path,page,false);
+			setCurrentFolderForTab(path,page,true,false);
+			for(std::map<unsigned,char*>::iterator iter=page->forwardList.begin();iter!=page->forwardList.end();iter++)
+				free(iter->second);
+			page->forwardList.clear();
+
 			free(page->thisFolder);
 			page->thisFolder=strdup(path);
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
@@ -543,7 +547,7 @@ void openBM(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 	if(path!=NULL)
 		{
 			pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-			setCurrentFolderForTab(path,page,false);
+			setCurrentFolderForTab(path,page,true,false);
 			free(path);
 		}
 }
@@ -572,7 +576,7 @@ printf("path=%s, mountpoint=%s\n",path,mountpoint);
 		}
 
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-	setCurrentFolderForTab(mountpoint,page,false);
+	setCurrentFolderForTab(mountpoint,page,true,false);
 
 	free(path);
 }

@@ -62,6 +62,12 @@ void addNewPage(char *startdir)
 	page->toggleOff=false;
 	page->startedDrag=false;
 	page->stdBehaviour=false;
+	page->historyCnt=0;
+	page->backList.clear();
+	//page->backList[page->historyCnt++]=strdup(startdir);
+	page->forwardList.clear();
+//	page->backList[page->historyCnt++]="usr";
+//	page->backList[page->historyCnt++]="/usr/bin";
 
 	pageList=g_list_prepend(pageList,(gpointer)page);
 

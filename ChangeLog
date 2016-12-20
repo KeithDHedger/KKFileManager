@@ -1,4 +1,5 @@
 0.0.3
+Added go back history.
 Added copy/paste to context menu.
 Added workaround for gtk2 iconview bug ignoring double click on item after d'and'd.
 Adjusted size of icons in toobar in gtk3.

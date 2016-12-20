@@ -19,15 +19,15 @@ TODO ( in no particular order ):<br>
 add forward/back<br>
 add forward back history<br>
 add 'open teminal here' to file menu<br>
-ADD file menu!<br>
-add menubar<br>
+<del>ADD file menu!</del><br>
+<del>add menubar</del><br>
 <del>add location bar</del><br>
 add thumbnails<br>
 <del>add tabs</del><br>
 <del>add left panel for disks/bookmarks</del><br>
 add move/copy etc to context menu<br>
-add prefs<br>
-make single instance<br>
+<del>add prefs</del><br>
+<del>make single instance</del><br>
 <br>
 ...
 

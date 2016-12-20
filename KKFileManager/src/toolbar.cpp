@@ -48,7 +48,7 @@ void goUp(GtkWidget *widget,gpointer data)
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
 	hold=g_path_get_dirname(page->thisFolder);
-	setCurrentFolderForTab(hold,page,false);
+	setCurrentFolderForTab(hold,page,true,false);
 	free(hold);
 }
 
@@ -56,14 +56,14 @@ void refreshView(GtkWidget *widget,gpointer data)
 {
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
-	setCurrentFolderForTab(page->thisFolder,page,true);
+	setCurrentFolderForTab(page->thisFolder,page,true,true);
 }
 
 
 void goHome(GtkWidget *widget,gpointer data)
 {
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-	setCurrentFolderForTab(g_get_home_dir(),page,false);
+	setCurrentFolderForTab(g_get_home_dir(),page,true,false);
 }
 
 void goNew(GtkWidget *widget,gpointer data)
@@ -87,7 +87,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 			free(command);
 			return;
 		}
-	setCurrentFolderForTab(gtk_entry_get_text(entry),page,true);
+	setCurrentFolderForTab(gtk_entry_get_text(entry),page,true,true);
 }
 
 gboolean trapTabKey(GtkEntry *entry,GdkEvent *event,gpointer data)
@@ -144,11 +144,96 @@ gboolean getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	return(false);
 }
 
+void doGoBack(GtkWidget *widget,gpointer data)
+{
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+	unsigned long	hashnum=(unsigned long)data;
+	char *holdpage=strdup(page->thisFolder);
+	printf("selected %s\n",page->backList.find(hashnum)->second);
+	setCurrentFolderForTab(page->backList.find(hashnum)->second,page,false,false);
+
+	std::map<unsigned,char*>::iterator it;
+
+	it=page->backList.find(hashnum);
+	it++;
+//	for(std::map<unsigned,char*>::iterator iter=it;iter!=page->backList.end();iter++)
+//		free(iter->second);
+	for(std::map<unsigned,char*>::iterator iter=it;iter!=page->backList.end();iter++)
+		{
+			page->forwardList.insert(it,page->backList.end());
+//anothermap.insert(mymap.begin(),mymap.find('c'));
+		//free(iter->second);
+		}
+	it--;
+	page->backList.erase (it,page->backList.end()); 
+}
+
+void doGoForward(GtkWidget *widget,gpointer data)
+{
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+	unsigned long	hashnum=(unsigned long)data;
+	printf("selected %s\n",page->forwardList.find(hashnum)->second);
+	setCurrentFolderForTab(page->forwardList.find(hashnum)->second,page,false,false);	
+}
+
+
+void navigateHistory(GtkToolButton *toolbutton,gpointer data)
+{
+	if(data==NULL)
+		printf("back clicked\n");
+	else
+		printf("forward clicked\n");
+}
+
+void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
+{
+	GList		*childs;
+	GtkWidget	*menu;
+	GtkWidget	*menuitem;
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+
+	if(page==NULL)
+		return;
+
+	menu=gtk_menu_tool_button_get_menu(toolbutton);
+	childs=gtk_container_get_children ((GtkContainer*)menu);
+	for(unsigned j=0;j<g_list_length(childs);j++)
+		gtk_widget_destroy((GtkWidget*)g_list_nth_data(childs,j));
+
+	g_list_free (childs);
+
+//printf(">>%p<<\n",data);
+	if(data==NULL)
+		{
+			printf("back clicked for menu\n");
+			for (std::map<unsigned,char*>::iterator it=page->backList.begin();it!=page->backList.end();++it)
+				{
+//printf(">>dir=%s, hash=%i\n",it->second,it->first);
+					menuitem=gtk_menu_item_new_with_label(it->second);
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoBack),(gpointer)(long)it->first);
+				}
+		}
+	else
+		{
+			printf("forward clicked for menu\n");
+			for (std::map<unsigned,char*>::iterator it=page->forwardList.begin();it!=page->forwardList.end();++it)
+				{
+//printf(">>dir=%s, hash=%i\n",it->second,it->first);
+					menuitem=gtk_menu_item_new_with_label(it->second);
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoForward),(gpointer)(long)it->first);
+				}
+		}
+	gtk_widget_show_all(menu);
+}
+
 void setUpToolBar(void)
 {
 	GtkEntryCompletion	*completion;
 	GtkListStore		*store;
 // 	GtkToolItem			*toolbutton;
+	GtkWidget			*menu;
 #ifdef _USEGTK3_
 	GtkWidget		*image;
 #endif
@@ -207,22 +292,22 @@ void setUpToolBar(void)
 #ifdef _USEGTK3_
 						image=gtk_image_new_from_icon_name(GTK_STOCK_GO_BACK,GTK_ICON_SIZE_LARGE_TOOLBAR);
 						gtk_image_set_pixel_size((GtkImage*)image,24);
-
 						backButton=gtk_menu_tool_button_new(image,"Back");
 #else
 						backButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
 #endif
 
 						gtk_toolbar_insert(toolBar,backButton,-1);
-#if 0
-						//g_signal_connect(G_OBJECT(backButton),"clicked",G_CALLBACK(navigateHistory),(void*)NAVLAST);
+#if 1
+						g_signal_connect(G_OBJECT(backButton),"clicked",G_CALLBACK(navigateHistory),NULL);
 						//gtk_widget_set_tooltip_text((GtkWidget*)backButton,BACK_TT_LABEL);
 //back history
 						menu=gtk_menu_new();
 						gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(backButton),menu);
-						gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(backButton),BACK_MENU_TT_LABEL);
+						//gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(backButton),BACK_MENU_TT_LABEL);
+						g_signal_connect(G_OBJECT(backButton),"show-menu",G_CALLBACK(backMenu),NULL);
 
-						globalHistory->setHistBackMenu(menu);		
+						//globalHistory->setHistBackMenu(menu);		
 
 #endif
 						break;
@@ -236,15 +321,16 @@ void setUpToolBar(void)
 						forwardButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_GO_FORWARD);
 #endif
 						gtk_toolbar_insert(toolBar,forwardButton,-1);
-						//g_signal_connect(G_OBJECT(forwardButton),"clicked",G_CALLBACK(navigateHistory),(void*)NAVNEXT);
+						g_signal_connect(G_OBJECT(forwardButton),"clicked",G_CALLBACK(navigateHistory),(void*)1);
 						//gtk_widget_set_tooltip_text((GtkWidget*)forwardButton,FORWARD_TT_LABEL);
-#if 0
+#if 1
 //foward history
 						menu=gtk_menu_new();
 						gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(forwardButton),menu);
-						gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(forwardButton),FORWARD_MENU_TT_LABEL);
+	//					gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(forwardButton),FORWARD_MENU_TT_LABEL);
+						g_signal_connect(G_OBJECT(forwardButton),"show-menu",G_CALLBACK(backMenu),(void*)1);
 
-						globalHistory->setHistForwardMenu(menu);		
+		//				globalHistory->setHistForwardMenu(menu);		
 
 #endif
 						break;

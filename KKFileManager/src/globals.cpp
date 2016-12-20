@@ -157,7 +157,7 @@ char* oneLiner(const char *command)
 	return(retstr);
 }
 
-void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool force)
+void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool updatenav,bool force)
 {
 	GtkEntryCompletion	*completion;
 	GtkListStore		*list;
@@ -171,6 +171,8 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool force)
 
 	if(newfolder!=NULL && strlen(newfolder)>0)
 		{
+			if(updatenav==true)
+				page->backList[page->historyCnt++]=strdup(page->thisFolder);
 			holdfolder=strdup(newfolder);
 			free(page->thisFolder);
 			page->thisFolder=holdfolder;
