@@ -47,6 +47,22 @@ pageStruct *getPageStructByIDFromList(unsigned pageid)
 	return(NULL);
 }
 
+void freeHistoryList(gpointer data)
+{
+	free(data);
+}
+
+void addToHistory(pageStruct *page,char *folder,bool addtoback)
+{
+	if(page==NULL)
+		return;
+
+	if(addtoback==true)
+		page->bList=g_list_append(page->bList,strdup(folder));
+	else
+		page->fList=g_list_prepend(page->fList,strdup(folder));
+}
+
 void addNewPage(char *startdir)
 {
 	pageStruct	*page;
@@ -62,12 +78,14 @@ void addNewPage(char *startdir)
 	page->toggleOff=false;
 	page->startedDrag=false;
 	page->stdBehaviour=false;
-	page->historyCnt=0;
-	page->backList.clear();
+	//page->historyCnt=0;
+	//page->backList.clear();
 	//page->backList[page->historyCnt++]=strdup(startdir);
-	page->forwardList.clear();
+	//page->forwardList.clear();
 //	page->backList[page->historyCnt++]="usr";
 //	page->backList[page->historyCnt++]="/usr/bin";
+	page->fList=NULL;
+	page->bList=NULL;
 
 	pageList=g_list_prepend(pageList,(gpointer)page);
 

@@ -144,38 +144,54 @@ gboolean getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	return(false);
 }
 
-void doGoBack(GtkWidget *widget,gpointer data)
+void doGoBack(GtkWidget *widget,GList *lst)
 {
+	GList		*blst=NULL;
+
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-	unsigned long	hashnum=(unsigned long)data;
-	char *holdpage=strdup(page->thisFolder);
-	printf("selected %s\n",page->backList.find(hashnum)->second);
-	setCurrentFolderForTab(page->backList.find(hashnum)->second,page,false,false);
 
-	std::map<unsigned,char*>::iterator it;
-
-	it=page->backList.find(hashnum);
-	it++;
-//	for(std::map<unsigned,char*>::iterator iter=it;iter!=page->backList.end();iter++)
-//		free(iter->second);
-	for(std::map<unsigned,char*>::iterator iter=it;iter!=page->backList.end();iter++)
+	setCurrentFolderForTab((char*)lst->data,page,true,false);
+	blst=g_list_last(page->bList);
+	while(blst!=lst)
 		{
-			page->forwardList.insert(it,page->backList.end());
-//anothermap.insert(mymap.begin(),mymap.find('c'));
-		//free(iter->second);
+			addToHistory(page,(char*)blst->data,false);
+			if(blst!=NULL)
+				{
+					page->bList=g_list_remove_link(page->bList,blst);
+					free((char*)blst->data);
+					g_list_free_1(blst);
+					blst=g_list_last(page->bList);
+				}
 		}
-	it--;
-	page->backList.erase (it,page->backList.end()); 
+
+	page->bList=g_list_remove_link(page->bList,lst);
+	free((char*)lst->data);
+	g_list_free_1(lst);
 }
 
-void doGoForward(GtkWidget *widget,gpointer data)
+void doGoForward(GtkWidget *widget,GList *lst)
 {
-	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
-	unsigned long	hashnum=(unsigned long)data;
-	printf("selected %s\n",page->forwardList.find(hashnum)->second);
-	setCurrentFolderForTab(page->forwardList.find(hashnum)->second,page,false,false);	
-}
+	GList		*flst=NULL;
 
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+
+	setCurrentFolderForTab((char*)lst->data,page,true,false);
+	flst=page->fList;
+	while(flst!=lst)
+		{
+			addToHistory(page,(char*)flst->data,true);
+			if(flst!=NULL)
+				{
+					page->fList=g_list_remove_link(page->fList,flst);
+					free((char*)flst->data);
+					g_list_free_1(flst);
+					flst=page->fList;
+				}
+		}
+	page->fList=g_list_remove_link(page->fList,lst);
+	free((char*)lst->data);
+	g_list_free_1(lst);
+}
 
 void navigateHistory(GtkToolButton *toolbutton,gpointer data)
 {
@@ -200,29 +216,33 @@ void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 	for(unsigned j=0;j<g_list_length(childs);j++)
 		gtk_widget_destroy((GtkWidget*)g_list_nth_data(childs,j));
 
-	g_list_free (childs);
+	g_list_free(childs);
 
 //printf(">>%p<<\n",data);
 	if(data==NULL)
 		{
-			printf("back clicked for menu\n");
-			for (std::map<unsigned,char*>::iterator it=page->backList.begin();it!=page->backList.end();++it)
+			GList *lst=page->bList;
+			//printf("back clicked for menu\n");
+			while(lst!=NULL)
 				{
-//printf(">>dir=%s, hash=%i\n",it->second,it->first);
-					menuitem=gtk_menu_item_new_with_label(it->second);
+					//printf(">>%s<<\n",(char*)lst->data);
+					menuitem=gtk_menu_item_new_with_label((char*)lst->data);
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
-					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoBack),(gpointer)(long)it->first);
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoBack),lst);
+					lst=lst->next;
 				}
 		}
 	else
 		{
-			printf("forward clicked for menu\n");
-			for (std::map<unsigned,char*>::iterator it=page->forwardList.begin();it!=page->forwardList.end();++it)
+			GList *lst=page->fList;
+			//printf("forward clicked for menu\n");
+			while(lst!=NULL)
 				{
-//printf(">>dir=%s, hash=%i\n",it->second,it->first);
-					menuitem=gtk_menu_item_new_with_label(it->second);
+					//printf(">>%s<<\n",(char*)lst->data);
+					menuitem=gtk_menu_item_new_with_label((char*)lst->data);
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
-					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoForward),(gpointer)(long)it->first);
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoForward),lst);
+					lst=lst->next;
 				}
 		}
 	gtk_widget_show_all(menu);

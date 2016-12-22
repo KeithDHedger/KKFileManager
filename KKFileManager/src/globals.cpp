@@ -172,7 +172,8 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool updatena
 	if(newfolder!=NULL && strlen(newfolder)>0)
 		{
 			if(updatenav==true)
-				page->backList[page->historyCnt++]=strdup(page->thisFolder);
+				addToHistory(page,page->thisFolder,true);
+			//	page->backList[page->historyCnt++]=strdup(page->thisFolder);
 			holdfolder=strdup(newfolder);
 			free(page->thisFolder);
 			page->thisFolder=holdfolder;

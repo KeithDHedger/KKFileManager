@@ -43,9 +43,11 @@ struct pageStruct
 	guint				bupsignal;
 	guint				bdownsignal;
 	guint				selectsignal;
-	std::map<unsigned,char*> backList;
+	//std::map<unsigned,char*> backList;
 	std::map<unsigned,char*> forwardList;
 	unsigned			historyCnt;
+	GList				*fList;
+	GList				*bList;
 };
 
 unsigned getPageIdFromTab(void);
@@ -53,5 +55,7 @@ pageStruct *getPageStructByIDFromList(unsigned pageid);
 void addNewPage(char *startdir);
 void monitorFolderForPage(pageStruct *page);
 void flushFolderBuffer(pageStruct *page);
+void freeHistoryList(gpointer data);
+void addToHistory(pageStruct *page,char *folder,bool addtoback);
 
 #endif

@@ -519,9 +519,8 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 	if(isdir==true)
 		{
 			setCurrentFolderForTab(path,page,true,false);
-			for(std::map<unsigned,char*>::iterator iter=page->forwardList.begin();iter!=page->forwardList.end();iter++)
-				free(iter->second);
-			page->forwardList.clear();
+			g_list_free_full(page->fList,freeHistoryList);
+			page->fList=NULL;
 
 			free(page->thisFolder);
 			page->thisFolder=strdup(path);
