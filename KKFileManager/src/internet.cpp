@@ -16,10 +16,10 @@
  * along with Projects.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-#include <stdlib.h>
+//#include <stdlib.h>
 
-#include "config.h"
-#include "internet.h"
+//#include "config.h"
+#include "globals.h"
 
 const char	*moreapps[]={
 								"\nMore by the same author\n",

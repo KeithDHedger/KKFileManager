@@ -787,3 +787,19 @@ void setAskEntry(GtkWidget* widget,gpointer ptr)
 		}
 	gtk_widget_destroy(askentryWindow);
 }
+
+void doAbout(GtkWidget *widget,gpointer data)
+{
+	const char	copyright[]=COPYRITE " \n" MYEMAIL;
+	const char	*aboutboxstring=ABOUTBOXSTRING;
+	char		*licence;
+	char		*translators;
+
+	//sinkReturn=asprintf(&translators,"%s:\nNguyen Thanh Tung <thngtong@gmail.com>",DIALOG_ABOUT_FRENCH_LABEL);
+	g_file_get_contents(GDOCSFOLDER "/gpl-3.0.txt",&licence,NULL,NULL);
+
+	gtk_show_about_dialog((GtkWindow*)mainWindow,"authors",authors,"comments",aboutboxstring,"copyright",copyright,"version",VERSION,"website",KKEDITPAGE,"website-label","KKEdit Homepage","program-name","KKEdit","logo-icon-name",ABOUTICON,"license",licence,NULL);
+
+	//ERRDATA debugFree(&licence);
+	//ERRDATA debugFree(&translators);
+}

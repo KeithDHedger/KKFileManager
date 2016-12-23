@@ -37,12 +37,14 @@
 #include "prefs.h"
 #include "dialogs.h"
 #include "history.h"
+#include "internet.h"
 
 #ifdef _USEGTK3_
 //menus
 //documents
 #define GTK_STOCK_NEW "document-new"
 #define GTK_STOCK_OPEN "document-open"
+#define GTK_STOCK_ABOUT "help-about"
 #define GTK_STOCK_DELETE "edit-delete"
 #define GTK_STOCK_COPY "edit-copy"
 #define GTK_STOCK_PASTE "edit-paste"
@@ -70,6 +72,8 @@
 
 #define	APPEXECNAME "kkfilemanager" _EXECSUFFIX_
 #define APPFOLDENAME "." PACKAGE _EXECSUFFIX_
+#define GDOCSFOLDER  DATADIR _EXECSUFFIX_ "/docs"
+#define ABOUTICON "KKEdit" _EXECSUFFIX_
 
 #define LOADICONCNT 64
 
@@ -132,6 +136,10 @@ extern GtkWidget		*fileMenu;
 extern GtkWidget		*menuItemNew;
 extern GtkWidget		*menuItemTerminal;
 extern GtkWidget		*menuItemPrefs;
+
+//help menu
+extern GtkWidget		*helpMenu;
+extern GtkWidget		*aboutMenu;
 
 //tool bar
 extern GtkToolItem		*upButton;

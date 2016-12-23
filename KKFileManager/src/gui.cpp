@@ -51,10 +51,13 @@ menuDataStruct	menuData[]=
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletebmmenu",NULL},
 
 //main
+//file
 		{"New Tab",GTK_STOCK_NEW,0,0,(void*)&goNew,"newtabmenu",NULL},
 		{"Terminal",GTK_STOCK_EXECUTE,0,0,(void*)&runTerminalHere,"terminalmenu",NULL},
 		{"Preferences",GTK_STOCK_PREFERENCES,0,0,(void*)&doPrefs,"prefsmenu",NULL},
-		{"Quit",GTK_STOCK_QUIT,0,0,(void*)&doShutdown,"quitmenu",NULL}
+		{"Quit",GTK_STOCK_QUIT,0,0,(void*)&doShutdown,"quitmenu",NULL},
+//help
+		{"About",GTK_STOCK_ABOUT,0,0,(void*)&doAbout,"aboutmenu",NULL}
 	};
 
 
@@ -756,7 +759,16 @@ void buildMenus(void)
 //quit
 	menuItemNew=newMenuItem(MAINFILEQUIT,menu);
 
+//help
+	helpMenu=gtk_menu_item_new_with_label("_Help");
+	gtk_menu_item_set_use_underline((GtkMenuItem*)helpMenu,true);
+	menu=gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(helpMenu),menu);
+//about
+	aboutMenu=newMenuItem(MAINHELPABOUT,menu);
+
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),fileMenu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),helpMenu);
 }
 
 void buidMainGui(const char *startdir)

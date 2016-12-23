@@ -58,6 +58,10 @@ GtkWidget		*menuItemNew=NULL;
 GtkWidget		*menuItemTerminal=NULL;
 GtkWidget		*menuItemPrefs=NULL;
 
+//help menu
+GtkWidget		*helpMenu=NULL;
+GtkWidget		*aboutMenu=NULL;
+
 //tool bar
 GtkToolItem		*refreshButton=NULL;
 GtkToolItem		*upButton=NULL;

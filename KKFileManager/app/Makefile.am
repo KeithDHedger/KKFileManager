@@ -19,14 +19,14 @@ bin_PROGRAMS = kkfilemanager
 
 man1_MANS = ../resources/man/kkfilemanager.1
 
+docfilesdir = $(pkgdatadir)$(GTK3SUFFIX)/docs
+docfiles_DATA = ../resources/docs/*
+
 install-exec-hook:
-	cp ../resources/pixmaps/KKFileManager.desktop /usr/share/applications/KKFileManager.desktop
-	echo Icon=${prefix}/share/KKFileManager/pixmaps/KKFileManager.png >> /usr/share/applications/KKFileManager.desktop
-	echo Exec=${prefix}/bin/kkfilemanager >> /usr/share/applications/KKFileManager.desktop
-#	update-menus
+	mkdir -vp $(DESTDIR)/usr/share/applications||true
+	cp ../resources/pixmaps/KKFileManager.desktop $(DESTDIR)/usr/share/applications/KKFileManager.desktop
 
 uninstall-hook:
-	rm -f /usr/share/applications/KKFileManager.desktop
-#	update-menus
+	rm -f $(DESTDIR)/usr/share/applications/KKFileManager.desktop
 	rm -fr $(pkgdatadir)
 

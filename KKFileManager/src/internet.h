@@ -31,11 +31,9 @@
 #define KKTERMINALPAGE "http://khapplications.darktech.org/pages/kkterminal/kkterminal.html"
 
 #define COPYRITE "Copyright \xc2\xa9 2013-2016 K.D.Hedger"
+#define ABOUTBOXSTRING "KKFileManager, a configuurable GTK 2/3 file manager."
 
-#ifndef _USEQT5_
 extern const char	*moreapps[];
 extern const char	*authors[];
-#else
-extern const char*	authors;
-#endif
+
 #endif
