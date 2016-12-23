@@ -147,7 +147,6 @@ gboolean getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 void doGoBack(GtkWidget *widget,GList *lst)
 {
 	GList		*blst=NULL;
-
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
 	setCurrentFolderForTab((char*)lst->data,page,true,false);
@@ -172,7 +171,6 @@ void doGoBack(GtkWidget *widget,GList *lst)
 void doGoForward(GtkWidget *widget,GList *lst)
 {
 	GList		*flst=NULL;
-
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
 	setCurrentFolderForTab((char*)lst->data,page,true,false);
@@ -195,10 +193,37 @@ void doGoForward(GtkWidget *widget,GList *lst)
 
 void navigateHistory(GtkToolButton *toolbutton,gpointer data)
 {
+	GList		*flst=NULL;
+	GList		*blst=NULL;
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+
+	if(page==NULL)
+		return;
+
 	if(data==NULL)
-		printf("back clicked\n");
+		{
+			if(page->bList!=NULL)
+				{
+					addToHistory(page,page->thisFolder,false);
+					blst=g_list_last(page->bList);
+					setCurrentFolderForTab((char*)blst->data,page,false,false);
+					page->bList=g_list_remove_link(page->bList,blst);
+					free((char*)blst->data);
+					g_list_free_1(blst);
+				}
+		}
 	else
-		printf("forward clicked\n");
+		{
+			if(page->fList!=NULL)
+				{
+					addToHistory(page,page->thisFolder,true);
+					flst=page->fList;
+					setCurrentFolderForTab((char*)flst->data,page,false,false);
+					page->fList=g_list_remove_link(page->fList,flst);
+					free((char*)flst->data);
+					g_list_free_1(flst);
+				}
+		}
 }
 
 void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
@@ -206,6 +231,7 @@ void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 	GList		*childs;
 	GtkWidget	*menu;
 	GtkWidget	*menuitem;
+	GList		*lst;
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 
 	if(page==NULL)
@@ -218,14 +244,11 @@ void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 
 	g_list_free(childs);
 
-//printf(">>%p<<\n",data);
 	if(data==NULL)
 		{
-			GList *lst=page->bList;
-			//printf("back clicked for menu\n");
+			lst=page->bList;
 			while(lst!=NULL)
 				{
-					//printf(">>%s<<\n",(char*)lst->data);
 					menuitem=gtk_menu_item_new_with_label((char*)lst->data);
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoBack),lst);
@@ -234,11 +257,9 @@ void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 		}
 	else
 		{
-			GList *lst=page->fList;
-			//printf("forward clicked for menu\n");
+			lst=page->fList;
 			while(lst!=NULL)
 				{
-					//printf(">>%s<<\n",(char*)lst->data);
 					menuitem=gtk_menu_item_new_with_label((char*)lst->data);
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoForward),lst);
@@ -252,10 +273,9 @@ void setUpToolBar(void)
 {
 	GtkEntryCompletion	*completion;
 	GtkListStore		*store;
-// 	GtkToolItem			*toolbutton;
 	GtkWidget			*menu;
 #ifdef _USEGTK3_
-	GtkWidget		*image;
+	GtkWidget			*image;
 #endif
  
 	for(int j=0;j<(int)strlen(toolBarLayout);j++)
@@ -316,21 +336,14 @@ void setUpToolBar(void)
 #else
 						backButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
 #endif
-
 						gtk_toolbar_insert(toolBar,backButton,-1);
-#if 1
 						g_signal_connect(G_OBJECT(backButton),"clicked",G_CALLBACK(navigateHistory),NULL);
-						//gtk_widget_set_tooltip_text((GtkWidget*)backButton,BACK_TT_LABEL);
 //back history
 						menu=gtk_menu_new();
 						gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(backButton),menu);
-						//gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(backButton),BACK_MENU_TT_LABEL);
 						g_signal_connect(G_OBJECT(backButton),"show-menu",G_CALLBACK(backMenu),NULL);
-
-						//globalHistory->setHistBackMenu(menu);		
-
-#endif
 						break;
+
 //go forward
 					case 'F':
 #ifdef _USEGTK3_
@@ -342,17 +355,10 @@ void setUpToolBar(void)
 #endif
 						gtk_toolbar_insert(toolBar,forwardButton,-1);
 						g_signal_connect(G_OBJECT(forwardButton),"clicked",G_CALLBACK(navigateHistory),(void*)1);
-						//gtk_widget_set_tooltip_text((GtkWidget*)forwardButton,FORWARD_TT_LABEL);
-#if 1
 //foward history
 						menu=gtk_menu_new();
 						gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(forwardButton),menu);
-	//					gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(forwardButton),FORWARD_MENU_TT_LABEL);
 						g_signal_connect(G_OBJECT(forwardButton),"show-menu",G_CALLBACK(backMenu),(void*)1);
-
-		//				globalHistory->setHistForwardMenu(menu);		
-
-#endif
 						break;
 				}
 		}

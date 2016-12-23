@@ -36,6 +36,7 @@
 #include "callbacks.h"
 #include "prefs.h"
 #include "dialogs.h"
+#include "history.h"
 
 #ifdef _USEGTK3_
 //menus
