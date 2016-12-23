@@ -507,8 +507,6 @@ gboolean buttonDownDisk(GtkTreeView *widget,GdkEventButton *event,gpointer *user
 
 void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 {
-//	printf(">>>>>>>>>>clicked<<<<<<<<<<<<<<\n");
-
 	gchar			*path;
 	GtkTreeIter		iter;
 	gboolean		isdir;

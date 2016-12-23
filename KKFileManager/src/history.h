@@ -21,5 +21,9 @@
 #ifndef _HISTORY_
 #define _HISTORY_
 
+void doGoBack(GtkWidget *widget,GList *lst);
+void doGoForward(GtkWidget *widget,GList *lst);
+void navigateHistory(GtkToolButton *toolbutton,gpointer data);
+void backMenu(GtkMenuToolButton *toolbutton,gpointer data);
 
 #endif

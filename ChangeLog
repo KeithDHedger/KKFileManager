@@ -1,4 +1,6 @@
 0.0.4
+Moved history routines to seperate file.
+Back/Forward tool buttons now work.
 Redone forward/back history menus.
 
 0.0.3
