@@ -104,7 +104,6 @@ void navigateHistory(GtkToolButton *toolbutton,gpointer data)
 
 void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 {
-	GList		*childs;
 	GtkWidget	*menu;
 	GtkWidget	*menuitem;
 	GList		*lst;
@@ -114,20 +113,14 @@ void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 		return;
 
 	menu=gtk_menu_tool_button_get_menu(toolbutton);
-	childs=gtk_container_get_children ((GtkContainer*)menu);
-	for(unsigned j=0;j<g_list_length(childs);j++)
-		gtk_widget_destroy((GtkWidget*)g_list_nth_data(childs,j));
-
-	g_list_free(childs);
-
 	if(data==NULL)
 		{
 			lst=page->bList;
 			while(lst!=NULL)
 				{
-					menuitem=gtk_menu_item_new_with_label((char*)lst->data);
-					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+					menuitem=gtk_menu_item_new_with_label(strdup((char*)lst->data));
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doGoBack),lst);
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 					lst=lst->next;
 				}
 		}
@@ -142,6 +135,7 @@ void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 					lst=lst->next;
 				}
 		}
+						//	g_signal_connect_after(G_OBJECT(menu),"activate-item",G_CALLBACK(doGoBack3),lst);
 	gtk_widget_show_all(menu);
 }
 
@@ -165,6 +159,16 @@ void clearForward(pageStruct *page)
 {
 	g_list_free_full(page->fList,freeHistoryList);
 	page->fList=NULL;
+}
+
+void clearMenu(GtkMenuShell *menushell,gpointer user_data)
+{
+	GList		*childs;
+	childs=gtk_container_get_children ((GtkContainer*)menushell);
+	for(unsigned j=0;j<g_list_length(childs);j++)
+		gtk_widget_destroy((GtkWidget*)g_list_nth_data(childs,j));
+
+	g_list_free(childs);
 }
 
 

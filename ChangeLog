@@ -1,4 +1,6 @@
 0.0.4
+Fixed gtk3/2 menu button signals different.
+Opening disk or bookmark now deletes forward history as usual.
 Moved history routines to seperate file.
 Back/Forward tool buttons now work.
 Redone forward/back history menus.

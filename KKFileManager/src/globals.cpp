@@ -81,6 +81,7 @@ unsigned		iconSize3=ICONSIZE;
 unsigned		maxTabChars=32;
 
 //menus
+//GtkWidget		*backButtonMenu=NULL;
 
 //prefs
 bool			showMenuIcons=true;

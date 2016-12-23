@@ -45,6 +45,7 @@
 #define GTK_STOCK_OPEN "document-open"
 #define GTK_STOCK_DELETE "edit-delete"
 #define GTK_STOCK_COPY "edit-copy"
+#define GTK_STOCK_PASTE "edit-paste"
 //odds
 #define GTK_STOCK_ADD "list-add"
 #define GTK_STOCK_YES "Yes"
@@ -153,6 +154,9 @@ extern unsigned			iconSize;
 extern unsigned			iconSize3;
 extern unsigned			iconPadding;
 extern unsigned			maxTabChars;
+
+//menus
+//extern GtkWidget		*backButtonMenu;
 
 //prefs
 extern bool				showMenuIcons;

@@ -27,5 +27,6 @@ void navigateHistory(GtkToolButton *toolbutton,gpointer data);
 void backMenu(GtkMenuToolButton *toolbutton,gpointer data);
 void addToHistory(pageStruct *page,char *folder,bool addtoback);
 void clearForward(pageStruct *page);
+void clearMenu(GtkMenuShell *menushell,gpointer user_data);
 
 #endif
