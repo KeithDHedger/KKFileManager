@@ -25,5 +25,7 @@ void doGoBack(GtkWidget *widget,GList *lst);
 void doGoForward(GtkWidget *widget,GList *lst);
 void navigateHistory(GtkToolButton *toolbutton,gpointer data);
 void backMenu(GtkMenuToolButton *toolbutton,gpointer data);
+void addToHistory(pageStruct *page,char *folder,bool addtoback);
+void clearForward(pageStruct *page);
 
 #endif

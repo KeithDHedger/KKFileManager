@@ -55,7 +55,5 @@ pageStruct *getPageStructByIDFromList(unsigned pageid);
 void addNewPage(char *startdir);
 void monitorFolderForPage(pageStruct *page);
 void flushFolderBuffer(pageStruct *page);
-void freeHistoryList(gpointer data);
-void addToHistory(pageStruct *page,char *folder,bool addtoback);
 
 #endif

@@ -47,22 +47,6 @@ pageStruct *getPageStructByIDFromList(unsigned pageid)
 	return(NULL);
 }
 
-void freeHistoryList(gpointer data)
-{
-	free(data);
-}
-
-void addToHistory(pageStruct *page,char *folder,bool addtoback)
-{
-	if(page==NULL)
-		return;
-
-	if(addtoback==true)
-		page->bList=g_list_append(page->bList,strdup(folder));
-	else
-		page->fList=g_list_prepend(page->fList,strdup(folder));
-}
-
 void addNewPage(char *startdir)
 {
 	pageStruct	*page;

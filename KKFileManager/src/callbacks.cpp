@@ -202,6 +202,7 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					{
 						pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 						setCurrentFolderForTab(path,page,true,false);
+						clearForward(page);
 						free(path);
 					}
 				break;
@@ -517,9 +518,7 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 	if(isdir==true)
 		{
 			setCurrentFolderForTab(path,page,true,false);
-			g_list_free_full(page->fList,freeHistoryList);
-			page->fList=NULL;
-
+			clearForward(page);
 			free(page->thisFolder);
 			page->thisFolder=strdup(path);
 			gtk_entry_set_text(locationTextBox,page->thisFolder);
@@ -545,6 +544,7 @@ void openBM(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 		{
 			pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 			setCurrentFolderForTab(path,page,true,false);
+			clearForward(page);
 			free(path);
 		}
 }
@@ -559,7 +559,7 @@ void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(diskList),&iter,tree_path);
 	gtk_tree_model_get(GTK_TREE_MODEL(diskList),&iter,DEVPATH,&path,MOUNTPATH,&mountpoint,-1);
 
-printf("path=%s, mountpoint=%s\n",path,mountpoint);
+//printf("path=%s, mountpoint=%s\n",path,mountpoint);
 
 	if((mountpoint==NULL) ||(strcmp(mountpoint,"…")==0))
 		{
@@ -574,6 +574,7 @@ printf("path=%s, mountpoint=%s\n",path,mountpoint);
 
 	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
 	setCurrentFolderForTab(mountpoint,page,true,false);
+	clearForward(page);
 
 	free(path);
 }

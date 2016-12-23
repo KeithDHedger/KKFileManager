@@ -145,4 +145,29 @@ void backMenu(GtkMenuToolButton *toolbutton,gpointer data)
 	gtk_widget_show_all(menu);
 }
 
+void freeHistoryList(gpointer data)
+{
+	free(data);
+}
+
+void addToHistory(pageStruct *page,char *folder,bool addtoback)
+{
+	if(page==NULL)
+		return;
+
+	if(addtoback==true)
+		page->bList=g_list_append(page->bList,strdup(folder));
+	else
+		page->fList=g_list_prepend(page->fList,strdup(folder));
+}
+
+void clearForward(pageStruct *page)
+{
+	g_list_free_full(page->fList,freeHistoryList);
+	page->fList=NULL;
+}
+
+
+
+
 
