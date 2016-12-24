@@ -815,11 +815,32 @@ void doAbout(GtkWidget *widget,gpointer data)
 	free(licence);
 }
 
+/*
+struct toolStruct
+{
+	char				*menuName;
+	char				*filePath;
+	char				*command;
+	int					flags;
+	bool				inTerminal;					
+	bool				inPopUp;
+	bool				alwaysPopup;
+	bool				clearView;
+	char				*comment;
+	bool				global;
+	bool				runAsRoot;
+	int					keyCode;
+	bool				useBar;
+};
+
+*/
 void externalTool(GtkWidget *widget,gpointer data)
 {
 printf("void externalTool(GtkWidget *widget,gpointer data)\n");
-#if 0
 	toolStruct		*tool=(toolStruct*)data;
+
+printf("tool->menuName=%s\ntool->filePath=%s\n",tool->menuName,tool->filePath);
+#if 0
 	pageStruct		*page=getPageStructByIDFromPage(-1);
 	char			*docdirname=NULL;
 	char			*tooldirname=NULL;
