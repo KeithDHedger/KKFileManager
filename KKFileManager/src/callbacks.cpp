@@ -166,15 +166,29 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 //paste
 			case CONTEXTPASTE:
 				path=gtk_clipboard_wait_for_text(mainClipboard);
-//				str=g_string_new(NULL);
-				printf("clips=\n%s\n",path);
 				if(path!=NULL)
 					{
 						gchar **array=g_strsplit(path,"\n",-1);
 						cnt=0;
-						while(array[cnt]!=NULL)
+						while((array[cnt]!=NULL) && (strlen(array[cnt])>0))
 							{
-								printf("array %i =%s\n",cnt,array[cnt]);
+								fs=getValidFilepath(array[cnt]);
+								doAskForFilename(fs->fileName);
+								if(validName==true)
+									{
+										sprintf(buffer,"%s/%s",fs->dirPath,fileName);
+										if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+											{
+												if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
+													{
+														freefilePathStruct(fs);
+														continue;
+													}
+											}
+										sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",array[cnt],fs->dirPath,fileName);
+										system(buffer);
+									}
+								freefilePathStruct(fs);
 								cnt++;
 							}
 						g_strfreev(array);
@@ -793,13 +807,10 @@ void doAbout(GtkWidget *widget,gpointer data)
 	const char	copyright[]=COPYRITE " \n" MYEMAIL;
 	const char	*aboutboxstring=ABOUTBOXSTRING;
 	char		*licence;
-	char		*translators;
 
-	//sinkReturn=asprintf(&translators,"%s:\nNguyen Thanh Tung <thngtong@gmail.com>",DIALOG_ABOUT_FRENCH_LABEL);
 	g_file_get_contents(GDOCSFOLDER "/gpl-3.0.txt",&licence,NULL,NULL);
 
-	gtk_show_about_dialog((GtkWindow*)mainWindow,"authors",authors,"comments",aboutboxstring,"copyright",copyright,"version",VERSION,"website",KKEDITPAGE,"website-label","KKEdit Homepage","program-name","KKEdit","logo-icon-name",ABOUTICON,"license",licence,NULL);
+	gtk_show_about_dialog((GtkWindow*)mainWindow,"authors",authors,"comments",aboutboxstring,"copyright",copyright,"version",VERSION,"website",MYWEBSITE,"website-label","KKFileManager Homepage","program-name","KKFileManager","logo-icon-name",ABOUTICON,"license",licence,NULL);
 
-	//ERRDATA debugFree(&licence);
-	//ERRDATA debugFree(&translators);
+	free(licence);
 }

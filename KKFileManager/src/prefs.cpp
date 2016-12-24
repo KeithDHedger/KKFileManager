@@ -89,5 +89,5 @@ void doPrefs(GtkWidget* widget,gpointer data)
 	g_signal_connect(G_OBJECT(item),"clicked",G_CALLBACK(setPrefs),(void*)-2);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,2);
 	gtk_container_add(GTK_CONTAINER(prefsWindow),(GtkWidget*)vbox);
-gtk_widget_show_all(prefsWindow);
+	gtk_widget_show_all(prefsWindow);
 }

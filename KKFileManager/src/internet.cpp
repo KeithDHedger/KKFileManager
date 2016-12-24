@@ -16,16 +16,13 @@
  * along with Projects.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-//#include <stdlib.h>
-
-//#include "config.h"
 #include "globals.h"
 
 const char	*moreapps[]={
 								"\nMore by the same author\n",
 								"KKEdit\nhttp://kkedit.darktech.org/\n",
 								"KKTerminal\nhttp://khapplications.darktech.org/pages/kkterminal/kkterminal.html\n",
-								"KKFileManager\nhttps://github.com/KeithDHedger/KKFileManager\n",
+								"KKFileManager\nhttp://github.com/KeithDHedger/KKFileManager\n",
 								"XDecorations\nhttp://khapplications.darktech.org/pages/xdecorations/xdecorations.html\n",
 								"Xfce-Theme-Manager\nhttp://khapplications.darktech.org/pages/apps.html#themeed\n",
 								"Xfce4-Composite-Editor\nhttp://khapplications.darktech.org/pages/apps.html#xfcecomp\n",

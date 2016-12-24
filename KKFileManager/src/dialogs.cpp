@@ -51,6 +51,7 @@ void doAskForFilename(const char* filename)
 	GtkBox		*vbox;
 	GtkWidget	*hbox;
 	GtkWidget	*item;
+	GtkWidget	*defaultitem;
 
 	GtkWidget *content;
 
@@ -69,13 +70,13 @@ void doAskForFilename(const char* filename)
 	hbox=createNewBox(NEWHBOX,true,4);
 
 #ifdef _USEGTK3_
-	item=gtk_button_new_with_mnemonic("_Apply");
+	defaultitem=gtk_button_new_with_mnemonic("_Apply");
 #else
-	item=gtk_button_new_from_stock(GTK_STOCK_APPLY);
+	defaultitem=gtk_button_new_from_stock(GTK_STOCK_APPLY);
 #endif
 
-	gtk_box_pack_start(GTK_BOX(hbox),item,true,false,2);
-	g_signal_connect(G_OBJECT(item),"clicked",G_CALLBACK(setAskEntry),(void*)-1);	
+	gtk_box_pack_start(GTK_BOX(hbox),defaultitem,true,false,2);
+	g_signal_connect(G_OBJECT(defaultitem),"clicked",G_CALLBACK(setAskEntry),(void*)-1);	
 
 #ifdef _USEGTK3_
 	item=gtk_button_new_with_mnemonic("_Cancel");
@@ -86,6 +87,10 @@ void doAskForFilename(const char* filename)
 	g_signal_connect(G_OBJECT(item),"clicked",G_CALLBACK(setAskEntry),(void*)-2);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,2);
 	gtk_box_pack_start(GTK_BOX(content),(GtkWidget*)vbox,true,true,2);
+
 	gtk_widget_show_all((GtkWidget*)vbox);
+	gtk_window_present((GtkWindow*)askentryWindow);
+	gtk_window_set_transient_for((GtkWindow*)askentryWindow,(GtkWindow*)mainWindow);
+	gtk_widget_grab_focus(defaultitem);
 	gtk_dialog_run((GtkDialog*)askentryWindow);
 }

@@ -1,4 +1,7 @@
 0.0.4
+Set default widget on new filename dialog.
+Done 'Paste'.
+Added 'About'.
 Fixed gtk3/2 menu button signals different.
 Opening disk or bookmark now deletes forward history as usual.
 Moved history routines to seperate file.
