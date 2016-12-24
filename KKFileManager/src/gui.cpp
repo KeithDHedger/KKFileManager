@@ -57,7 +57,10 @@ menuDataStruct	menuData[]=
 		{"Preferences",GTK_STOCK_PREFERENCES,0,0,(void*)&doPrefs,"prefsmenu",NULL},
 		{"Quit",GTK_STOCK_QUIT,0,0,(void*)&doShutdown,"quitmenu",NULL},
 //help
-		{"About",GTK_STOCK_ABOUT,0,0,(void*)&doAbout,"aboutmenu",NULL}
+		{"About",GTK_STOCK_ABOUT,0,0,(void*)&doAbout,"aboutmenu",NULL},
+//tools
+//blank tool menu
+		{"",NULL,0,0,NULL,NULL,NULL}
 	};
 
 
@@ -736,6 +739,203 @@ void updateDiskList(void)
 	free(command);
 }
 
+void destroyTool(gpointer data)
+{
+/*
+	toolStruct	*
+	if(((toolStruct*)data)->menuName!=NULL)
+		{
+			debugFree(&((toolStruct*)data)->menuName);
+		}
+	if(((toolStruct*)data)->filePath!=NULL)
+		{
+			debugFree(&((toolStruct*)data)->filePath);
+		}
+	if(((toolStruct*)data)->command!=NULL)
+		{
+			debugFree(&((toolStruct*)data)->command);
+		}
+	free((char**)&data);
+*/
+}
+
+gint sortTools(gconstpointer a,gconstpointer b)
+{
+	return(strcasecmp(((toolStruct*)a)->menuName,((toolStruct*)b)->menuName));
+}
+
+void buildToolsList(void)
+{
+	GDir			*folder;
+	const gchar		*entry=NULL;
+	char			*filepath;
+	toolStruct		*tool;
+	char			*datafolder[2];
+
+	if(toolsList!=NULL)
+		{
+			g_list_free_full(toolsList,destroyTool);
+			toolsList=NULL;
+		}
+
+	sinkReturn=asprintf(&datafolder[0],"%s/",GTOOLSFOLDER);
+	sinkReturn=asprintf(&datafolder[1],"%s/%s/tools/",getenv("HOME"),APPFOLDENAME);
+	for(int loop=0; loop<2; loop++)
+		{
+			folder=g_dir_open(datafolder[loop],0,NULL);
+			if(folder!=NULL)
+				{
+					entry=g_dir_read_name(folder);
+					while(entry!=NULL)
+						{
+							intermarg=0;
+							flagsarg=0;
+							inpopup=0;
+							alwayspopup=0;
+							rootarg=0;
+							clearview=0;
+							keycode=GDK_KEY_VoidSymbol;
+							menuname=NULL;
+							commandarg=NULL;
+							commentarg=NULL;
+							usebar=0;
+
+							sinkReturn=asprintf(&filepath,"%s%s",datafolder[loop],entry);
+							loadVarsFromFile(filepath,tool_vars);
+
+							if((menuname!=NULL) &&(strlen(menuname)>0) &&(commandarg!=NULL))
+								{
+									tool=(toolStruct*)malloc(sizeof(toolStruct));
+									tool->menuName=strdup(menuname);
+									tool->command=strdup(commandarg);
+									tool->flags=flagsarg;
+									tool->inTerminal=(bool)intermarg;
+									tool->inPopUp=(bool)inpopup;
+									tool->alwaysPopup=(bool)alwayspopup;
+									tool->filePath=strdup(filepath);
+									tool->clearView=(bool)clearview;
+									tool->runAsRoot=(bool)rootarg;
+									tool->keyCode=keycode;
+									tool->useBar=(bool)usebar;
+
+									if(commentarg!=NULL)
+										tool->comment=strdup(commentarg);
+									else
+										tool->comment=NULL;
+									if(loop==0)
+										tool->global=true;
+									else
+										tool->global=false;
+
+									toolsList=g_list_prepend(toolsList,(gpointer)tool);
+									free(menuname);
+									free(commandarg);
+									if(commentarg!=NULL)
+										{
+											free(commentarg);
+										}
+								}
+
+							free(filepath);
+
+							entry=g_dir_read_name(folder);
+						}
+				}
+		}
+	free(datafolder[0]);
+	free(datafolder[1]);
+
+	toolsList=g_list_sort(toolsList,sortTools);
+}
+
+void buildTools(void)
+{
+	GtkWidget		*menuitem;
+	GtkWidget		*menu;
+	GList			*ptr;
+	bool			gotglobal=false;
+	int				keyflags=0;
+
+	buildToolsList();
+
+	GtkWidget *submenu=gtk_menu_item_get_submenu((GtkMenuItem*)toolsMenu);
+	if(submenu!=NULL)
+		gtk_menu_item_set_submenu((GtkMenuItem*)toolsMenu,NULL);
+
+	menu=gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(toolsMenu),menu);
+
+//addtool
+//	menuitem=newImageMenuItem(MAINTOOLSTOOLS,menu);
+//
+//	menuitem=gtk_separator_menu_item_new();
+//	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+
+	ptr=toolsList;
+	menuData[MAINTOOLSBLANKTOOL].cb=(void*)externalTool;
+	menuData[MAINTOOLSBLANKTOOL].stockID=NULL;
+	menuData[MAINTOOLSBLANKTOOL].key=0;
+	while(ptr!=NULL)
+		{
+			if(((toolStruct*)ptr->data)->global==true)
+				{
+					gotglobal=true;
+					menuData[MAINTOOLSBLANKTOOL].menuLabel=((toolStruct*)ptr->data)->menuName;
+					menuData[MAINTOOLSBLANKTOOL].userData=(gpointer)ptr->data;
+					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,menu);
+					if( (((toolStruct*)ptr->data)->keyCode!=GDK_KEY_VoidSymbol) && (((toolStruct*)ptr->data)->keyCode!=0) )
+						{
+							keyflags=0;
+							if(gdk_keyval_is_upper(((toolStruct*)ptr->data)->keyCode))
+								keyflags=GDK_SHIFT_MASK;
+							gtk_widget_add_accelerator((GtkWidget *)menuitem,"activate",accgroup,((toolStruct*)ptr->data)->keyCode,(GdkModifierType)(GDK_CONTROL_MASK|keyflags),GTK_ACCEL_VISIBLE);
+						}
+
+					if(((toolStruct*)ptr->data)->comment!=NULL)
+						gtk_widget_set_tooltip_text((GtkWidget*)menuitem,((toolStruct*)ptr->data)->comment);
+				}
+			ptr=g_list_next(ptr);
+		}
+
+	if(gotglobal==true)
+		{
+			menuitem=gtk_separator_menu_item_new();
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+		}
+
+	ptr=toolsList;
+	menuData[MAINTOOLSBLANKTOOL].cb=(void*)externalTool;
+	menuData[MAINTOOLSBLANKTOOL].stockID=NULL;
+	menuData[MAINTOOLSBLANKTOOL].key=0;
+	while(ptr!=NULL)
+		{
+			if(((toolStruct*)ptr->data)->global==false)
+				{
+					menuData[MAINTOOLSBLANKTOOL].menuLabel=((toolStruct*)ptr->data)->menuName;
+					menuData[MAINTOOLSBLANKTOOL].userData=(gpointer)ptr->data;
+					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,menu);
+//TODO//
+//needs tidying
+					if( (((toolStruct*)ptr->data)->keyCode!=GDK_KEY_VoidSymbol) && (((toolStruct*)ptr->data)->keyCode!=0) )
+						{
+							keyflags=0;
+							if(gdk_keyval_is_upper(((toolStruct*)ptr->data)->keyCode))
+								{
+									keyflags=GDK_SHIFT_MASK;
+									if(gdk_keyval_is_lower(((toolStruct*)ptr->data)->keyCode))
+									keyflags=0;
+								}
+							gtk_widget_add_accelerator((GtkWidget *)menuitem,"activate",accgroup,((toolStruct*)ptr->data)->keyCode,(GdkModifierType)(GDK_CONTROL_MASK|keyflags),GTK_ACCEL_VISIBLE);
+						}
+
+					if(((toolStruct*)ptr->data)->comment!=NULL)
+						gtk_widget_set_tooltip_text((GtkWidget*)menuitem,((toolStruct*)ptr->data)->comment);
+				}
+			ptr=g_list_next(ptr);
+		}
+}
+
+
 void buildMenus(void)
 {
 	GtkWidget		*menu;
@@ -759,6 +959,11 @@ void buildMenus(void)
 //quit
 	menuItemNew=newMenuItem(MAINFILEQUIT,menu);
 
+//external tools
+	toolsMenu=gtk_menu_item_new_with_label("_Tools");
+	gtk_menu_item_set_use_underline((GtkMenuItem*)toolsMenu,true);
+	buildTools();
+
 //help
 	helpMenu=gtk_menu_item_new_with_label("_Help");
 	gtk_menu_item_set_use_underline((GtkMenuItem*)helpMenu,true);
@@ -768,6 +973,7 @@ void buildMenus(void)
 	aboutMenu=newMenuItem(MAINHELPABOUT,menu);
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),fileMenu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),toolsMenu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),helpMenu);
 }
 

@@ -58,6 +58,41 @@ GtkWidget		*menuItemNew=NULL;
 GtkWidget		*menuItemTerminal=NULL;
 GtkWidget		*menuItemPrefs=NULL;
 
+//tools menu
+GtkWidget		*toolsMenu=NULL;
+GList			*toolsList=NULL;
+int				intermarg=0;
+int				flagsarg=0;
+int				inpopup=0;
+int				alwayspopup=0;
+int				clearview=0;
+char			*commandarg=NULL;
+char			*commentarg=NULL;
+char			*menuname=NULL;
+int				rootarg=0;
+int				keycode=0;
+int				usebar=0;
+
+args			tool_vars[]=
+{
+	//strings
+	{"name",TYPESTRING,&menuname},
+	{"command",TYPESTRING,&commandarg},
+	{"comment",TYPESTRING,&commentarg},
+	//ints
+	{"interm",TYPEINT,&intermarg},
+	{"flags",TYPEINT,&flagsarg},
+	{"inpopup",TYPEINT,&inpopup},
+	{"alwayspopup",TYPEINT,&alwayspopup},
+	{"clearview",TYPEINT,&clearview},
+	{"runasroot",TYPEINT,&rootarg},
+	{"usebar",TYPEINT,&usebar},
+	{"shortcutkey",TYPEINT,&keycode},
+	{NULL,0,NULL}
+};
+
+//GtkWidget		*toolOutMenu=NULL;
+
 //help menu
 GtkWidget		*helpMenu=NULL;
 GtkWidget		*aboutMenu=NULL;

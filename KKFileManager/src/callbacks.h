@@ -41,5 +41,6 @@ gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
 void doDragBegin(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page);
 void doDragEnd(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page);
 void doAbout(GtkWidget *widget,gpointer data);
+void externalTool(GtkWidget *widget,gpointer data);
 
 #endif

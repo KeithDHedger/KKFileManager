@@ -74,6 +74,7 @@
 #define APPFOLDENAME "." PACKAGE _EXECSUFFIX_
 #define GDOCSFOLDER  DATADIR _EXECSUFFIX_ "/docs"
 #define ABOUTICON "KKFileManager" _EXECSUFFIX_
+#define GTOOLSFOLDER DATADIR _EXECSUFFIX_ "/tools"
 
 #define LOADICONCNT 64
 
@@ -96,6 +97,23 @@ struct	filePathStruct
 	char	*fileName;
 	char	*filePath;
 	bool	modified;
+};
+
+struct toolStruct
+{
+	char				*menuName;
+	char				*filePath;
+	char				*command;
+	int					flags;
+	bool				inTerminal;					
+	bool				inPopUp;
+	bool				alwaysPopup;
+	bool				clearView;
+	char				*comment;
+	bool				global;
+	bool				runAsRoot;
+	int					keyCode;
+	bool				useBar;
 };
 
 enum {NEWVBOX=0,NEWHBOX};
@@ -136,6 +154,24 @@ extern GtkWidget		*fileMenu;
 extern GtkWidget		*menuItemNew;
 extern GtkWidget		*menuItemTerminal;
 extern GtkWidget		*menuItemPrefs;
+
+//tools menu
+extern GtkWidget		*toolsMenu;
+extern GList			*toolsList;
+extern args				tool_vars[];
+extern int				intermarg;
+extern int				flagsarg;
+extern int				inpopup;
+extern int				alwayspopup;
+extern int				clearview;
+extern char				*commandarg;
+extern char				*commentarg;
+extern char				*menuname;
+extern int				rootarg;
+extern int				keycode;
+extern int				usebar;
+
+//extern GtkWidget		*toolOutMenu;
 
 //help menu
 extern GtkWidget		*helpMenu;

@@ -43,9 +43,6 @@ struct pageStruct
 	guint				bupsignal;
 	guint				bdownsignal;
 	guint				selectsignal;
-	//std::map<unsigned,char*> backList;
-	std::map<unsigned,char*> forwardList;
-	unsigned			historyCnt;
 	GList				*fList;
 	GList				*bList;
 };

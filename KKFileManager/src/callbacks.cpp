@@ -814,3 +814,169 @@ void doAbout(GtkWidget *widget,gpointer data)
 
 	free(licence);
 }
+
+void externalTool(GtkWidget *widget,gpointer data)
+{
+printf("void externalTool(GtkWidget *widget,gpointer data)\n");
+#if 0
+	toolStruct		*tool=(toolStruct*)data;
+	pageStruct		*page=getPageStructByIDFromPage(-1);
+	char			*docdirname=NULL;
+	char			*tooldirname=NULL;
+	char			*text=NULL;
+	GtkTextIter		start;
+	GtkTextIter		end;
+	char			*selection=NULL;
+	const char		*vars[]= {"%t","%f","%d","%i","%h","%l",NULL};
+	char			*ptr;
+	long			pos;
+	int				loop=0;
+	GString			*tempCommand=NULL;
+	bool			continueflag=false;
+	char			*barcontrol=NULL;
+	StringSlice		*slice=new StringSlice;
+	char			*barcommand=NULL;
+	char			*strarray=NULL;
+	unsigned int	buffersize=1000;
+	char			*pagepath=NULL;
+
+	if(page==NULL || tool==NULL)
+		return;
+
+	const char		*varData[]= {NULL,page->filePath,NULL,GAPPFOLDER,htmlFile,page->lang};
+
+	tempCommand=g_string_new(tool->command);
+	if(page->filePath!=NULL)
+		docdirname=g_path_get_dirname(page->filePath);
+	else
+		docdirname=strdup(getenv("HOME"));
+
+	tooldirname=g_path_get_dirname(tool->filePath);
+	sinkReturn=chdir(tooldirname);
+
+	strarray=(char*)calloc(buffersize,1);
+	for(int j=0;j<gtk_notebook_get_n_pages(mainNotebook);j++)
+		{
+			pageStruct	*pge=getPageStructByIDFromPage(j);
+			pagepath=NULL;
+			if(pge!=NULL)
+				{
+					pagepath=pge->filePath;
+					if(pagepath!=NULL)
+						{
+							if(buffersize<(strlen(strarray)+strlen(pagepath)+2))
+								{
+									buffersize+=1000;
+									strarray=(char*)realloc(strarray,buffersize);
+								}
+							if(pagepath!=NULL)
+								{
+									strcat(strarray,pagepath);
+									strcat(strarray,";");
+								}
+						}
+				}
+		}
+
+	if(pagepath!=NULL)
+		{
+			if(page->filePath!=NULL)
+				setenv("KKEDIT_CURRENTFILE",page->filePath,1);
+			if(htmlFile!=NULL)
+				setenv("KKEDIT_HTMLFILE",htmlFile,1);
+			if(docdirname!=NULL)
+				setenv("KKEDIT_CURRENTDIR",docdirname,1);
+			if(GAPPFOLDER!=NULL)
+				setenv("KKEDIT_DATADIR",GAPPFOLDER,1);
+			if(page->lang!=NULL)
+				setenv("KKEDIT_SOURCE_LANG",page->lang,1);
+			if(strarray!=NULL)
+				setenv("KKEDIT_FILE_LIST",strarray,1);
+			free(strarray);
+			sinkReturn=asprintf(&barcontrol,"%s/BarControl-%s",tmpFolderName,slice->randomName(6));
+
+			if(gtk_text_buffer_get_selection_bounds((GtkTextBuffer*)page->buffer,&start,&end))
+				{
+					selection=gtk_text_buffer_get_text((GtkTextBuffer*)page->buffer,&start,&end,false);
+					setenv("KKEDIT_SELECTION",selection,1);
+				}
+			else
+				selection=strdup("");
+
+			varData[0]=selection;
+			varData[2]=docdirname;
+
+			continueflag=false;
+			while(continueflag==false)
+				{
+					continueflag=true;
+					loop=0;
+					while(vars[loop]!=NULL)
+						{
+							ptr=strstr(tempCommand->str,vars[loop]);
+							if(ptr!=NULL)
+								{
+									pos=(long)ptr-(long)tempCommand->str;
+									tempCommand=g_string_erase(tempCommand,pos,2);
+									tempCommand=g_string_insert(tempCommand,pos,varData[loop]);
+									continueflag=false;
+								}
+							loop++;
+						}
+				}
+
+			if(tool->clearView==true)
+				gtk_text_buffer_set_text(toolOutputBuffer,"",0);
+
+			if(tool->useBar==true)
+				{
+					setenv("KKEDIT_BAR_CONTROL",barcontrol,1);
+					sinkReturn=asprintf(&barcommand,POLEPATH " \"%s\" \"%s\" &",tool->menuName,barcontrol);
+					sinkReturn=system(barcommand);
+				}
+
+			runCommand(tempCommand->str,&text,tool->inTerminal,tool->flags,tool->runAsRoot,tool->menuName);
+			ERRDATA debugFree(&selection);
+
+			if(text!=NULL)
+				{
+					if(tool->flags & TOOL_REPLACE_OP)
+						{
+							gtk_text_buffer_get_bounds((GtkTextBuffer*)page->buffer,&start,&end);
+							gtk_text_buffer_select_range((GtkTextBuffer*)page->buffer,&start,&end);
+							gtk_text_buffer_delete_selection((GtkTextBuffer*)page->buffer,true,true);
+							gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(page->buffer),&start);
+							gtk_text_buffer_insert(GTK_TEXT_BUFFER(page->buffer),&start,text,strlen(text));
+						}
+
+					if(tool->flags & TOOL_PASTE_OP)
+						{
+							if(gtk_text_buffer_get_selection_bounds((GtkTextBuffer*)page->buffer,&start,&end))
+								gtk_text_buffer_delete_selection((GtkTextBuffer*)page->buffer,true,true);
+							gtk_text_buffer_insert_at_cursor(GTK_TEXT_BUFFER(page->buffer),text,strlen(text));
+						}
+				}
+
+			unsetenv("KKEDIT_CURRENTFILE");
+			unsetenv("KKEDIT_CURRENTDIR");
+			unsetenv("KKEDIT_DATADIR");
+			unsetenv("KKEDIT_SELECTION");
+			unsetenv("KKEDIT_HTMLFILE");
+			unsetenv("KKEDIT_BAR_CONTROL");
+			unsetenv("KKEDIT_FILE_LIST");
+		}
+
+	ERRDATA debugFree(&text);
+	ERRDATA debugFree(&docdirname);
+	ERRDATA debugFree(&tooldirname);
+	if(barcommand!=NULL)
+		{
+			ERRDATA debugFree(&barcommand);
+			sinkReturn=asprintf(&barcommand,"echo quit>%s",barcontrol);
+			sinkReturn=system(barcommand);
+			ERRDATA debugFree(&barcommand);
+		}
+	ERRDATA debugFree(&barcontrol);
+	delete slice;
+#endif
+}
