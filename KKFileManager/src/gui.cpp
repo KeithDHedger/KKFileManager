@@ -851,7 +851,7 @@ void buildToolsList(void)
 void buildTools(void)
 {
 	GtkWidget		*menuitem;
-	GtkWidget		*menu;
+	//GtkWidget		*menu;
 	GList			*ptr;
 	bool			gotglobal=false;
 	int				keyflags=0;
@@ -862,8 +862,8 @@ void buildTools(void)
 	if(submenu!=NULL)
 		gtk_menu_item_set_submenu((GtkMenuItem*)toolsMenu,NULL);
 
-	menu=gtk_menu_new();
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(toolsMenu),menu);
+	toolsSubMenu=gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(toolsMenu),toolsSubMenu);
 
 //addtool
 //	menuitem=newImageMenuItem(MAINTOOLSTOOLS,menu);
@@ -882,7 +882,7 @@ void buildTools(void)
 					gotglobal=true;
 					menuData[MAINTOOLSBLANKTOOL].menuLabel=((toolStruct*)ptr->data)->menuName;
 					menuData[MAINTOOLSBLANKTOOL].userData=(gpointer)ptr->data;
-					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,menu);
+					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,toolsSubMenu);
 					if( (((toolStruct*)ptr->data)->keyCode!=GDK_KEY_VoidSymbol) && (((toolStruct*)ptr->data)->keyCode!=0) )
 						{
 							keyflags=0;
@@ -900,7 +900,7 @@ void buildTools(void)
 	if(gotglobal==true)
 		{
 			menuitem=gtk_separator_menu_item_new();
-			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+			gtk_menu_shell_append(GTK_MENU_SHELL(toolsSubMenu),menuitem);
 		}
 
 	ptr=toolsList;
@@ -913,7 +913,7 @@ void buildTools(void)
 				{
 					menuData[MAINTOOLSBLANKTOOL].menuLabel=((toolStruct*)ptr->data)->menuName;
 					menuData[MAINTOOLSBLANKTOOL].userData=(gpointer)ptr->data;
-					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,menu);
+					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,toolsSubMenu);
 //TODO//
 //needs tidying
 					if( (((toolStruct*)ptr->data)->keyCode!=GDK_KEY_VoidSymbol) && (((toolStruct*)ptr->data)->keyCode!=0) )

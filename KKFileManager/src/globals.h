@@ -157,6 +157,7 @@ extern GtkWidget		*menuItemPrefs;
 
 //tools menu
 extern GtkWidget		*toolsMenu;
+extern GtkWidget		*toolsSubMenu;
 extern GList			*toolsList;
 extern args				tool_vars[];
 extern int				intermarg;

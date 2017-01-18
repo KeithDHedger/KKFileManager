@@ -400,6 +400,12 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTCOPY]->page=page;
 					contextMenus[CONTEXTCOPY]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTCOPY]);
+
+//show tools
+					menuitem=gtk_menu_item_new_with_mnemonic("Tools");
+					//gtk_menu_item_set_submenu((GtkMenuItem*)menuitem,recentMenu);
+
+
 				}
 			else
 				{

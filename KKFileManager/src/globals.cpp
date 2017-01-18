@@ -60,6 +60,7 @@ GtkWidget		*menuItemPrefs=NULL;
 
 //tools menu
 GtkWidget		*toolsMenu=NULL;
+GtkWidget		*toolsSubMenu=NULL;
 GList			*toolsList=NULL;
 int				intermarg=0;
 int				flagsarg=0;
