@@ -336,7 +336,9 @@ gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkWidget	*menuitem;
+	GtkWidget	*submenu;
     GtkTreePath	*treepath;
+	GList		*ptr;
 
 	fromPageID=page->pageID;
 
@@ -401,11 +403,27 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTCOPY]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTCOPY]);
 
-//show tools
-					menuitem=gtk_menu_item_new_with_mnemonic("Tools");
-					//gtk_menu_item_set_submenu((GtkMenuItem*)menuitem,recentMenu);
+//show tools					
+					menuData[MAINTOOLSBLANKTOOL].cb=NULL;
+					menuData[MAINTOOLSBLANKTOOL].stockID=GTK_STOCK_EXECUTE;
+					menuData[MAINTOOLSBLANKTOOL].menuLabel="Tools";
+					menuitem=newImageMenuItem(MAINTOOLSBLANKTOOL,tabMenu);
+					submenu=gtk_menu_new();
+					gtk_menu_item_set_submenu((GtkMenuItem*)menuitem,submenu);
 
-
+					ptr=toolsList;
+					while(ptr!=NULL)
+						{
+							if(((toolStruct*)ptr->data)->inPopUp==true)
+								{
+									menuData[MAINTOOLSBLANKTOOL].cb=(void*)externalTool;
+									menuData[MAINTOOLSBLANKTOOL].stockID=NULL;
+									menuData[MAINTOOLSBLANKTOOL].menuLabel=((toolStruct*)ptr->data)->menuName;
+									menuData[MAINTOOLSBLANKTOOL].userData=(gpointer)ptr->data;
+									menuitem=newMenuItem(MAINTOOLSBLANKTOOL,submenu);
+								}
+							ptr=g_list_next(ptr);
+						}
 				}
 			else
 				{
