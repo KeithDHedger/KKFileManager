@@ -815,42 +815,11 @@ void doAbout(GtkWidget *widget,gpointer data)
 	free(licence);
 }
 
-/*
-struct toolStruct
-{
-	char				*menuName;
-	char				*filePath;
-	char				*command;
-	int					flags;
-	bool				inTerminal;					
-	bool				inPopUp;
-	
-	bool				alwaysPopup;
-	bool				clearView;
-
-	char				*comment;
-	bool				global;
-	
-	bool				runAsRoot;
-	int					keyCode;
-	bool				useBar;
-};
-
-*/
 void externalTool(GtkWidget *widget,gpointer data)
 {
-printf("void externalTool(GtkWidget *widget,gpointer data)\n");
+//printf("void externalTool(GtkWidget *widget,gpointer data)\n");
 	toolStruct		*tool=(toolStruct*)data;
 	char			*tooldirname=NULL;
-
-printf("tool->menuName=%s\ntool->filePath=%s\n",tool->menuName,tool->filePath);
-printf("tool->command=%s\ntool->flags=%i\n",tool->command,tool->flags);
-printf("tool->inTerminal=%i\ntool->inPopUp=%i\n",tool->inTerminal,tool->inPopUp);
-printf("tool->alwaysPopup=%i\ntool->clearView=%i\n",tool->alwaysPopup,tool->clearView);
-printf("tool->comment=%s\ntool->global=%i\n",tool->comment,tool->global);
-printf("tool->runAsRoot=%i\ntool->keyCode=%i\n",tool->runAsRoot,tool->keyCode);
-printf("tool->useBar=%i\n",tool->useBar);
-
 	char			*strarray=NULL;
 	unsigned int	buffersize=1000;
 	char			*path;
@@ -858,13 +827,22 @@ printf("tool->useBar=%i\n",tool->useBar);
 	GList			*iconlist;
 	char			*itemarray=NULL;
 	pageStruct		*page=NULL;
+	GList			*pages=pageList;
+//printf("tool->menuName=%s\ntool->filePath=%s\n",tool->menuName,tool->filePath);
+//printf("tool->command=%s\ntool->flags=%i\n",tool->command,tool->flags);
+//printf("tool->inTerminal=%i\ntool->inPopUp=%i\n",tool->inTerminal,tool->inPopUp);
+//printf("tool->alwaysPopup=%i\ntool->clearView=%i\n",tool->alwaysPopup,tool->clearView);
+//printf("tool->comment=%s\ntool->global=%i\n",tool->comment,tool->global);
+//printf("tool->runAsRoot=%i\ntool->keyCode=%i\n",tool->runAsRoot,tool->keyCode);
+//printf("tool->useBar=%i\n",tool->useBar);
+
 
 	strarray=(char*)calloc(buffersize,1);
 	itemarray=(char*)calloc(buffersize,1);
 
-	for(int j=0;j<gtk_notebook_get_n_pages(mainNotebook);j++)
+	while(pages!=NULL)
 		{
-			page=getPageStructByIDFromList(getPageIdFromTabNum(j));
+			page=(pageStruct*)pages->data;
 			if(page!=NULL)
 				{
 					if(buffersize<(strlen(strarray)+strlen(page->thisFolder)+2))
@@ -875,6 +853,7 @@ printf("tool->useBar=%i\n",tool->useBar);
 					strcat(strarray,page->thisFolder);
 					strcat(strarray,";");
 				}
+			pages=pages->next;
 		}
 
 	page=getPageStructByIDFromList(getPageIdFromTab());
