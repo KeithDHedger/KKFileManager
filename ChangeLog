@@ -1,4 +1,7 @@
 0.0.4
+KKFILEMANAGER_CURRENT_TAB passed to script as env var, path to current tab ';' delimiter.
+KKFILEMANAGER_TAB_LIST passed to script as env var, path to all open tabs ';' delimiter.
+KKFILEMANAGER_SELECTED_ITEMS passed to script as env var, path to all selected items ';' delimiter.
 Started to add external tools.
 Updated icon.
 Set default widget on new filename dialog.

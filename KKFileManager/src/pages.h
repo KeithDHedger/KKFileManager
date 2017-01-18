@@ -47,6 +47,7 @@ struct pageStruct
 	GList				*bList;
 };
 
+unsigned getPageIdFromTabNum(int tabnum);
 unsigned getPageIdFromTab(void);
 pageStruct *getPageStructByIDFromList(unsigned pageid);
 void addNewPage(char *startdir);

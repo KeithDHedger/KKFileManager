@@ -23,6 +23,14 @@
 
 #include "globals.h"
 
+unsigned getPageIdFromTabNum(int tabnum)
+{
+	GtkWidget	*widg;
+	widg=gtk_notebook_get_nth_page(mainNotebook,tabnum);
+
+	return((unsigned)(long)g_object_get_data((GObject*)widg,"pageid"));
+}
+
 unsigned getPageIdFromTab(void)
 {
 	GtkWidget	*widg;
