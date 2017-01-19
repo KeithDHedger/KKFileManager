@@ -875,26 +875,27 @@ void externalTool(GtkWidget *widget,gpointer data)
 							strarray=(char*)realloc(strarray,buffersize);
 						}
 					strcat(strarray,page->thisFolder);
-					strcat(strarray,";");
+					strcat(strarray,"\n");
 				}
 			pages=pages->next;
 		}
 
 	page=getPageStructByIDFromList(getPageIdFromTab());
 	iconlist=gtk_icon_view_get_selected_items(page->iconView);
+	itemarray[0]=0;
 	while(iconlist!=NULL)
 		{
 			gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,(GtkTreePath*)iconlist->data);
 			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,-1);
 			if(path!=NULL)
 				{
-					if(buffersize<(strlen(itemarray)+strlen(path)+2))
+					if(buffersize<(strlen(itemarray)+strlen(path)+10))
 						{
 							buffersize+=1000;
 							itemarray=(char*)realloc(itemarray,buffersize);
 						}
 					strcat(itemarray,path);
-					strcat(itemarray,";");
+					strcat(itemarray,"\n");
 				}
 			iconlist=iconlist->next;
 		}

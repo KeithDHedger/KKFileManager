@@ -79,16 +79,10 @@ args			tool_vars[]=
 	//strings
 	{"name",TYPESTRING,&menuname},
 	{"command",TYPESTRING,&commandarg},
-	{"comment",TYPESTRING,&commentarg},
 	//ints
 	{"interm",TYPEINT,&intermarg},
 	{"flags",TYPEINT,&flagsarg},
 	{"inpopup",TYPEINT,&inpopup},
-	{"alwayspopup",TYPEINT,&alwayspopup},
-	{"clearview",TYPEINT,&clearview},
-	{"runasroot",TYPEINT,&rootarg},
-	{"usebar",TYPEINT,&usebar},
-	{"shortcutkey",TYPEINT,&keycode},
 	{NULL,0,NULL}
 };
 
