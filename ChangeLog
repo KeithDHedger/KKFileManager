@@ -1,4 +1,5 @@
 0.0.4
+External tools can now be in the main tools menu, the popup menu or both.
 Delimter for passed files now set to newline.
 Tools can now appear in popup menu.
 KKFILEMANAGER_CURRENT_TAB passed to script as env var, path to current tab ';' delimiter.

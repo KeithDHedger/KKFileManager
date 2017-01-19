@@ -107,13 +107,10 @@ struct toolStruct
 	int					flags;
 	bool				inTerminal;					
 	bool				inPopUp;
-	bool				alwaysPopup;
-	bool				clearView;
-	char				*comment;
+	bool				inMenu;
+	bool				inBoth;
 	bool				global;
-	bool				runAsRoot;
-	int					keyCode;
-	bool				useBar;
+//	int					keyCode;
 };
 
 enum {NEWVBOX=0,NEWHBOX};
@@ -163,14 +160,16 @@ extern args				tool_vars[];
 extern int				intermarg;
 extern int				flagsarg;
 extern int				inpopup;
-extern int				alwayspopup;
-extern int				clearview;
+extern int				inmenu;
+extern int				inboth;
+//extern int				alwayspopup;
+//extern int				clearview;
 extern char				*commandarg;
-extern char				*commentarg;
+//extern char				*commentarg;
 extern char				*menuname;
-extern int				rootarg;
-extern int				keycode;
-extern int				usebar;
+//extern int				rootarg;
+//extern int				keycode;
+//extern int				usebar;
 
 //extern GtkWidget		*toolOutMenu;
 

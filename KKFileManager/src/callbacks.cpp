@@ -414,7 +414,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					ptr=toolsList;
 					while(ptr!=NULL)
 						{
-							if(((toolStruct*)ptr->data)->inPopUp==true)
+							if((((toolStruct*)ptr->data)->inPopUp==true) || (((toolStruct*)ptr->data)->inBoth==true))
 								{
 									menuData[MAINTOOLSBLANKTOOL].cb=(void*)externalTool;
 									menuData[MAINTOOLSBLANKTOOL].stockID=NULL;

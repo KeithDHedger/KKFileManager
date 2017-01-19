@@ -65,14 +65,16 @@ GList			*toolsList=NULL;
 int				intermarg=0;
 int				flagsarg=0;
 int				inpopup=0;
-int				alwayspopup=0;
-int				clearview=0;
+int				inmenu=0;
+int				inboth=0;
+//int				alwayspopup=0;
+//int				clearview=0;
 char			*commandarg=NULL;
-char			*commentarg=NULL;
+//char			*commentarg=NULL;
 char			*menuname=NULL;
-int				rootarg=0;
-int				keycode=0;
-int				usebar=0;
+//int				rootarg=0;
+//int				keycode=0;
+//int				usebar=0;
 
 args			tool_vars[]=
 {
@@ -82,7 +84,9 @@ args			tool_vars[]=
 	//ints
 	{"interm",TYPEINT,&intermarg},
 	{"flags",TYPEINT,&flagsarg},
-	{"inpopup",TYPEINT,&inpopup},
+	{"inpopup",TYPEBOOL,&inpopup},
+	{"inmenu",TYPEBOOL,&inmenu},
+	{"inboth",TYPEBOOL,&inboth},
 	{NULL,0,NULL}
 };
 
