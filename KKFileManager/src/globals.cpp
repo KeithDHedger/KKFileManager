@@ -67,14 +67,8 @@ int				flagsarg=0;
 int				inpopup=0;
 int				inmenu=0;
 int				inboth=0;
-//int				alwayspopup=0;
-//int				clearview=0;
 char			*commandarg=NULL;
-//char			*commentarg=NULL;
 char			*menuname=NULL;
-//int				rootarg=0;
-//int				keycode=0;
-//int				usebar=0;
 
 args			tool_vars[]=
 {
@@ -89,8 +83,6 @@ args			tool_vars[]=
 	{"inboth",TYPEBOOL,&inboth},
 	{NULL,0,NULL}
 };
-
-//GtkWidget		*toolOutMenu=NULL;
 
 //help menu
 GtkWidget		*helpMenu=NULL;
@@ -492,4 +484,43 @@ void freefilePathStruct(filePathStruct* fs)
 	free(fs->fileName);
 	free(fs->filePath);
 	free(fs);
+}
+
+char *selectionToString(const char *seperator)
+{
+	pageStruct		*page=NULL;
+	char			*path;
+	GtkTreeIter		iter;
+	GList			*iconlist;
+	GString			*str=NULL;
+
+	page=getPageStructByIDFromList(getPageIdFromTab());
+	if(page!=NULL)
+		{
+			iconlist=gtk_icon_view_get_selected_items(page->iconView);
+			if(iconlist!=NULL)
+				{
+					str=g_string_new(NULL);
+					while(iconlist!=NULL)
+						{
+							gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,(GtkTreePath*)iconlist->data);
+							gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,-1);
+							if(path!=NULL)
+								{
+									g_string_append_printf(str,"%s%s",path,seperator);
+									free(path);
+								}
+							iconlist=iconlist->next;
+						}
+					g_list_foreach(iconlist,(GFunc)gtk_tree_path_free,NULL);
+					g_list_free(iconlist);
+					return(g_string_free(str,false));
+				}
+		}
+	return(NULL);
+}
+
+char **selectionToArray(void)
+{
+	return(NULL);
 }

@@ -793,14 +793,8 @@ void buildToolsList(void)
 							inpopup=0;
 							inmenu=0;
 							inboth=0;
-//							alwayspopup=0;
-//							rootarg=0;
-//							clearview=0;
-//							keycode=GDK_KEY_VoidSymbol;
 							menuname=NULL;
 							commandarg=NULL;
-//							commentarg=NULL;
-//							usebar=0;
 
 							sinkReturn=asprintf(&filepath,"%s%s",datafolder[loop],entry);
 							loadVarsFromFile(filepath,tool_vars);
@@ -815,17 +809,8 @@ void buildToolsList(void)
 									tool->inPopUp=(bool)inpopup;
 									tool->inMenu=(bool)inmenu;
 									tool->inBoth=(bool)inboth;
-									//tool->alwaysPopup=(bool)alwayspopup;
 									tool->filePath=strdup(filepath);
-									//tool->clearView=(bool)clearview;
-									//tool->runAsRoot=(bool)rootarg;
-									//tool->keyCode=keycode;
-									//tool->useBar=(bool)usebar;
 
-//									if(commentarg!=NULL)
-//										tool->comment=strdup(commentarg);
-//									else
-//										tool->comment=NULL;
 									if(loop==0)
 										tool->global=true;
 									else
@@ -834,14 +819,8 @@ void buildToolsList(void)
 									toolsList=g_list_prepend(toolsList,(gpointer)tool);
 									free(menuname);
 									free(commandarg);
-//									if(commentarg!=NULL)
-//										{
-//											free(commentarg);
-//										}
 								}
-
 							free(filepath);
-
 							entry=g_dir_read_name(folder);
 						}
 				}
@@ -857,7 +836,6 @@ void buildTools(void)
 	GtkWidget		*menuitem;
 	GList			*ptr;
 	bool			gotglobal=false;
-	int				keyflags=0;
 
 	buildToolsList();
 
@@ -875,28 +853,12 @@ void buildTools(void)
 	menuData[MAINTOOLSBLANKTOOL].key=0;
 	while(ptr!=NULL)
 		{
-
-//printf("command=%s\n",((toolStruct*)ptr->data)->menuName);
-//printf("inpopup=%i\n",((toolStruct*)ptr->data)->inPopUp);
-//printf("inmenu=%i\n",((toolStruct*)ptr->data)->inMenu);
-//printf("inboth=%i\n\n",((toolStruct*)ptr->data)->inBoth);
-
 			if((((toolStruct*)ptr->data)->global==true) && ((((toolStruct*)ptr->data)->inMenu==true) || (((toolStruct*)ptr->data)->inBoth==true)))
 				{
 					gotglobal=true;
 					menuData[MAINTOOLSBLANKTOOL].menuLabel=((toolStruct*)ptr->data)->menuName;
 					menuData[MAINTOOLSBLANKTOOL].userData=(gpointer)ptr->data;
 					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,toolsSubMenu);
-//					if( (((toolStruct*)ptr->data)->keyCode!=GDK_KEY_VoidSymbol) && (((toolStruct*)ptr->data)->keyCode!=0) )
-//						{
-//							keyflags=0;
-//							if(gdk_keyval_is_upper(((toolStruct*)ptr->data)->keyCode))
-//								keyflags=GDK_SHIFT_MASK;
-//							gtk_widget_add_accelerator((GtkWidget *)menuitem,"activate",accgroup,((toolStruct*)ptr->data)->keyCode,(GdkModifierType)(GDK_CONTROL_MASK|keyflags),GTK_ACCEL_VISIBLE);
-//						}
-
-//					if(((toolStruct*)ptr->data)->comment!=NULL)
-//						gtk_widget_set_tooltip_text((GtkWidget*)menuitem,((toolStruct*)ptr->data)->comment);
 				}
 			ptr=g_list_next(ptr);
 		}
@@ -911,34 +873,14 @@ void buildTools(void)
 	menuData[MAINTOOLSBLANKTOOL].cb=(void*)externalTool;
 	menuData[MAINTOOLSBLANKTOOL].stockID=NULL;
 	menuData[MAINTOOLSBLANKTOOL].key=0;
-//printf("---------------\n");
+
 	while(ptr!=NULL)
 		{
-//printf("command=%s\n",((toolStruct*)ptr->data)->menuName);
-//printf("inpopup=%i\n",((toolStruct*)ptr->data)->inPopUp);
-//printf("inmenu=%i\n",((toolStruct*)ptr->data)->inMenu);
-//printf("inboth=%i\n\n",((toolStruct*)ptr->data)->inBoth);
 			if((((toolStruct*)ptr->data)->global==false) && ((((toolStruct*)ptr->data)->inMenu==true) || (((toolStruct*)ptr->data)->inBoth==true)))
 				{
 					menuData[MAINTOOLSBLANKTOOL].menuLabel=((toolStruct*)ptr->data)->menuName;
 					menuData[MAINTOOLSBLANKTOOL].userData=(gpointer)ptr->data;
 					menuitem=newMenuItem(MAINTOOLSBLANKTOOL,toolsSubMenu);
-//TODO//
-//needs tidying
-//					if( (((toolStruct*)ptr->data)->keyCode!=GDK_KEY_VoidSymbol) && (((toolStruct*)ptr->data)->keyCode!=0) )
-//						{
-//							keyflags=0;
-//							if(gdk_keyval_is_upper(((toolStruct*)ptr->data)->keyCode))
-//								{
-//									keyflags=GDK_SHIFT_MASK;
-//									if(gdk_keyval_is_lower(((toolStruct*)ptr->data)->keyCode))
-//									keyflags=0;
-//								}
-//							gtk_widget_add_accelerator((GtkWidget *)menuitem,"activate",accgroup,((toolStruct*)ptr->data)->keyCode,(GdkModifierType)(GDK_CONTROL_MASK|keyflags),GTK_ACCEL_VISIBLE);
-//						}
-//
-//					if(((toolStruct*)ptr->data)->comment!=NULL)
-//						gtk_widget_set_tooltip_text((GtkWidget*)menuitem,((toolStruct*)ptr->data)->comment);
 				}
 			ptr=g_list_next(ptr);
 		}

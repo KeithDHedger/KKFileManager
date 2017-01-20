@@ -110,7 +110,6 @@ struct toolStruct
 	bool				inMenu;
 	bool				inBoth;
 	bool				global;
-//	int					keyCode;
 };
 
 enum {NEWVBOX=0,NEWHBOX};
@@ -162,16 +161,8 @@ extern int				flagsarg;
 extern int				inpopup;
 extern int				inmenu;
 extern int				inboth;
-//extern int				alwayspopup;
-//extern int				clearview;
 extern char				*commandarg;
-//extern char				*commentarg;
 extern char				*menuname;
-//extern int				rootarg;
-//extern int				keycode;
-//extern int				usebar;
-
-//extern GtkWidget		*toolOutMenu;
 
 //help menu
 extern GtkWidget		*helpMenu;
@@ -249,5 +240,7 @@ void writeExitData(void);
 //char* getValidFilepath(const char *filepath);
 filePathStruct* getValidFilepath(const char *filepath);
 void freefilePathStruct(filePathStruct* fs);
+char *selectionToString(const char *seperator);
+char **selectionToArray(void);
 
 #endif

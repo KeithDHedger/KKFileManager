@@ -57,6 +57,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	GList			*list=NULL;
 	GString			*str=NULL;
 	int				cnt;
+	char			*stringlist;
 
 	switch(ctx->id)
 		{
@@ -147,21 +148,12 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				break;
 //copy
 			case CONTEXTCOPY:
-				str=g_string_new(NULL);
-				list=gtk_icon_view_get_selected_items(ctx->page->iconView);
-				while(list!=NULL)
+				stringlist=selectionToString("\n");
+				if(stringlist!=NULL)
 					{
-						gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,(GtkTreePath *)list->data);
-						gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-						g_string_append(str,path);
-						g_string_append_c(str,'\n');
-						free(path);
-						list=list->next;
+						gtk_clipboard_set_text(mainClipboard,stringlist,-1);
+						g_free(stringlist);
 					}
-				gtk_clipboard_set_text(mainClipboard,str->str,-1);
-				g_list_foreach(list,(GFunc)gtk_tree_path_free,NULL);
-				g_list_free(list);
-				g_string_free(str,true);
 				break;
 //paste
 			case CONTEXTPASTE:
@@ -846,9 +838,6 @@ void externalTool(GtkWidget *widget,gpointer data)
 	char			*tooldirname=NULL;
 	char			*strarray=NULL;
 	unsigned int	buffersize=1000;
-	char			*path;
-	GtkTreeIter		iter;
-	GList			*iconlist;
 	char			*itemarray=NULL;
 	pageStruct		*page=NULL;
 	GList			*pages=pageList;
@@ -879,27 +868,7 @@ void externalTool(GtkWidget *widget,gpointer data)
 				}
 			pages=pages->next;
 		}
-
-	page=getPageStructByIDFromList(getPageIdFromTab());
-	iconlist=gtk_icon_view_get_selected_items(page->iconView);
-	itemarray[0]=0;
-	while(iconlist!=NULL)
-		{
-			gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,(GtkTreePath*)iconlist->data);
-			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,-1);
-			if(path!=NULL)
-				{
-					if(buffersize<(strlen(itemarray)+strlen(path)+10))
-						{
-							buffersize+=1000;
-							itemarray=(char*)realloc(itemarray,buffersize);
-						}
-					strcat(itemarray,path);
-					strcat(itemarray,"\n");
-				}
-			iconlist=iconlist->next;
-		}
-
+	itemarray=selectionToString("\n");
 	if(strarray!=NULL)
 		setenv("KKFILEMANAGER_TAB_LIST",strarray,1);
 	if(itemarray!=NULL)
