@@ -526,7 +526,6 @@ char **selectionToArray(void)
 	char			*path;
 	GtkTreeIter		iter;
 	GList			*iconlist;
-	GString			*str=NULL;
 	char			**ar=NULL;
 	unsigned		cnt=0;
 	gchar			*filename=NULL;

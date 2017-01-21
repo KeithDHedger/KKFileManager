@@ -31,8 +31,8 @@ GdkPixbuf		*pixbuft;
 const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical","gnome-dev-disc-dvdrom","gnome-dev-cdrom"};
 
 //GtkTargetEntry dragTargets[]={{ "text/uri-list",0,DRAG_TEXT_URI_LIST},{ "text/plain",0,DRAG_TEXT_PLAIN}};
-GtkTargetEntry dragTargets[]={{ "text/uri-list",0,DRAG_TEXT_URI_LIST}};
-GtkTargetEntry dropTargets[]={{ "text/uri-list",0,DRAG_TEXT_URI_LIST}};
+GtkTargetEntry dragTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
+GtkTargetEntry dropTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
 
 menuDataStruct	menuData[]=
 	{
@@ -489,12 +489,9 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,dropTargets,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
 	gtk_icon_view_enable_model_drag_dest(page->iconView,dragTargets,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
 
-//	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(doDrop),(gpointer)page);
 //drag
 	g_signal_connect(G_OBJECT(page->iconView),"drag-begin",G_CALLBACK(doDragBegin),(gpointer)page);
-//		g_signal_connect(G_OBJECT(button), "drag-begin",G_CALLBACK(drag_begin), NULL);
 	g_signal_connect(G_OBJECT(page->iconView),"drag-data-get",G_CALLBACK(dragDataGet),(gpointer)page);
-//	gtk_drag_source_set((GtkWidget*)page->iconView,(GdkModifierType)(GDK_BUTTON1_MASK|GDK_BUTTON2_MASK|GDK_BUTTON3_MASK),drag_targets,sizeof(drag_targets) / sizeof(drag_targets[0]),(GdkDragAction)(GDK_ACTION_COPY));//|GDK_ACTION_MOVE|GDK_ACTION_LINK|GDK_ACTION_ASK));
 	g_signal_connect(G_OBJECT(page->iconView),"drag-end",G_CALLBACK(doDragEnd),(gpointer)page);
 //drop
 	g_signal_connect(G_OBJECT(page->iconView),"drag-drop",G_CALLBACK(dragDrop),(gpointer)page);
@@ -503,7 +500,6 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_item_width (page->iconView,iconSize*iconSize3);
 
 	gtk_widget_set_name((GtkWidget*)page->iconView,buffer);
-
 }
 
 void setUpContextMenus(void)
