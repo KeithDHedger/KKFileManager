@@ -54,8 +54,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	int				result=0;
 	char			*output=NULL;
 	filePathStruct	*fs;
-	GList			*list=NULL;
-	GString			*str=NULL;
 	int				cnt;
 	char			*stringlist;
 
@@ -279,13 +277,29 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 		}
 }
 
+char		**ar;
+
 void doDragBegin(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page)
 {
+	ar=selectionToArray();
 	page->toggleOff=false;
+}
+
+void dragDataGet(GtkWidget *widget,GdkDragContext *context,GtkSelectionData *data,guint info,guint time_,gpointer user_data)
+{
+	if(ar!=NULL)
+		{
+			if(info==DRAG_TEXT_URI_LIST)
+				{
+					gtk_selection_data_set_uris(data,ar);
+				}
+		}
 }
 
 void doDragEnd(GtkWidget *widget,GdkDragContext *context,pageStruct *page)
 {
+	unsigned	cnt=0;
+
 	page->toggleOff=true;
 	page->startedDrag=false;
 	page->stdBehaviour=false;
@@ -296,7 +310,98 @@ void doDragEnd(GtkWidget *widget,GdkDragContext *context,pageStruct *page)
 	gtk_container_add((GtkContainer*)page->scrollBox,(GtkWidget*)page->iconView);
 	setCurrentFolderForTab(page->thisFolder,page,true,true);
 #endif
-	return;
+	if(ar!=NULL)
+		while(ar[cnt]!=NULL)
+			free(ar[cnt++]);			
+}
+
+gboolean dragDrop(GtkWidget *widget,GdkDragContext *context,gint x,gint y,guint time,gpointer user_data)
+{
+	GtkTargetList *targetlist;
+	GdkAtom target;
+
+	g_print("<<< DRAG DROP >>>\n");
+
+	targetlist=gtk_drag_dest_get_target_list(widget);
+	target=gtk_drag_dest_find_target(widget,context,targetlist);
+	if (target==GDK_NONE)
+		{
+			gtk_drag_finish(context, FALSE, FALSE, time);
+			return(false);
+		}
+
+	gtk_drag_get_data(widget,context,target,time);
+
+	return(true);
+}
+
+void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,GtkSelectionData *data,guint info,guint time,gpointer user_data)
+{
+	gboolean	result=false;
+	gchar		**uris;
+	unsigned	cnt;
+	char		*filepath=NULL;
+	pageStruct	*page;
+
+	page=(pageStruct*)user_data;
+	if(page==NULL)
+		{
+		 	gtk_drag_finish(context,false,false,time);
+		 	return;
+		}
+
+	g_print("<<< DRAG DATA RECEIVED >>>\n");
+
+	if(data->length==0 || data->format!=8)
+		{
+		 	gtk_drag_finish(context,false,false,time);
+		 	return;
+		 }
+
+	if (info==DRAG_TEXT_URI_LIST)
+		{
+			uris=gtk_selection_data_get_uris(data);
+			if(uris==NULL)
+				{
+					gtk_drag_finish(context,false,false,time);
+					return;
+				}
+
+			cnt=0;
+			while(uris[cnt]!=NULL)
+				{
+					filepath=g_filename_from_uri(uris[cnt],NULL,NULL);
+					result=true;
+					
+					switch(gdk_drag_context_get_suggested_action(context))
+						{
+							case GDK_ACTION_COPY:
+								fileAction(filepath,page->thisFolder,false,GDK_ACTION_COPY);
+								printf("COPY ");
+								break;
+							case GDK_ACTION_MOVE:
+								fileAction(filepath,page->thisFolder,false,GDK_ACTION_MOVE);
+								printf("MOVE ");
+								break;
+							case GDK_ACTION_LINK:
+								fileAction(filepath,page->thisFolder,false,GDK_ACTION_LINK);
+								printf("LINK ");
+								break;
+							default:
+								result=false;
+						}
+					printf("%s\n",filepath);
+					free(filepath);
+					cnt++;
+				}
+			g_strfreev(uris);
+		}
+	else
+		{
+			g_print("error\n");
+		}
+
+	gtk_drag_finish(context,result,false,time);
 }
 
 gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page)

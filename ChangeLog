@@ -1,4 +1,5 @@
 0.0.4
+Redone d'n'd to allow dragging and droping outside of app.
 External tools can now be in the main tools menu, the popup menu or both.
 Delimter for passed files now set to newline.
 Tools can now appear in popup menu.

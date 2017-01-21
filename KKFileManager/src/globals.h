@@ -77,6 +77,9 @@
 #define GTOOLSFOLDER DATADIR _EXECSUFFIX_ "/tools"
 
 #define LOADICONCNT 64
+#define DRAG_TEXT_URI_LIST 1
+#define DROP_TEXT_URI_LIST 1
+#define DROP_TEXT_PLAIN    2
 
 struct	args
 {

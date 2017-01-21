@@ -38,9 +38,16 @@ void setAskEntry(GtkWidget* widget,gpointer ptr);
 void openBM(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata);
 gboolean buttonDownBM(GtkTreeView *widget,GdkEventButton *event,gpointer *userdata);
 gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
+
 void doDragBegin(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page);
+void dragDataGet(GtkWidget *widget,GdkDragContext *context,GtkSelectionData *data,guint info,guint time_,gpointer user_data);
 void doDragEnd(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page);
+
+gboolean dragDrop(GtkWidget *widget,GdkDragContext *context,gint x,gint y,guint time_,gpointer user_data);
+void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,GtkSelectionData *data,guint info,guint time,gpointer user_data);
+
 void doAbout(GtkWidget *widget,gpointer data);
 void externalTool(GtkWidget *widget,gpointer data);
+void fileAction(const char *frompath,const char *topath,bool isdir,int action);
 
 #endif

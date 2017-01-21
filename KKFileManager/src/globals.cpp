@@ -522,5 +522,44 @@ char *selectionToString(const char *seperator)
 
 char **selectionToArray(void)
 {
+	pageStruct		*page=NULL;
+	char			*path;
+	GtkTreeIter		iter;
+	GList			*iconlist;
+	GString			*str=NULL;
+	char			**ar=NULL;
+	unsigned		cnt=0;
+	gchar			*filename=NULL;
+
+	page=getPageStructByIDFromList(getPageIdFromTab());
+	if(page!=NULL)
+		{
+			iconlist=gtk_icon_view_get_selected_items(page->iconView);
+			if(iconlist!=NULL)
+				{
+					ar=(char**)calloc(g_list_length(iconlist)+1,sizeof(char*));
+					while(iconlist!=NULL)
+						{
+							gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,(GtkTreePath*)iconlist->data);
+							gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,-1);
+							if(path!=NULL)
+								{
+									filename=g_filename_to_uri(path,NULL,NULL);
+									if(filename!=NULL)
+										{
+											ar[cnt]=strdup(filename);
+											free(filename);
+											cnt++;
+										}
+									free(path);
+								}
+							iconlist=iconlist->next;
+						}
+					g_list_foreach(iconlist,(GFunc)gtk_tree_path_free,NULL);
+					g_list_free(iconlist);
+					ar[cnt]=NULL;
+					return(ar);
+				}
+		}
 	return(NULL);
 }
