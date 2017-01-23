@@ -56,7 +56,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	filePathStruct	*fs;
 	int				cnt;
 	char			*stringlist;
-	filePathStruct	fps={NULL,NULL,NULL,NULL,false,false,false};
+	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
 	const char		*recursive;
 
 	switch(ctx->id)
@@ -67,10 +67,10 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 			case CONTEXTNEWFOLDER:
 				sprintf(buffer,"%s/New %s",ctx->page->thisFolder,type);
 				fs=getValidFilepath(buffer);
-				doAskForFilename(fs->fileName);
+				doAskForFilename(fs->fromFileName);
 				if(validName==true)
 					{
-						sprintf(buffer,"%s/%s",fs->dirPath,fileName);
+						sprintf(buffer,"%s/%s",fs->fromDirPath,fileName);
 						if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 							{
 								if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
@@ -79,7 +79,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 										return;
 									}
 							}
-						sprintf(buffer,"%s \"%s/%s\"",command,fs->dirPath,fileName);
+						sprintf(buffer,"%s \"%s/%s\"",command,fs->fromDirPath,fileName);
 						system(buffer);
 					}
 				freefilePathStruct(fs);
@@ -112,10 +112,10 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
 
 				fs=getValidFilepath(path);
-				doAskForFilename(fs->fileName);
+				doAskForFilename(fs->fromFileName);
 				if(validName==true)
 					{
-						sprintf(buffer,"%s/%s",fs->dirPath,fileName);
+						sprintf(buffer,"%s/%s",fs->fromDirPath,fileName);
 						if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 							{
 								if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
@@ -124,7 +124,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 										return;
 									}
 							}
-						sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",path,fs->dirPath,fileName);
+						sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",path,fs->fromDirPath,fileName);
 						printf("buffer=>%s<\n",buffer);
 						system(buffer);
 					}
@@ -166,12 +166,12 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 							{
 								setFilePathStruct(&fps,"ft",array[cnt],ctx->page->thisFolder);
 								fps.askFileName=false;
-								if(fps.filePathIsDir==true)
+								if(fps.fromFilePathIsDir==true)
 									recursive="-r";
 								else
 									recursive="";
 								getValidToPathFromFilepath(&fps);
-								sprintf(buffer,"cp %s \"%s\" \"%s\"",recursive,array[cnt],fps.filePath);
+								sprintf(buffer,"cp %s \"%s\" \"%s\"",recursive,array[cnt],fps.fromFilePath);
 								system(buffer);
 								cnt++;
 							}
@@ -331,11 +331,12 @@ gboolean dragDrop(GtkWidget *widget,GdkDragContext *context,gint x,gint y,guint 
 
 void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,GtkSelectionData *data,guint info,guint time,gpointer user_data)
 {
-	gboolean	result=false;
-	gchar		**uris;
-	unsigned	cnt;
-	char		*filepath=NULL;
-	pageStruct	*page;
+	gboolean		result=false;
+	gchar			**uris;
+	unsigned		cnt;
+	char			*filepath=NULL;
+	pageStruct		*page;
+	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
 
 	page=(pageStruct*)user_data;
 	if(page==NULL)
@@ -366,25 +367,11 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 				{
 					filepath=g_filename_from_uri(uris[cnt],NULL,NULL);
 					result=true;
-					
-					switch(gdk_drag_context_get_suggested_action(context))
-						{
-							case GDK_ACTION_COPY:
-								fileAction(filepath,page->thisFolder,false,GDK_ACTION_COPY);
-								printf("COPY ");
-								break;
-							case GDK_ACTION_MOVE:
-								fileAction(filepath,page->thisFolder,false,GDK_ACTION_MOVE);
-								printf("MOVE ");
-								break;
-							case GDK_ACTION_LINK:
-								fileAction(filepath,page->thisFolder,false,GDK_ACTION_LINK);
-								printf("LINK ");
-								break;
-							default:
-								result=false;
-						}
-					printf("%s\n",filepath);
+
+					setFilePathStruct(&fps,"fDp",filepath,page->thisFolder);
+					fps.askFileName=true;
+					getValidToPathFromFilepath(&fps);
+					doFileAction(&fps,gdk_drag_context_get_suggested_action(context));
 					free(filepath);
 					cnt++;
 				}
@@ -457,7 +444,6 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
-			//gtk_icon_view_unselect_all(page->iconView);
 			treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
 			if(G_IS_OBJECT(tabMenu))
 				{
@@ -706,80 +692,6 @@ void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 	clearForward(page);
 
 	free(path);
-}
-
-void fileAction(const char *frompath,const char *topath,bool isdir,int action)
-{
-	char			*command=NULL;
-	const char		*recursive;
-	char			tofilepathbuffer[PATH_MAX];
-	filePathStruct	* fs;
-	char			tobuffer[PATH_MAX];
-	char			*fromfilename;
-	char			buffer[PATH_MAX];
-	char			*tofilepath;
-
-	if(isdir==true)
-		recursive="-r";
-	else
-		recursive="";
-
-	sprintf(tobuffer,"%s",frompath);
-	fromfilename=basename(tobuffer);
-	sprintf(buffer,"%s/%s",topath,fromfilename);
-	fs=getValidFilepath(buffer);
-
-	if(fs->modified==true)
-		tofilepath=strdup(fs->filePath);
-	else
-		tofilepath=strdup(buffer);
-
-
-
-	if(fs->modified==true)
-		{
-			doAskForFilename(fs->fileName);
-			if(validName==true)
-				{
-					sprintf(buffer,"%s/%s",fs->dirPath,fileName);
-					if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-						{
-							if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
-								{
-									freefilePathStruct(fs);
-									free(tofilepath);
-									return;
-								}
-						}
-				}
-			else
-				{
-					freefilePathStruct(fs);
-					free(tofilepath);
-					return;
-				}
-		}
-
-	switch(action)
-		{
-			case GDK_ACTION_COPY:
-				asprintf(&command,"cp %s \"%s\" \"%s\"",recursive,frompath,tofilepath);
-				break;
-			case GDK_ACTION_LINK:
-				asprintf(&command,"ln -sv \"%s\" \"%s\"",frompath,tofilepath);
-				break;
-			default:
-				if(strcmp(frompath,tofilepathbuffer)!=0)
-					asprintf(&command,"mv \"%s\" \"%s\"",frompath,tofilepath);
-				break;
-		}
-	if(command!=NULL)
-		{
-			printf("command=%s\n",command);
-			system(command);
-			free(command);
-		}
-	free(tofilepath);
 }
 
 void closeTab(GtkButton *button,pageStruct *page)

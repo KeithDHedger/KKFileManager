@@ -33,29 +33,28 @@ void getValidToPathFromFilepath(filePathStruct *fps)
 	char	*tname;
 	char	*tdir;
 
-	tname=g_path_get_basename(fps->filePath);
-	tdir=g_path_get_dirname(fps->filePath);
+	tname=g_path_get_basename(fps->fromFilePath);
+	tdir=g_path_get_dirname(fps->fromFilePath);
 	getUniqueFilenameOnly(fps);
 
 	if(fps->askFileName==true)
 		{
-			doAskForFilename(fps->fileName);
+			doAskForFilename(fps->toFileName);
 			if(validName==true)
 				{
 					snprintf(tmppathbuffer,PATH_MAX,"%s/%s",fps->toDirPath,fileName);
-					setFilePathStruct(fps,"f",tmppathbuffer);
+					setFilePathStruct(fps,"FN",tmppathbuffer,fileName);
 				}
 			else
 				{
-					snprintf(tmppathbuffer,PATH_MAX,"%s/%s",tdir,tname);
-					setFilePathStruct(fps,"f",tmppathbuffer);
+					setFilePathStruct(fps,"FND",NULL,NULL,NULL);
 					fps->modified=false;
 				}
 		}
 	else
 		{
-			snprintf(tmppathbuffer,PATH_MAX,"%s/%s",fps->toDirPath,fps->fileName);
-			setFilePathStruct(fps,"f",tmppathbuffer);
+			snprintf(tmppathbuffer,PATH_MAX,"%s/%s",fps->toDirPath,fps->fromFileName);
+			setFilePathStruct(fps,"F",tmppathbuffer);
 		}
 
 	free(tname);
@@ -66,11 +65,19 @@ void getValidToPathFromFilepath(filePathStruct *fps)
 format:
 	d=set from dirpath
 	n=set filename
-	f=set filepath
-	t=set to dirpath
+	f=set from filepath
+
+	D=set to dirpath
+	N=set to filename
+	F=set to filepath
+
 	p=set dirname and filename from filepath
 	P=set filepath from dirname and filename
-	T=set filepath from to dirpath and filename
+
+	t=set to dirname and to filename from to filepath
+	T=set to filepath from to dirpath and filename
+
+	c=set to filepath from from filename and to dirpath
 */
 void setFilePathStruct(filePathStruct *fps,const char *format,...)
 {
@@ -85,32 +92,14 @@ void setFilePathStruct(filePathStruct *fps,const char *format,...)
 				{
 					case 'd':
 						modified=true;
-						if(fps->dirPath!=NULL)
-							free(fps->dirPath);
-						fps->dirPath=NULL;
+						if(fps->fromDirPath!=NULL)
+							free(fps->fromDirPath);
+						fps->fromDirPath=NULL;
 						teststr=va_arg(ap,char*);
 						if(teststr!=NULL)
-							fps->dirPath=strdup(teststr);
+							fps->fromDirPath=strdup(teststr);
 						break;
-					case 'n':
-						modified=true;
-						if(fps->fileName!=NULL)
-							free(fps->fileName);
-						fps->fileName=NULL;
-						teststr=va_arg(ap,char*);
-						if(teststr!=NULL)
-							fps->fileName=strdup(teststr);
-						break;
-					case 'f':
-						modified=true;
-						if(fps->filePath!=NULL)
-							free(fps->filePath);
-						fps->filePath=NULL;
-						teststr=va_arg(ap,char*);
-						if(teststr!=NULL)
-							fps->filePath=strdup(teststr);
-						break;
-					case 't':
+					case 'D':
 						modified=true;
 						if(fps->toDirPath!=NULL)
 							free(fps->toDirPath);
@@ -119,33 +108,87 @@ void setFilePathStruct(filePathStruct *fps,const char *format,...)
 						if(teststr!=NULL)
 							fps->toDirPath=strdup(teststr);
 						break;
+					case 'n':
+						modified=true;
+						if(fps->fromFileName!=NULL)
+							free(fps->fromFileName);
+						fps->fromFileName=NULL;
+						teststr=va_arg(ap,char*);
+						if(teststr!=NULL)
+							fps->fromFileName=strdup(teststr);
+						break;
+					case 'N':
+						modified=true;
+						if(fps->toFileName!=NULL)
+							free(fps->toFileName);
+						fps->toFileName=NULL;
+						teststr=va_arg(ap,char*);
+						if(teststr!=NULL)
+							fps->toFileName=strdup(teststr);
+						break;
+					case 'f':
+						modified=true;
+						if(fps->fromFilePath!=NULL)
+							free(fps->fromFilePath);
+						fps->fromFilePath=NULL;
+						teststr=va_arg(ap,char*);
+						if(teststr!=NULL)
+							fps->fromFilePath=strdup(teststr);
+						break;
+					case 'F':
+						modified=true;
+						if(fps->toFilePath!=NULL)
+							free(fps->toFilePath);
+						fps->toFilePath=NULL;
+						teststr=va_arg(ap,char*);
+						if(teststr!=NULL)
+							fps->toFilePath=strdup(teststr);
+						break;
 					case 'p':
 						modified=true;
-						if(fps->dirPath!=NULL)
-							free(fps->dirPath);
-						if(fps->fileName!=NULL)
-							free(fps->fileName);
-						fps->dirPath=g_path_get_dirname(fps->filePath);
-						fps->fileName=g_path_get_basename(fps->filePath);
+						if(fps->fromDirPath!=NULL)
+							free(fps->fromDirPath);
+						if(fps->fromFileName!=NULL)
+							free(fps->fromFileName);
+						fps->fromDirPath=g_path_get_dirname(fps->fromFilePath);
+						fps->fromFileName=g_path_get_basename(fps->fromFilePath);
 						break;
 					case 'P':
 						modified=true;
-						if(fps->filePath!=NULL)
-							free(fps->filePath);
-						asprintf(&fps->filePath,"%s/%s",fps->dirPath,fps->fileName);
+						if(fps->fromFilePath!=NULL)
+							free(fps->fromFilePath);
+						asprintf(&fps->fromFilePath,"%s/%s",fps->fromDirPath,fps->fromFileName);
+						break;
+					case 't':
+						modified=true;
+						if(fps->toDirPath!=NULL)
+							free(fps->toDirPath);
+						if(fps->toFileName!=NULL)
+							free(fps->toFileName);
+						fps->toDirPath=g_path_get_dirname(fps->toFilePath);
+						fps->toFileName=g_path_get_basename(fps->toFilePath);
 						break;
 					case 'T':
 						modified=true;
-						if(fps->filePath!=NULL)
-							free(fps->filePath);
-						asprintf(&fps->filePath,"%s/%s",fps->toDirPath,fps->fileName);
+						if(fps->toFilePath!=NULL)
+							free(fps->toFilePath);
+						asprintf(&fps->toFilePath,"%s/%s",fps->toDirPath,fps->toFileName);
 						break;
+					case 'c':
+						modified=true;
+						if(fps->toFilePath!=NULL)
+							free(fps->toFilePath);
+						asprintf(&fps->toFilePath,"%s/%s",fps->toDirPath,fps->fromFileName);
+						break;
+						
 				}
 		}
 	va_end(ap);
 	fps->modified=modified;
-	if(fps->filePath!=NULL)
-		fps->filePathIsDir=g_file_test(fps->filePath,G_FILE_TEST_IS_DIR);
+	if(fps->fromFilePath!=NULL)
+		fps->fromFilePathIsDir=g_file_test(fps->fromFilePath,G_FILE_TEST_IS_DIR);
+	if(fps->toFilePath!=NULL)
+		fps->toFilePathIsDir=g_file_test(fps->toFilePath,G_FILE_TEST_IS_DIR);
 }
 
 void getUniqueFilenameOnly(filePathStruct *fps)
@@ -155,7 +198,7 @@ void getUniqueFilenameOnly(filePathStruct *fps)
 	char		*namebuffer=(char*)alloca(NAME_MAX+1);
 	bool		modded=false;
 
-	namebuffer=g_path_get_basename(fps->filePath);
+	namebuffer=g_path_get_basename(fps->fromFilePath);
 	snprintf(buffer,PATH_MAX,"%s/%s",fps->toDirPath,namebuffer);
 	cnt=1;
 
@@ -164,14 +207,14 @@ void getUniqueFilenameOnly(filePathStruct *fps)
 			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 				snprintf(buffer,PATH_MAX,"%s/%s %u",fps->toDirPath,namebuffer,cnt++);
 			cnt--;
-			free(fps->fileName);
-			asprintf(&fps->fileName,"%s %u",namebuffer,cnt);
+			free(fps->toFileName);
+			asprintf(&fps->toFileName,"%s %u",namebuffer,cnt);
 			modded=true;
 		}
 	else
 		{
-			free(fps->fileName);
-			asprintf(&fps->fileName,"%s",namebuffer);
+			free(fps->toFileName);
+			asprintf(&fps->toFileName,"%s",namebuffer);
 		}
 
 	fps->modified=modded;
@@ -184,10 +227,10 @@ filePathStruct* getValidFilepath(const char *filepath)
 	filePathStruct	*fs=(filePathStruct*)calloc(1,sizeof(filePathStruct));
 	char			*filename=g_path_get_basename(filepath);
 
-	fs->dirPath=g_path_get_dirname(filepath);
+	fs->fromDirPath=g_path_get_dirname(filepath);
 	fs->modified=false;
 
-	sprintf(buffer,"%s/%s",fs->dirPath,filename);
+	sprintf(buffer,"%s/%s",fs->fromDirPath,filename);
 
 	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 		{
@@ -195,15 +238,15 @@ filePathStruct* getValidFilepath(const char *filepath)
 			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 				{
 					cnt++;
-					sprintf(buffer,"%s/%s-%u",fs->dirPath,filename,cnt);
+					sprintf(buffer,"%s/%s-%u",fs->fromDirPath,filename,cnt);
 				}
 			fs->modified=true;
 		}
 	else
 		sprintf(buffer,"%s",filepath);
 
-	fs->filePath=strdup(buffer);
-	fs->fileName=g_path_get_basename(buffer);
+	fs->fromFilePath=strdup(buffer);
+	fs->fromFileName=g_path_get_basename(buffer);
 	free(filename);
 	return(fs);
 }
@@ -211,14 +254,63 @@ filePathStruct* getValidFilepath(const char *filepath)
 
 void freefilePathStruct(filePathStruct* fs)
 {
-	if(fs->dirPath!=NULL)
-		free(fs->dirPath);
-	if(fs->fileName!=NULL)
-		free(fs->fileName);
-	if(fs->filePath!=NULL)
-		free(fs->filePath);
+	if(fs->fromDirPath!=NULL)
+		free(fs->fromDirPath);
+	if(fs->fromFileName!=NULL)
+		free(fs->fromFileName);
+	if(fs->fromFilePath!=NULL)
+		free(fs->fromFilePath);
 	if(fs->toDirPath!=NULL)
 		free(fs->toDirPath);
 	free(fs);
 }
+
+void doFileAction(filePathStruct *fps,int action)
+{
+//printf("dirPath=%s\n",fps->fromDirPath);
+//printf("fileName=%s\n",fps->fromFileName);
+//printf("filePath=%s\n",fps->fromFilePath);
+//
+//printf("toDirPath=%s\n",fps->toDirPath);
+//printf("toFileName=%s\n",fps->toFileName);
+//printf("toFilePath=%s\n",fps->toFilePath);
+//
+//printf("modified=%i\n",fps->modified);
+//printf("askFileName=%i\n",fps->askFileName);
+//printf("fromFilePathIsDir=%i\n",fps->fromFilePathIsDir);
+//printf("toFilePathIsDir=%i\n",fps->toFilePathIsDir);
+
+	const char	*command;
+	char		*buffer;
+
+	switch(action)
+		{
+			case GDK_ACTION_COPY:
+				if(fps->fromFilePathIsDir==true)
+					command="cp -r";
+				else
+					command="cp";
+				break;
+			case GDK_ACTION_MOVE:
+				command="mv";
+				break;
+			case GDK_ACTION_LINK:
+				command="ln -s";
+				break;
+			default:
+				printf("error\n");
+				return;
+		}
+
+	asprintf(&buffer,"%s \"%s\" \"%s\"",command,fps->fromFilePath,fps->toFilePath);
+	system(buffer);
+	free(buffer);
+}
+
+
+
+
+
+
+
 

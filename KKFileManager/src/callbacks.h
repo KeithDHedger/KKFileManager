@@ -47,6 +47,5 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 
 void doAbout(GtkWidget *widget,gpointer data);
 void externalTool(GtkWidget *widget,gpointer data);
-void fileAction(const char *frompath,const char *topath,bool isdir,int action);
 
 #endif
