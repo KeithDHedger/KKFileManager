@@ -230,11 +230,8 @@ char* oneLiner(const char *command);
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool updatenav,bool force);
 int yesNo(const char *question,char *file);
-char *getUniqueFilename(const char *path);
 int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
-//char* getValidFilepath(const char *filepath);
-
 char *selectionToString(const char *seperator);
 char **selectionToArray(void);
 

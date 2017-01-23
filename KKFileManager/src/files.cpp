@@ -29,16 +29,13 @@
 
 void getValidToPathFromFilepath(filePathStruct *fps)
 {
-	char	*namebuffer=(char*)alloca(NAME_MAX+1);
-	char	*dirbuffer=(char*)alloca(PATH_MAX);
-	char	*pathbuffer=(char*)alloca(PATH_MAX);
 	char	*tmppathbuffer=(char*)alloca(PATH_MAX);
 	char	*tname;
 	char	*tdir;
 
 	tname=g_path_get_basename(fps->filePath);
 	tdir=g_path_get_dirname(fps->filePath);
-	bool modded=getUniqueFilenameOnly(fps);
+	getUniqueFilenameOnly(fps);
 
 	if(fps->askFileName==true)
 		{
@@ -147,20 +144,21 @@ void setFilePathStruct(filePathStruct *fps,const char *format,...)
 		}
 	va_end(ap);
 	fps->modified=modified;
+	if(fps->filePath!=NULL)
+		fps->filePathIsDir=g_file_test(fps->filePath,G_FILE_TEST_IS_DIR);
 }
 
-bool getUniqueFilenameOnly(filePathStruct *fps)
+void getUniqueFilenameOnly(filePathStruct *fps)
 {
 	char		buffer[PATH_MAX+20];
 	unsigned	cnt=0;
 	char		*namebuffer=(char*)alloca(NAME_MAX+1);
 	bool		modded=false;
 
-	//namebuffer=g_path_get_basename(fps->filePath);
 	namebuffer=g_path_get_basename(fps->filePath);
 	snprintf(buffer,PATH_MAX,"%s/%s",fps->toDirPath,namebuffer);
 	cnt=1;
-	printf(">>>%s<<<\n",namebuffer);
+
 	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
 		{
 			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
@@ -176,32 +174,7 @@ bool getUniqueFilenameOnly(filePathStruct *fps)
 			asprintf(&fps->fileName,"%s",namebuffer);
 		}
 
-printf("	fps->fileName=%s\n",fps->fileName);
 	fps->modified=modded;
-	return(modded);
-}
-
-char *getUniqueFilename(const char *path)
-{
-	char		buffer[PATH_MAX+20];
-	unsigned	cnt=0;
-
-	sprintf(buffer,"%s",path);
-	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-		{
-			cnt=0;
-			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-				{
-					cnt++;
-					sprintf(buffer,"%s %u",path,cnt);
-				}
-		}
-	else
-		{
-			sprintf(buffer,"%s",path);
-		}
-	return(strdup(buffer));
-
 }
 
 filePathStruct* getValidFilepath(const char *filepath)
@@ -238,9 +211,14 @@ filePathStruct* getValidFilepath(const char *filepath)
 
 void freefilePathStruct(filePathStruct* fs)
 {
-	free(fs->dirPath);
-	free(fs->fileName);
-	free(fs->filePath);
+	if(fs->dirPath!=NULL)
+		free(fs->dirPath);
+	if(fs->fileName!=NULL)
+		free(fs->fileName);
+	if(fs->filePath!=NULL)
+		free(fs->filePath);
+	if(fs->toDirPath!=NULL)
+		free(fs->toDirPath);
 	free(fs);
 }
 

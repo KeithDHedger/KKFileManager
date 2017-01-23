@@ -32,11 +32,12 @@ struct	filePathStruct
 	char	*toDirPath;
 	bool	modified;
 	bool	askFileName;
+	bool	filePathIsDir;
 };
 
 
 void getValidToPathFromFilepath(filePathStruct *fps);
-bool getUniqueFilenameOnly(filePathStruct *fps);
+void getUniqueFilenameOnly(filePathStruct *fps);
 void setFilePathStruct(filePathStruct *fps,const char *format,...);
 void freefilePathStruct(filePathStruct* fs);
 filePathStruct* getValidFilepath(const char *filepath);

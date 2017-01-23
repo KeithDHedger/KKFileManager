@@ -56,6 +56,8 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	filePathStruct	*fs;
 	int				cnt;
 	char			*stringlist;
+	filePathStruct	fps={NULL,NULL,NULL,NULL,false,false,false};
+	const char		*recursive;
 
 	switch(ctx->id)
 		{
@@ -162,23 +164,15 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 						cnt=0;
 						while((array[cnt]!=NULL) && (strlen(array[cnt])>0))
 							{
-								fs=getValidFilepath(array[cnt]);
-								doAskForFilename(fs->fileName);
-								if(validName==true)
-									{
-										sprintf(buffer,"%s/%s",fs->dirPath,fileName);
-										if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-											{
-												if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
-													{
-														freefilePathStruct(fs);
-														continue;
-													}
-											}
-										sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",array[cnt],fs->dirPath,fileName);
-										system(buffer);
-									}
-								freefilePathStruct(fs);
+								setFilePathStruct(&fps,"ft",array[cnt],ctx->page->thisFolder);
+								fps.askFileName=false;
+								if(fps.filePathIsDir==true)
+									recursive="-r";
+								else
+									recursive="";
+								getValidToPathFromFilepath(&fps);
+								sprintf(buffer,"cp %s \"%s\" \"%s\"",recursive,array[cnt],fps.filePath);
+								system(buffer);
 								cnt++;
 							}
 						g_strfreev(array);
