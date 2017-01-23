@@ -945,6 +945,10 @@ void buidMainGui(const char *startdir)
 	gtk_window_set_default_size(GTK_WINDOW(mainWindow),windowWidth,windowHeight);
 	if(windowX!=-1 && windowY!=-1)
 		gtk_window_move((GtkWindow *)mainWindow,windowX,windowY);
+
+	gtk_window_set_default_icon_name(PACKAGE);
+	gtk_window_set_icon_name((GtkWindow*)mainWindow,PACKAGE);
+
 	g_signal_connect(G_OBJECT(mainWindow),"delete-event",G_CALLBACK(doShutdown),NULL);
 	accgroup=gtk_accel_group_new();
 	gtk_window_add_accel_group((GtkWindow*)mainWindow,accgroup);

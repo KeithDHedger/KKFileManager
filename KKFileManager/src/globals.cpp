@@ -235,29 +235,6 @@ int yesNo(const char *question,char *file)
 	return(result);
 }
 
-char *getUniqueFilename(const char *path)
-{
-	char		buffer[PATH_MAX+20];
-	unsigned	cnt=0;
-
-	sprintf(buffer,"%s",path);
-	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-		{
-			cnt=0;
-			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-				{
-					cnt++;
-					sprintf(buffer,"%s %u",path,cnt);
-				}
-		}
-	else
-		{
-			sprintf(buffer,"%s",path);
-		}
-	return(strdup(buffer));
-
-}
-
 varStrings* allocVStrings(char *string)
 {
 	int	namelen=0;
@@ -445,45 +422,6 @@ void writeExitData(void)
 			fclose(fp);
 		}
 	free(filename);
-}
-
-filePathStruct* getValidFilepath(const char *filepath)
-{
-	char			buffer[PATH_MAX];
-	unsigned		cnt;
-	filePathStruct	*fs=(filePathStruct*)calloc(1,sizeof(filePathStruct));
-	char			*filename=g_path_get_basename(filepath);
-
-	fs->dirPath=g_path_get_dirname(filepath);
-	fs->modified=false;
-
-	sprintf(buffer,"%s/%s",fs->dirPath,filename);
-
-	if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-		{
-			cnt=0;
-			while(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-				{
-					cnt++;
-					sprintf(buffer,"%s/%s-%u",fs->dirPath,filename,cnt);
-				}
-			fs->modified=true;
-		}
-	else
-		sprintf(buffer,"%s",filepath);
-
-	fs->filePath=strdup(buffer);
-	fs->fileName=g_path_get_basename(buffer);
-	free(filename);
-	return(fs);
-}
-
-void freefilePathStruct(filePathStruct* fs)
-{
-	free(fs->dirPath);
-	free(fs->fileName);
-	free(fs->filePath);
-	free(fs);
 }
 
 char *selectionToString(const char *seperator)

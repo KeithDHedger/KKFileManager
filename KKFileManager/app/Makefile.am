@@ -23,8 +23,9 @@ docfilesdir = $(pkgdatadir)$(GTK3SUFFIX)/docs
 docfiles_DATA = ../resources/docs/*
 
 install-exec-hook:
-	mkdir -vp $(DESTDIR)/usr/share/applications||true
+	mkdir -vp $(DESTDIR)/usr/share/applications $(DESTDIR)${prefix}/share/icons/hicolor/128x128/apps ||true
 	cp ../resources/pixmaps/KKFileManager.desktop $(DESTDIR)/usr/share/applications/KKFileManager.desktop
+	ln -sf $(pkgdatadir)/pixmaps/KKFileManager.png $(DESTDIR)${prefix}/share/icons/hicolor/128x128/apps/KKFileManager.png
 
 uninstall-hook:
 	rm -f $(DESTDIR)/usr/share/applications/KKFileManager.desktop

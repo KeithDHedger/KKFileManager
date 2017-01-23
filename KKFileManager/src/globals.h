@@ -38,6 +38,7 @@
 #include "dialogs.h"
 #include "history.h"
 #include "internet.h"
+#include "files.h"
 
 #ifdef _USEGTK3_
 //menus
@@ -92,14 +93,6 @@ struct varStrings
 {
 	char		*name;
 	char		*data;
-};
-
-struct	filePathStruct
-{
-	char	*dirPath;
-	char	*fileName;
-	char	*filePath;
-	bool	modified;
 };
 
 struct toolStruct
@@ -241,8 +234,7 @@ char *getUniqueFilename(const char *path);
 int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
 //char* getValidFilepath(const char *filepath);
-filePathStruct* getValidFilepath(const char *filepath);
-void freefilePathStruct(filePathStruct* fs);
+
 char *selectionToString(const char *seperator);
 char **selectionToArray(void);
 
