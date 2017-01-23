@@ -267,19 +267,6 @@ void freefilePathStruct(filePathStruct* fs)
 
 void doFileAction(filePathStruct *fps,int action)
 {
-//printf("dirPath=%s\n",fps->fromDirPath);
-//printf("fileName=%s\n",fps->fromFileName);
-//printf("filePath=%s\n",fps->fromFilePath);
-//
-//printf("toDirPath=%s\n",fps->toDirPath);
-//printf("toFileName=%s\n",fps->toFileName);
-//printf("toFilePath=%s\n",fps->toFilePath);
-//
-//printf("modified=%i\n",fps->modified);
-//printf("askFileName=%i\n",fps->askFileName);
-//printf("fromFilePathIsDir=%i\n",fps->fromFilePathIsDir);
-//printf("toFilePathIsDir=%i\n",fps->toFilePathIsDir);
-
 	const char	*command;
 	char		*buffer;
 
@@ -307,7 +294,21 @@ void doFileAction(filePathStruct *fps,int action)
 	free(buffer);
 }
 
+void printfilestruct(filePathStruct *fps)
+{
+printf("dirPath=%s\n",fps->fromDirPath);
+printf("fileName=%s\n",fps->fromFileName);
+printf("filePath=%s\n",fps->fromFilePath);
 
+printf("toDirPath=%s\n",fps->toDirPath);
+printf("toFileName=%s\n",fps->toFileName);
+printf("toFilePath=%s\n",fps->toFilePath);
+
+printf("modified=%i\n",fps->modified);
+printf("askFileName=%i\n",fps->askFileName);
+printf("fromFilePathIsDir=%i\n",fps->fromFilePathIsDir);
+printf("toFilePathIsDir=%i\n",fps->toFilePathIsDir);
+}
 
 
 

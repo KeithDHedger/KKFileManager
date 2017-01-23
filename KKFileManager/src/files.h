@@ -40,6 +40,7 @@ struct	filePathStruct
 	bool	toFilePathIsDir;
 };
 
+void printfilestruct(filePathStruct *fps);
 
 void getValidToPathFromFilepath(filePathStruct *fps);
 void getUniqueFilenameOnly(filePathStruct *fps);

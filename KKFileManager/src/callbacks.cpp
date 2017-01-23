@@ -58,6 +58,8 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	char			*stringlist;
 	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
 	const char		*recursive;
+	char			**selectarray=NULL;
+	GList			*iconlist;
 
 	switch(ctx->id)
 		{
@@ -66,23 +68,14 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				command="touch";
 			case CONTEXTNEWFOLDER:
 				sprintf(buffer,"%s/New %s",ctx->page->thisFolder,type);
-				fs=getValidFilepath(buffer);
-				doAskForFilename(fs->fromFileName);
-				if(validName==true)
+				setFilePathStruct(&fps,"fD",buffer,ctx->page->thisFolder);
+				fps.askFileName=true;
+				getValidToPathFromFilepath(&fps);
+				if(fps.modified==true)
 					{
-						sprintf(buffer,"%s/%s",fs->fromDirPath,fileName);
-						if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
-							{
-								if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
-									{
-										freefilePathStruct(fs);
-										return;
-									}
-							}
-						sprintf(buffer,"%s \"%s/%s\"",command,fs->fromDirPath,fileName);
+						sprintf(buffer,"%s \"%s\"",command,fps.toFilePath);
 						system(buffer);
 					}
-				freefilePathStruct(fs);
 				break;
 			case CONTEXTBMNEW:
 				gtk_list_store_append(bmList,&iter);
@@ -108,27 +101,25 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				free(path);
 				break;
 			case CONTEXTDUP:
-				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
-				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-
-				fs=getValidFilepath(path);
-				doAskForFilename(fs->fromFileName);
-				if(validName==true)
+				iconlist=gtk_icon_view_get_selected_items(ctx->page->iconView);
+				if(iconlist!=NULL)
 					{
-						sprintf(buffer,"%s/%s",fs->fromDirPath,fileName);
-						if(g_file_test(buffer,G_FILE_TEST_EXISTS)==true)
+						while(iconlist!=NULL)
 							{
-								if(yesNo("Really Overwite",buffer)==GTK_RESPONSE_CANCEL)
+								gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,(GtkTreePath*)iconlist->data);
+								gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,-1);
+								if(path!=NULL)
 									{
-										freefilePathStruct(fs);
-										return;
+										setFilePathStruct(&fps,"fDp",path,ctx->page->thisFolder);
+										fps.askFileName=true;
+										getValidToPathFromFilepath(&fps);
+										if(fps.modified==true)
+											doFileAction(&fps,GDK_ACTION_COPY);
+										free(path);
 									}
+								iconlist=iconlist->next;
 							}
-						sprintf(buffer,"cp -r \"%s\" \"%s/%s\"",path,fs->fromDirPath,fileName);
-						printf("buffer=>%s<\n",buffer);
-						system(buffer);
 					}
-				freefilePathStruct(fs);
 				break;
 			case CONTEXTEXTRACT:
 				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
@@ -164,15 +155,12 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 						cnt=0;
 						while((array[cnt]!=NULL) && (strlen(array[cnt])>0))
 							{
-								setFilePathStruct(&fps,"ft",array[cnt],ctx->page->thisFolder);
-								fps.askFileName=false;
-								if(fps.fromFilePathIsDir==true)
-									recursive="-r";
-								else
-									recursive="";
+							
+								setFilePathStruct(&fps,"fDp",array[cnt],ctx->page->thisFolder);
+								fps.askFileName=true;
 								getValidToPathFromFilepath(&fps);
-								sprintf(buffer,"cp %s \"%s\" \"%s\"",recursive,array[cnt],fps.fromFilePath);
-								system(buffer);
+								if(fps.modified==true)
+									doFileAction(&fps,GDK_ACTION_COPY);
 								cnt++;
 							}
 						g_strfreev(array);
@@ -371,7 +359,8 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 					setFilePathStruct(&fps,"fDp",filepath,page->thisFolder);
 					fps.askFileName=true;
 					getValidToPathFromFilepath(&fps);
-					doFileAction(&fps,gdk_drag_context_get_suggested_action(context));
+					if(fps.modified==true)
+						doFileAction(&fps,gdk_drag_context_get_suggested_action(context));
 					free(filepath);
 					cnt++;
 				}
