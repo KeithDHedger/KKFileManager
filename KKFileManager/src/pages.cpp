@@ -28,7 +28,10 @@ unsigned getPageIdFromTabNum(int tabnum)
 	GtkWidget	*widg;
 	widg=gtk_notebook_get_nth_page(mainNotebook,tabnum);
 
-	return((unsigned)(long)g_object_get_data((GObject*)widg,"pageid"));
+	if(widg==NULL)
+		return(0);
+	else
+		return((unsigned)(long)g_object_get_data((GObject*)widg,"pageid"));
 }
 
 unsigned getPageIdFromTab(void)
@@ -36,7 +39,10 @@ unsigned getPageIdFromTab(void)
 	GtkWidget	*widg;
 	widg=gtk_notebook_get_nth_page(mainNotebook,gtk_notebook_get_current_page(mainNotebook));
 
-	return((unsigned)(long)g_object_get_data((GObject*)widg,"pageid"));
+	if(widg==NULL)
+		return(0);
+	else
+		return((unsigned)(long)g_object_get_data((GObject*)widg,"pageid"));
 }
 
 pageStruct *getPageStructByIDFromList(unsigned pageid)
@@ -53,6 +59,11 @@ pageStruct *getPageStructByIDFromList(unsigned pageid)
 			list=list->next;
 		}			
 	return(NULL);
+}
+
+pageStruct *getPageFromCurrentTab(void)
+{
+	return(getPageStructByIDFromList(getPageIdFromTab()));
 }
 
 void addNewPage(char *startdir)

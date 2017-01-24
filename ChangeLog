@@ -1,4 +1,6 @@
 0.0.4
+Fixed recursive bug while monitoring folder.
+Drop items onto folder now puts them in that folder.
 Standardising copy/paste/dup/dnd etc.
 Redone d'n'd to allow dragging and droping outside of app.
 External tools can now be in the main tools menu, the popup menu or both.

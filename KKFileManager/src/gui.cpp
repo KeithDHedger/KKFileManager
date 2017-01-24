@@ -417,12 +417,12 @@ void populatePageStore(pageStruct *page)
 					setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
 					cnt++;
 					if(cnt>LOADICONCNT)
-					{
-						page->fp=fp;
-						page->doLoop=true;
-						g_timeout_add(50,loadFiles,(gpointer)page);
-						break;
-					}
+						{
+							page->fp=fp;
+							page->doLoop=true;
+							g_timeout_add(50,loadFiles,(gpointer)page);
+							break;
+						}
 				}
 		}
 	free(command);

@@ -28,6 +28,8 @@
 
 GtkWidget	*tabMenu=NULL;
 GtkWidget	*bmContextMenu=NULL;
+char		*dropPath=NULL;
+
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
@@ -37,6 +39,8 @@ void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitor
 			case G_FILE_MONITOR_EVENT_UNMOUNTED:
 				closeTab(NULL,page);
 				updateDiskList();
+				break;
+			case  G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
 				break;
 			default:
 				populatePageStore(page);
@@ -53,12 +57,9 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	gboolean		isdir;
 	int				result=0;
 	char			*output=NULL;
-	filePathStruct	*fs;
 	int				cnt;
 	char			*stringlist;
 	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
-	const char		*recursive;
-	char			**selectarray=NULL;
 	GList			*iconlist;
 
 	switch(ctx->id)
@@ -155,7 +156,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 						cnt=0;
 						while((array[cnt]!=NULL) && (strlen(array[cnt])>0))
 							{
-							
 								setFilePathStruct(&fps,"fDp",array[cnt],ctx->page->thisFolder);
 								fps.askFileName=true;
 								getValidToPathFromFilepath(&fps);
@@ -299,11 +299,29 @@ void doDragEnd(GtkWidget *widget,GdkDragContext *context,pageStruct *page)
 
 gboolean dragDrop(GtkWidget *widget,GdkDragContext *context,gint x,gint y,guint time,gpointer user_data)
 {
-	GtkTargetList *targetlist;
-	GdkAtom target;
+	GtkTargetList	*targetlist;
+	GdkAtom			target;
+    GtkTreePath		*treepath;
+	GtkTreeIter		iter;
+	pageStruct		*page=NULL;
 
 	g_print("<<< DRAG DROP >>>\n");
 
+
+	if(dropPath!=NULL)
+		free(dropPath);
+	dropPath=NULL;
+	page=getPageFromCurrentTab();
+	if(page!=NULL)
+		{
+			treepath=gtk_icon_view_get_path_at_pos(page->iconView,x,y);
+			if(treepath!=NULL)
+				{
+					gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,treepath);
+					gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&dropPath,-1);
+				}
+		}
+	
 	targetlist=gtk_drag_dest_get_target_list(widget);
 	target=gtk_drag_dest_find_target(widget,context,targetlist);
 	if (target==GDK_NONE)
@@ -325,6 +343,8 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 	char			*filepath=NULL;
 	pageStruct		*page;
 	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
+
+	char			*usethisdroppath=NULL;
 
 	page=(pageStruct*)user_data;
 	if(page==NULL)
@@ -351,12 +371,18 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 				}
 
 			cnt=0;
+			if(dropPath!=NULL)
+				usethisdroppath=dropPath;
+			else
+				usethisdroppath=page->thisFolder;
+
 			while(uris[cnt]!=NULL)
 				{
 					filepath=g_filename_from_uri(uris[cnt],NULL,NULL);
 					result=true;
 
-					setFilePathStruct(&fps,"fDp",filepath,page->thisFolder);
+					//setFilePathStruct(&fps,"fDp",filepath,page->thisFolder);
+					setFilePathStruct(&fps,"fDp",filepath,usethisdroppath);
 					fps.askFileName=true;
 					getValidToPathFromFilepath(&fps);
 					if(fps.modified==true)

@@ -255,7 +255,6 @@ void appStart(GApplication  *application,gpointer data)
 	g_timeout_add(1000,checkDisks,NULL);
 }
 
-
 int main(int argc,char **argv)
 {
 	char			*origpath=NULL;
@@ -278,31 +277,6 @@ int main(int argc,char **argv)
 	g_option_context_parse(context,&argc,&argv,NULL);
 
 	gtk_init(&argc,&argv);
-	
-//	filePathStruct fp={NULL,NULL,NULL,NULL,false,false};
-////setFilePathStruct(filePathStruct *fps,const char *dirpath,const char *filename,const char *filepath,const char *todirpath,bool mod)
-////	setFilePathStruct(&fp,"","","/tmp/conky.log","/tmp/aaa",false);
-//	setFilePathStruct(&fp,"ftp","/tmp/conky.log","/tmp/aaa");
-//	fp.askFileName=true;
-//
-//printf(">>>>>\n");
-//printf("dirPath=%s\n",fp.dirPath);
-//printf("fileName=%s\n",fp.fileName);
-//printf("filePath=%s\n",fp.filePath);
-//printf("toDirPath=%s\n",fp.toDirPath);
-//printf("modified=%i\n",fp.modified);
-//printf("<<<<\n");
-////return(0);
-//	getValidToPathFromFilepath(&fp);
-//printf(">>>>>\n");
-//printf("dirPath=%s\n",fp.dirPath);
-//printf("fileName=%s\n",fp.fileName);
-//printf("filePath=%s\n",fp.filePath);
-//printf("toDirPath=%s\n",fp.toDirPath);
-//printf("modified=%i\n",fp.modified);
-//printf("<<<<\n");
-//
-//return(0);
 
 	if(sessionID==-1)
 		sinkReturn=asprintf(&dbusname,"org.keithhedger%i." APPEXECNAME,getWorkspaceNumber());

@@ -53,5 +53,6 @@ pageStruct *getPageStructByIDFromList(unsigned pageid);
 void addNewPage(char *startdir);
 void monitorFolderForPage(pageStruct *page);
 void flushFolderBuffer(pageStruct *page);
+pageStruct *getPageFromCurrentTab(void);
 
 #endif
