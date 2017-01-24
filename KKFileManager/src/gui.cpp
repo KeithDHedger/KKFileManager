@@ -388,18 +388,30 @@ void populatePageStore(pageStruct *page)
 	char		*command;
 	char		buffer[2048];
 	int			cnt=0;
-	const char	*hidden;
 
 	flushFolderBuffer(page);
-
-	if(showHidden==false)
-		hidden="-not -path '*/\\.*'";
-	else
-		hidden="";
-
 	gtk_list_store_clear(page->listStore);
-//	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow %s|sort",page->thisFolder,hidden);
+
+	if(showHidden==true)
+		{
+			asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -iname '.*'|sort",page->thisFolder);
+			fp=popen(command,"r");
+			if(fp!=NULL)
+				{
+					while(fgets(buffer,2048,fp))
+						{
+							if(strlen(buffer)>0)
+								buffer[strlen(buffer)-1]=0;
+							pixbuf=getPixBuf(buffer);
+							setNewPagePixbuf(pixbuf,basename(buffer),buffer,true,page);
+							cnt++;
+						}
+					pclose(fp);
+				}
+			free(command);
+		}
+
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -iname '.*'|sort",page->thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -414,8 +426,26 @@ void populatePageStore(pageStruct *page)
 			pclose(fp);
 		}
 	free(command);
-//	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow %s|sort",page->thisFolder,hidden);
+
+	if(showHidden==true)
+		{
+			asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -iname '.*'|sort",page->thisFolder);
+			
+			fp=popen(command,"r");
+			if(fp!=NULL)
+				{
+					while(fgets(buffer,2048,fp))
+						{
+							if(strlen(buffer)>0)
+								buffer[strlen(buffer)-1]=0;
+							pixbuf=getPixBuf(buffer);
+							setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
+						}
+				}
+			free(command);
+		}
+
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -iname '.*'|sort",page->thisFolder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
