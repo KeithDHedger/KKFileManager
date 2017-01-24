@@ -1,4 +1,5 @@
 0.0.4
+Added show/hide hidden to context menu.
 Fixed recursive bug while monitoring folder.
 Drop items onto folder now puts them in that folder.
 Standardising copy/paste/dup/dnd etc.

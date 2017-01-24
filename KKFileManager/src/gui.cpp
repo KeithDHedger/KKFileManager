@@ -46,6 +46,8 @@ menuDataStruct	menuData[]=
 		{"Extract",GTK_STOCK_CONVERT,0,0,NULL,"extractmenu",NULL},
 		{"Copy",GTK_STOCK_COPY,0,0,NULL,"copymenu",NULL},
 		{"Paste",GTK_STOCK_PASTE,0,0,NULL,"pastemenu",NULL},
+		{"Show 'Dot' Files",GTK_STOCK_ZOOM_100,0,0,NULL,"hidemenu",NULL},
+		{"Hide 'Dot' Files",GTK_STOCK_ZOOM_100,0,0,NULL,"showmenu",NULL},
 //disk context
 		{"Mount",GTK_STOCK_HARDDISK,0,0,NULL,"mountdiskmenu",NULL},
 		{"Un-Mount",GTK_STOCK_HARDDISK,0,0,NULL,"unmountdiskmenu",NULL},
@@ -386,11 +388,18 @@ void populatePageStore(pageStruct *page)
 	char		*command;
 	char		buffer[2048];
 	int			cnt=0;
+	const char	*hidden;
 
 	flushFolderBuffer(page);
 
+	if(showHidden==false)
+		hidden="-not -path '*/\\.*'";
+	else
+		hidden="";
+
 	gtk_list_store_clear(page->listStore);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
+//	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow %s|sort",page->thisFolder,hidden);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -405,7 +414,8 @@ void populatePageStore(pageStruct *page)
 			pclose(fp);
 		}
 	free(command);
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
+//	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -path '*/\\.*'|sort",page->thisFolder);
+	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow %s|sort",page->thisFolder,hidden);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{

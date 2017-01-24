@@ -195,6 +195,7 @@ extern char				*toolBarLayout;
 extern char				*diskIncludePattern;
 extern char				*diskExcludePattern;
 extern char				*terminalCommand;
+extern bool				showHidden;
 
 //save and load var lists
 extern char				*windowAllocData;

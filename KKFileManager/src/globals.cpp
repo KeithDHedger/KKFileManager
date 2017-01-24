@@ -119,6 +119,7 @@ char			*toolBarLayout=NULL;
 char			*diskIncludePattern=NULL;
 char			*diskExcludePattern=NULL;
 char			*terminalCommand=NULL;
+bool			showHidden=false;
 
 //save and load var lists
 char			*windowAllocData=NULL;

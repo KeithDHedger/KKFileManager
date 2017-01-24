@@ -24,5 +24,6 @@
 
 void setUpToolBar(void);
 void goNew(GtkWidget *widget,gpointer data);
+void refreshView(GtkWidget *widget,gpointer data);
 
 #endif

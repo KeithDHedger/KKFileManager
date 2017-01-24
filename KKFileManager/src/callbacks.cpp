@@ -167,6 +167,11 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					}
 				free(path);
 				break;
+			case CONTEXTSHOW:
+			case CONTEXTHIDE:
+				showHidden=!showHidden;
+				refreshView(NULL,NULL);
+				break;
 			default:
 				printf("unknown\n");
 		}
@@ -534,6 +539,21 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTPASTE]->page=page;
 					contextMenus[CONTEXTPASTE]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTPASTE]);
+//toggle show hidden
+					if(showHidden==false)
+						{
+							menuitem=newImageMenuItem(CONTEXTSHOW,tabMenu);
+							contextMenus[CONTEXTSHOW]->page=page;
+							contextMenus[CONTEXTSHOW]->treepath=treepath;
+							g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTSHOW]);
+						}
+					else
+						{
+							menuitem=newImageMenuItem(CONTEXTHIDE,tabMenu);
+							contextMenus[CONTEXTHIDE]->page=page;
+							contextMenus[CONTEXTHIDE]->treepath=treepath;
+							g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTHIDE]);
+						}
 //new bm
 					menuitem=newImageMenuItem(CONTEXTBMNEW,tabMenu);
 					contextMenus[CONTEXTBMNEW]->page=page;
