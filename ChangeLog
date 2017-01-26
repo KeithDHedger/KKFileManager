@@ -1,4 +1,5 @@
 0.0.4
+Sped up loading of icons in folder with large number of entries, eg '/usr/bin'.
 Now sorts '.' files first.
 Added show/hide hidden to context menu.
 Fixed recursive bug while monitoring folder.
