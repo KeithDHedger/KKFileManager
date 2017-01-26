@@ -45,6 +45,12 @@ struct pageStruct
 	guint				selectsignal;
 	GList				*fList;
 	GList				*bList;
+	int					fileCnt;
+	int					fileType;
+	int					uptoHere;
+	int					fromHere;
+	struct dirent		**fileList;
+
 };
 
 unsigned getPageIdFromTabNum(int tabnum);

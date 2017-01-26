@@ -122,15 +122,11 @@ void monitorFolderForPage(pageStruct *page)
 
 void flushFolderBuffer(pageStruct *page)
 {
-	char	buffer[2048];
-
-	if(page->fp!=NULL)
-		{
-			while(fgets(buffer,2048,page->fp));
-			pclose(page->fp);
-		}
-	page->fp=NULL;
-	page->doLoop=false;
+	if(page==NULL)
+		return;
+	for(int j=0;j<page->fileCnt;j++)
+		free(page->fileList[j]);
+	free(page->fileList);
 }
 
 

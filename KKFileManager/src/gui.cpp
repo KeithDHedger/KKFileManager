@@ -24,6 +24,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
+#include <dirent.h>
 
 #include "globals.h"
 
@@ -336,161 +337,196 @@ GdkPixbuf* getPixBuf(const char *file)
 	return(pb);
 }
 
-gboolean loadFiles(gpointer data)
+inline bool ignoredots(const char *ptr)
 {
-	char		buffer[2048];
+	if(ptr==NULL)
+		return(false);
+
+	if(ptr[0]==0)
+		return(false);
+
+	if((ptr[1]==0) && (ptr[0]=='.'))
+		return(false);
+
+	if((ptr[0]=='.') && (ptr[1]=='.') && (ptr[2]==0))
+		return(false);
+
+	return(true);
+
+}
+
+gboolean loadFilesDir(gpointer data)
+{
 	GdkPixbuf	*pixbuf;
+	char		buffer[PATH_MAX];
 	pageStruct	*page=(pageStruct*)data;
 
-	if(page->fp==NULL)
+	while(gtk_events_pending())
+		gtk_main_iteration();
+
+	switch(page->fileType)
 		{
-			page->doLoop=false;
-			return(false);
+			case 0:
+				if(showHidden==false)
+					{
+						page->fileType++;
+						page->fromHere=0;
+						page->uptoHere=LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+						break;
+					}
+
+				for(int j=page->fromHere;j<page->uptoHere;j++)
+					{
+						if(page->fileList[j]->d_type==DT_DIR)
+							if(ignoredots(page->fileList[j]->d_name)==true)
+								{
+									if(page->fileList[j]->d_name[0]=='.')
+										{
+											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+											pixbuf=getPixBuf(buffer);
+											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
+										}
+								}
+					}
+				if(page->uptoHere==page->fileCnt)
+					{
+						page->fileType++;
+						page->fromHere=0;
+						page->uptoHere=LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+				else
+					{
+						page->fromHere=page->uptoHere;
+						page->uptoHere=page->uptoHere+LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+				break;
+			case 1:
+				for(int j=page->fromHere;j<page->uptoHere;j++)
+					{
+						if(page->fileList[j]->d_type==DT_DIR)
+							if(ignoredots(page->fileList[j]->d_name)==true)
+								{
+									if(page->fileList[j]->d_name[0]!='.')
+										{
+											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+											pixbuf=getPixBuf(buffer);
+											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
+										}
+								}
+					}
+				if(page->uptoHere==page->fileCnt)
+					{
+						page->fileType++;
+						page->fromHere=0;
+						page->uptoHere=LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+				else
+					{
+						page->fromHere=page->uptoHere;
+						page->uptoHere=page->uptoHere+LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+			break;
+
+			case 2:
+				if(showHidden==false)
+					{
+						page->fileType++;
+						page->fromHere=0;
+						page->uptoHere=LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+						break;
+					}
+				for(int j=page->fromHere;j<page->uptoHere;j++)
+					{
+						if(page->fileList[j]->d_type!=DT_DIR)
+							if(ignoredots(page->fileList[j]->d_name)==true)
+								{
+									if(page->fileList[j]->d_name[0]=='.')
+										{
+											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+											pixbuf=getPixBuf(buffer);
+											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
+										}
+								}
+					}
+				if(page->uptoHere==page->fileCnt)
+					{
+						page->fileType++;
+						page->fromHere=0;
+						page->uptoHere=LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+				else
+					{
+						page->fromHere=page->uptoHere;
+						page->uptoHere=page->uptoHere+LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+				break;
+
+			case 3:
+				for(int j=page->fromHere;j<page->uptoHere;j++)
+					{
+						if(page->fileList[j]->d_type!=DT_DIR)
+							if(ignoredots(page->fileList[j]->d_name)==true)
+								{
+									if(page->fileList[j]->d_name[0]!='.')
+										{
+											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+											pixbuf=getPixBuf(buffer);
+											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
+										}
+								}
+					}
+				if(page->uptoHere==page->fileCnt)
+					{
+						page->fileType++;
+						return(false);
+					}
+				else
+					{
+						page->fromHere=page->uptoHere;
+						page->uptoHere=page->uptoHere+LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+				break;
 		}
 
-	if(page->doLoop==false)
-		{
-			pclose(page->fp);
-			page->fp=NULL;
-			return(false);
-		}
-
-	if(page==NULL)
-		{
-			pclose(page->fp);
-			page->fp=NULL;
-			page->doLoop=false;
-			return(false);
-		}
-
-	for(int j=0;j<LOADICONCNT;j++)
-		{
-			if(fgets(buffer,2048,page->fp))
-				{
-					if(strlen(buffer)>0)
-						buffer[strlen(buffer)-1]=0;
-					pixbuf=getPixBuf(buffer);
-					setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
-				}
-			else
-				{
-					page->doLoop=false;
-					return(true);
-				}
-		}
 	return(true);
 }
 
 void populatePageStore(pageStruct *page)
 {
-	GdkPixbuf	*pixbuf;
-	FILE		*fp=NULL;
-	char		*command;
-	char		buffer[2048];
-	int			cnt=0;
+	if(page==NULL)
+		return;
 
 	flushFolderBuffer(page);
 	gtk_list_store_clear(page->listStore);
 
-	if(showHidden==true)
-		{
-			asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -iname '.*'|sort",page->thisFolder);
-			fp=popen(command,"r");
-			if(fp!=NULL)
-				{
-					while(fgets(buffer,2048,fp))
-						{
-							if(strlen(buffer)>0)
-								buffer[strlen(buffer)-1]=0;
-							pixbuf=getPixBuf(buffer);
-							setNewPagePixbuf(pixbuf,basename(buffer),buffer,true,page);
-							cnt++;
-						}
-					pclose(fp);
-				}
-			free(command);
-		}
+	page->fileCnt=scandir(page->thisFolder,&page->fileList,0,alphasort);
+	page->fileType=0;
+	page->fromHere=0;
+	page->uptoHere=LOADICONCNT;
+	if(page->uptoHere > page->fileCnt)
+		page->uptoHere=page->fileCnt;
 
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -type d -follow -not -iname '.*'|sort",page->thisFolder);
-	fp=popen(command,"r");
-	if(fp!=NULL)
-		{
-			while(fgets(buffer,2048,fp))
-				{
-					if(strlen(buffer)>0)
-						buffer[strlen(buffer)-1]=0;
-					pixbuf=getPixBuf(buffer);
-					setNewPagePixbuf(pixbuf,basename(buffer),buffer,true,page);
-					cnt++;
-				}
-			pclose(fp);
-		}
-	free(command);
-
-	if(showHidden==true)
-		{
-			asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -iname '.*'|sort",page->thisFolder);
-			
-			fp=popen(command,"r");
-			if(fp!=NULL)
-				{
-					while(fgets(buffer,2048,fp))
-						{
-							if(strlen(buffer)>0)
-								buffer[strlen(buffer)-1]=0;
-							pixbuf=getPixBuf(buffer);
-							setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
-						}
-				}
-			free(command);
-		}
-
-	asprintf(&command,"find \"%s\" -maxdepth 1 -mindepth 1 -not -type d -follow -not -iname '.*'|sort",page->thisFolder);
-	fp=popen(command,"r");
-	if(fp!=NULL)
-		{
-			while(fgets(buffer,2048,fp))
-				{
-					if(strlen(buffer)>0)
-						buffer[strlen(buffer)-1]=0;
-					pixbuf=getPixBuf(buffer);
-					setNewPagePixbuf(pixbuf,basename(buffer),buffer,false,page);
-					cnt++;
-					if(cnt>LOADICONCNT)
-						{
-							page->fp=fp;
-							page->doLoop=true;
-							g_timeout_add(50,loadFiles,(gpointer)page);
-							break;
-						}
-				}
-		}
-	free(command);
+	g_timeout_add(10,loadFilesDir,(gpointer)page);
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);
 }
-
-/*
-GtkTreeSelection  *selection;
-
-    ...
-
-    view = gtk_tree_view_new();
-
-    ...
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-
-    gtk_tree_selection_set_select_function(selection, view_selection_func, NULL, NULL);
-*/ 
-//void rochanged (GtkTreeModel *tree_model,
-//               GtkTreePath  *path,
-//               GtkTreeIter  *iter,
-//               gpointer      user_data)
-//{
-//printf("row changed\n");
-//}
-
-
 
 void newIconView(pageStruct *page)
 {
