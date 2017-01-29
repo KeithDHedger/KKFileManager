@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Sun 29 Jan 15:11:24 GMT 2017
+*     ©keithhedger Sun 29 Jan 16:13:52 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     properties.cpp
@@ -11,29 +11,30 @@
 #include "properties.h"
 #include "globals.h"
 
+char		*ownerName="nobody";
+char		*groupName="nobody";
+bool		oReadBit=true;
+bool		oWriteBit=true;
+bool		oExecuteBit=true;
+bool		gReadBit=true;
+bool		gWriteBit=false;
+bool		gExecuteBit=true;
+bool		rReadBit=true;
+bool		rWriteBit=false;
+bool		rExecuteBit=true;
+bool		setUIDBit=false;
+bool		setGIDBit=false;
+bool		stickyBit=false;
+bool		doRecursive=false;
+char		*filePath;
+char		*fileSize;
+char		*fileModified;
+char		*fileAccessed;
+
 GtkWidget	*filepropsCheck[13];
 GtkWidget	*filepropsText[2];
 
 GtkWidget	*filepropsWindow;
-
-GtkWidget *createNewBox(int orient,bool homog,int spacing)
-{
-	GtkWidget	*retwidg=NULL;
-
-#ifdef _USEGTK3_
-	if(orient==NEWVBOX)
-		retwidg=gtk_box_new(GTK_ORIENTATION_VERTICAL,spacing);
-	else
-		retwidg=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,spacing);
-	gtk_box_set_homogeneous((GtkBox*)retwidg,homog);
-#else
-	if(orient==NEWVBOX)
-		retwidg=gtk_vbox_new(homog,spacing);
-	else
-		retwidg=gtk_hbox_new(homog,spacing);
-#endif
-	return(retwidg);
-}
 
 void makeFilePropsCheck(int widgnum,const char *label,bool onoff,GtkBox *box)
 {
@@ -70,7 +71,10 @@ void doFileProps(GtkWidget* widget,gpointer data)
 	GtkBox		*tbox;
 	GtkWidget	*item;
 
-	filepropsWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	GtkWidget *content;
+
+ filepropsWindow=gtk_dialog_new();
+ content=gtk_dialog_get_content_area((GtkDialog *)filepropsWindow);
 	gtk_window_set_title((GtkWindow*)filepropsWindow,"File Properties");
 	vbox=(GtkBox*)createNewBox(NEWVBOX,false,0);
 
@@ -91,11 +95,11 @@ void doFileProps(GtkWidget* widget,gpointer data)
 #endif
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Owner\t"),false,false,0);
-	makeFilePropsText(TXT0,"",ownername,tbox,false);
+	makeFilePropsText(TXT0,"",ownerName,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Group\t"),false,false,0);
-	makeFilePropsText(TXT1,"",groupname,tbox,false);
+	makeFilePropsText(TXT1,"",groupName,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 #ifdef _USEGTK3_
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
@@ -135,7 +139,7 @@ void doFileProps(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("World\t"),false,false,0);
 	makeFilePropsCheck(SUID10CHK,"SUID",setUIDBit,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,false,0),false,false,25);
-	makeFilePropsCheck(SGID11CHK,"SGID",setGIDBot,tbox);
+	makeFilePropsCheck(SGID11CHK,"SGID",setGIDBit,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,false,0),false,false,25);
 	makeFilePropsCheck(STICKY12CHK,"Sticky",stickyBit,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,false,0),false,false,10);
@@ -184,6 +188,7 @@ void doFileProps(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start(GTK_BOX(hbox),item,true,false,2);
 	g_signal_connect(G_OBJECT(item),"clicked",G_CALLBACK(setFileProps),(void*)-2);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,2);
-	gtk_container_add(GTK_CONTAINER(filepropsWindow),(GtkWidget*)vbox);
-	gtk_widget_show_all(filepropsWindow);
+	gtk_box_pack_start(GTK_BOX(content),(GtkWidget*)vbox,true,true,2);
+	gtk_widget_show_all((GtkWidget*)vbox);
+	gtk_dialog_run((GtkDialog*)filepropsWindow);
 }

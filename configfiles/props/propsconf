@@ -1,11 +1,15 @@
 #base name for generated variables, arrays etc and callback for buttons etc uses setBASE
 BASE:FileProps
+MAKEDIALOG
+
 #window title
 WINDOWTITLE:File Properties
 #don't create dialog dismis buttons
 #NOBUTTONS:
+NOBOXCODE
 #function name for dialog create
 DONAME:doFileProps
+
 #add an include file
 INCLUDE:"globals.h"
 
@@ -17,21 +21,40 @@ addspace:10
 ENDHBOX
 HLINE
 
+VARIABLE:char		*ownerName="nobody":global
+VARIABLE:char		*groupName="nobody":global
+
+VARIABLE:bool		oReadBit=true:global
+VARIABLE:bool		oWriteBit=true:global
+VARIABLE:bool		oExecuteBit=true:global
+
+VARIABLE:bool		gReadBit=true:global
+VARIABLE:bool		gWriteBit=false:global
+VARIABLE:bool		gExecuteBit=true:global
+
+VARIABLE:bool		rReadBit=true:global
+VARIABLE:bool		rWriteBit=false:global
+VARIABLE:bool		rExecuteBit=true:global
+
+VARIABLE:bool		setUIDBit=false:global
+VARIABLE:bool		setGIDBit=false:global
+VARIABLE:bool		stickyBit=false:global
+VARIABLE:bool		doRecursive=false:global
+
+VARIABLE:char		*filePath:global
+VARIABLE:char		*fileSize:global
+VARIABLE:char		*fileModified:global
+VARIABLE:char		*fileAccessed:global
+
 BEGINHBOX
 label:"Owner\\t"
-textbox::ownername:false
+textbox::ownerName:false
 ENDHBOX
 BEGINHBOX
 label:"Group\\t"
-textbox::groupname:false
+textbox::groupName:false
 ENDHBOX
 
-#VARIABLE:char		*ownername:extern
-#VARIABLE:char		*groupname:extern
-#
-#VARIABLE:bool		oReadBit:extern
-#VARIABLE:bool		oWriteBit:extern
-#VARIABLE:bool		oExecuteBit:extern
 
 HLINE
 BEGINHBOX
@@ -43,10 +66,6 @@ addspace:25
 checkbox:Execute:oExecuteBit
 ENDHBOX
 
-#VARIABLE:bool		gReadBit:extern
-#VARIABLE:bool		gWriteBit:extern
-#VARIABLE:bool		gExecuteBit:extern
-
 BEGINHBOX
 label:"Group\\t"
 checkbox:Read:gReadBit
@@ -55,10 +74,6 @@ checkbox:Write:gWriteBit
 addspace:25
 checkbox:Execute:gExecuteBit
 ENDHBOX
-
-#VARIABLE:bool		rReadBit:extern
-#VARIABLE:bool		rWriteBit:extern
-#VARIABLE:bool		rExecuteBit:extern
 
 BEGINHBOX
 label:"Other\\t"
@@ -74,7 +89,7 @@ BEGINHBOX
 label:"World\\t"
 checkbox:SUID:setUIDBit
 addspace:25
-checkbox:SGID:setGIDBot
+checkbox:SGID:setGIDBit
 addspace:25
 checkbox:Sticky:stickyBit
 addspace:10

@@ -19,7 +19,9 @@ int main(int argc, char **argv)
 {
     gtk_init(&argc, &argv);
 	doFileProps(NULL,NULL);
-    gtk_main();
+#ifndef _FileProps_ISDIALOG_
+    	gtk_main();
+#endif
 
 	return 0;
 }

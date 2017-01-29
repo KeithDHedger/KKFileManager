@@ -48,4 +48,6 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 void doAbout(GtkWidget *widget,gpointer data);
 void externalTool(GtkWidget *widget,gpointer data);
 
+void setFileProps(GtkWidget* widget,gpointer ptr);
+
 #endif

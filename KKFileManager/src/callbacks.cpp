@@ -877,3 +877,11 @@ void externalTool(GtkWidget *widget,gpointer data)
 	unsetenv("KKFILEMANAGER_SELECTED_ITEMS");
 	unsetenv("KKFILEMANAGER_CURRENT_TAB");
 }
+
+void setFileProps(GtkWidget* widget,gpointer ptr)
+{
+	printf(">>%i<<\n",(int)(long)ptr);
+ //	if((long)ptr<0)
+//	    gtk_main_quit();
+}
+
