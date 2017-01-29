@@ -23,6 +23,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <libgen.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "globals.h"
 
@@ -154,9 +156,11 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				selectionarray=selectionToArray(false);
 				if(selectionarray!=NULL)
 					{
-						unsigned	cnt=0;
-						struct stat	st;
-						int			statret;
+						unsigned		cnt=0;
+						struct stat		st;
+						int				statret;
+						struct passwd	*pws;
+						struct group	*grp;
 						while(selectionarray[cnt]!=NULL)
 							{
 								filePath=selectionarray[cnt];
@@ -165,6 +169,10 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 										{
 											sprintf(buffer,"%i",(int)st.st_size);
 											fileSize=strdup(buffer);
+											pws=getpwuid(st.st_uid);
+											ownerName=pws->pw_name;
+											grp=getgrgid(st.st_gid);
+											groupName=grp->gr_name;
 											doFileProps(NULL,NULL);
 										}
 								cnt++;
