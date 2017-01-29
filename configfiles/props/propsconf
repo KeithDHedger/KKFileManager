@@ -1,0 +1,113 @@
+#base name for generated variables, arrays etc and callback for buttons etc uses setBASE
+BASE:FileProps
+#window title
+WINDOWTITLE:File Properties
+#don't create dialog dismis buttons
+#NOBUTTONS:
+#function name for dialog create
+DONAME:doFileProps
+#add an include file
+INCLUDE:"globals.h"
+
+HLINE
+BEGINHBOX
+addspace:10
+label:filePath
+addspace:10
+ENDHBOX
+HLINE
+
+BEGINHBOX
+label:"Owner\\t"
+textbox::ownername:false
+ENDHBOX
+BEGINHBOX
+label:"Group\\t"
+textbox::groupname:false
+ENDHBOX
+
+#VARIABLE:char		*ownername:extern
+#VARIABLE:char		*groupname:extern
+#
+#VARIABLE:bool		oReadBit:extern
+#VARIABLE:bool		oWriteBit:extern
+#VARIABLE:bool		oExecuteBit:extern
+
+HLINE
+BEGINHBOX
+label:"Owner\\t"
+checkbox:Read:oReadBit
+addspace:25
+checkbox:Write:oWriteBit
+addspace:25
+checkbox:Execute:oExecuteBit
+ENDHBOX
+
+#VARIABLE:bool		gReadBit:extern
+#VARIABLE:bool		gWriteBit:extern
+#VARIABLE:bool		gExecuteBit:extern
+
+BEGINHBOX
+label:"Group\\t"
+checkbox:Read:gReadBit
+addspace:25
+checkbox:Write:gWriteBit
+addspace:25
+checkbox:Execute:gExecuteBit
+ENDHBOX
+
+#VARIABLE:bool		rReadBit:extern
+#VARIABLE:bool		rWriteBit:extern
+#VARIABLE:bool		rExecuteBit:extern
+
+BEGINHBOX
+label:"Other\\t"
+checkbox:Read:rReadBit
+addspace:25
+checkbox:Write:rWriteBit
+addspace:25
+checkbox:Execute:rExecuteBit
+ENDHBOX
+
+HLINE
+BEGINHBOX
+label:"World\\t"
+checkbox:SUID:setUIDBit
+addspace:25
+checkbox:SGID:setGIDBot
+addspace:25
+checkbox:Sticky:stickyBit
+addspace:10
+checkbox:Recursive:doRecursive
+addspace:10
+ENDHBOX
+
+HLINE
+
+BEGINHBOX
+label:"File Size\\t\\t"
+label:fileSize
+ENDHBOX
+
+BEGINHBOX
+label:"Modified\\t\\t"
+label:fileModified
+ENDHBOX
+
+BEGINHBOX
+label:"Accessed\\t"
+label:fileAccessed
+ENDHBOX
+
+#prefsmaker propsconf properties props.cpp ;./props.cpp 
+
+
+
+
+
+
+
+
+
+
+

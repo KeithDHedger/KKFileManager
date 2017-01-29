@@ -380,14 +380,11 @@ gboolean loadFilesDir(gpointer data)
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type==DT_DIR)
-							if(ignoredots(page->fileList[j]->d_name)==true)
+							if(page->fileList[j]->d_name[0]=='.')
 								{
-									if(page->fileList[j]->d_name[0]=='.')
-										{
-											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-											pixbuf=getPixBuf(buffer);
-											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
-										}
+									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									pixbuf=getPixBuf(buffer);
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
 								}
 					}
 				if(page->uptoHere==page->fileCnt)
@@ -410,14 +407,11 @@ gboolean loadFilesDir(gpointer data)
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type==DT_DIR)
-							if(ignoredots(page->fileList[j]->d_name)==true)
+							if(page->fileList[j]->d_name[0]!='.')
 								{
-									if(page->fileList[j]->d_name[0]!='.')
-										{
-											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-											pixbuf=getPixBuf(buffer);
-											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
-										}
+									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									pixbuf=getPixBuf(buffer);
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
 								}
 					}
 				if(page->uptoHere==page->fileCnt)
@@ -450,14 +444,11 @@ gboolean loadFilesDir(gpointer data)
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type!=DT_DIR)
-							if(ignoredots(page->fileList[j]->d_name)==true)
+							if(page->fileList[j]->d_name[0]=='.')
 								{
-									if(page->fileList[j]->d_name[0]=='.')
-										{
-											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-											pixbuf=getPixBuf(buffer);
-											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
-										}
+									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									pixbuf=getPixBuf(buffer);
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
 								}
 					}
 				if(page->uptoHere==page->fileCnt)
@@ -481,14 +472,11 @@ gboolean loadFilesDir(gpointer data)
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type!=DT_DIR)
-							if(ignoredots(page->fileList[j]->d_name)==true)
+							if(page->fileList[j]->d_name[0]!='.')
 								{
-									if(page->fileList[j]->d_name[0]!='.')
-										{
-											sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-											pixbuf=getPixBuf(buffer);
-											setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
-										}
+									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									pixbuf=getPixBuf(buffer);
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
 								}
 					}
 				if(page->uptoHere==page->fileCnt)
@@ -509,23 +497,46 @@ gboolean loadFilesDir(gpointer data)
 	return(true);
 }
 
+int filter(const struct dirent *entry1)
+{
+	struct stat	st;
+
+	if(strcmp(entry1->d_name,".")==0 || strcmp(entry1->d_name,"..")==0)
+		return(false);
+
+	stat(entry1->d_name,&st);
+	struct dirent *e1=(struct dirent *)entry1;
+
+	if((st.st_mode & S_IFMT)==S_IFDIR)
+		e1->d_type=DT_DIR;
+
+	return(true);
+}
+
 void populatePageStore(pageStruct *page)
 {
+	char	*cwd=NULL;
+
 	if(page==NULL)
 		return;
 
 	flushFolderBuffer(page);
 	gtk_list_store_clear(page->listStore);
 
-	page->fileCnt=scandir(page->thisFolder,&page->fileList,0,alphasort);
+	cwd=get_current_dir_name();
+	chdir(page->thisFolder);
+	page->fileCnt=scandir(page->thisFolder,&page->fileList,filter,versionsort);
 	page->fileType=0;
 	page->fromHere=0;
 	page->uptoHere=LOADICONCNT;
 	if(page->uptoHere > page->fileCnt)
 		page->uptoHere=page->fileCnt;
 
+	if(cwd!=NULL)
+		chdir(cwd);
 	g_timeout_add(10,loadFilesDir,(gpointer)page);
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);
+
 }
 
 void newIconView(pageStruct *page)
