@@ -39,6 +39,7 @@
 #include "history.h"
 #include "internet.h"
 #include "files.h"
+#include "properties.h"
 
 #ifdef _USEGTK3_
 //menus
@@ -234,6 +235,6 @@ int yesNo(const char *question,char *file);
 int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
 char *selectionToString(const char *seperator);
-char **selectionToArray(void);
+char **selectionToArray(bool touri);
 
 #endif

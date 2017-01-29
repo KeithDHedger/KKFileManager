@@ -61,6 +61,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	char			*stringlist;
 	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
 	GList			*iconlist;
+	char			**selectionarray=NULL;
 
 	switch(ctx->id)
 		{
@@ -145,6 +146,30 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					{
 						gtk_clipboard_set_text(mainClipboard,stringlist,-1);
 						g_free(stringlist);
+					}
+				break;
+
+//props
+			case CONTEXTPROPS:
+				selectionarray=selectionToArray(false);
+				if(selectionarray!=NULL)
+					{
+						unsigned	cnt=0;
+						struct stat	st;
+						int			statret;
+						while(selectionarray[cnt]!=NULL)
+							{
+								filePath=selectionarray[cnt];
+								statret=stat(filePath,&st);
+									if(statret>=0)
+										{
+											sprintf(buffer,"%i",(int)st.st_size);
+											fileSize=strdup(buffer);
+											doFileProps(NULL,NULL);
+										}
+								cnt++;
+							}
+						g_strfreev(selectionarray);
 					}
 				break;
 //paste
@@ -268,7 +293,7 @@ char		**ar;
 
 void doDragBegin(GtkWidget *widget,GdkDragContext *drag_context,pageStruct *page)
 {
-	ar=selectionToArray();
+	ar=selectionToArray(true);
 	page->toggleOff=false;
 }
 
@@ -499,6 +524,12 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTCOPY]->page=page;
 					contextMenus[CONTEXTCOPY]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTCOPY]);
+
+//props
+					menuitem=newImageMenuItem(CONTEXTPROPS,tabMenu);
+					contextMenus[CONTEXTPROPS]->page=page;
+					contextMenus[CONTEXTPROPS]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTPROPS]);
 
 //show tools					
 					menuData[MAINTOOLSBLANKTOOL].cb=NULL;
@@ -881,7 +912,10 @@ void externalTool(GtkWidget *widget,gpointer data)
 void setFileProps(GtkWidget* widget,gpointer ptr)
 {
 	printf(">>%i<<\n",(int)(long)ptr);
- //	if((long)ptr<0)
+	if((long)ptr<0)
+		{
+			gtk_widget_destroy((GtkWidget*)filepropsWindow);
+		}
 //	    gtk_main_quit();
 }
 

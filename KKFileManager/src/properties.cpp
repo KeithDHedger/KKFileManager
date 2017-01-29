@@ -1,18 +1,28 @@
+/*
+ *
+ * ©K. D. Hedger. Sun 29 Jan 18:23:22 GMT 2017 kdhedger68713@gmail.com
 
-/******************************************************
-*
-*     ©keithhedger Sun 29 Jan 16:13:52 GMT 2017
-*     kdhedger68713@gmail.com
-*
-*     properties.cpp
-* 
-******************************************************/
+ * This file (properties.cpp) is part of KKFileManager.
 
-#include "properties.h"
+ * KKFileManager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * at your option) any later version.
+
+ * KKFileManager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 #include "globals.h"
 
-char		*ownerName="nobody";
-char		*groupName="nobody";
+char		*ownerName=NULL;
+char		*groupName=NULL;
 bool		oReadBit=true;
 bool		oWriteBit=true;
 bool		oExecuteBit=true;
@@ -26,10 +36,10 @@ bool		setUIDBit=false;
 bool		setGIDBit=false;
 bool		stickyBit=false;
 bool		doRecursive=false;
-char		*filePath;
-char		*fileSize;
-char		*fileModified;
-char		*fileAccessed;
+char		*filePath=NULL;
+char		*fileSize=NULL;
+char		*fileModified=NULL;
+char		*fileAccessed=NULL;
 
 GtkWidget	*filepropsCheck[13];
 GtkWidget	*filepropsText[2];

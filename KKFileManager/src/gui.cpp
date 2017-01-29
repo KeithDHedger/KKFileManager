@@ -46,6 +46,8 @@ menuDataStruct	menuData[]=
 		{"Duplicate",GTK_STOCK_COPY,0,0,NULL,"duplicatemenu",NULL},
 		{"Extract",GTK_STOCK_CONVERT,0,0,NULL,"extractmenu",NULL},
 		{"Copy",GTK_STOCK_COPY,0,0,NULL,"copymenu",NULL},
+		{"Properties",GTK_STOCK_PROPERTIES,0,0,NULL,"propsmenu",NULL},
+
 		{"Paste",GTK_STOCK_PASTE,0,0,NULL,"pastemenu",NULL},
 		{"Show 'Dot' Files",GTK_STOCK_ZOOM_100,0,0,NULL,"hidemenu",NULL},
 		{"Hide 'Dot' Files",GTK_STOCK_ZOOM_100,0,0,NULL,"showmenu",NULL},

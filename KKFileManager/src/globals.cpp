@@ -459,7 +459,7 @@ char *selectionToString(const char *seperator)
 	return(NULL);
 }
 
-char **selectionToArray(void)
+char **selectionToArray(bool touri)
 {
 	pageStruct		*page=NULL;
 	char			*path;
@@ -482,13 +482,20 @@ char **selectionToArray(void)
 							gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,-1);
 							if(path!=NULL)
 								{
-									filename=g_filename_to_uri(path,NULL,NULL);
-									if(filename!=NULL)
+									if(touri==true)
 										{
-											ar[cnt]=strdup(filename);
-											free(filename);
-											cnt++;
+											filename=g_filename_to_uri(path,NULL,NULL);
+											if(filename!=NULL)
+												{
+													ar[cnt]=strdup(filename);
+													free(filename);
+												}
 										}
+									else
+										{
+											ar[cnt]=strdup(path);
+										}
+									cnt++;
 									free(path);
 								}
 							iconlist=iconlist->next;
