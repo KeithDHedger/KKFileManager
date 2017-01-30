@@ -179,7 +179,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 											fileModified=strdup(buffer);
 											date=localtime(&st.st_atime);
 											strftime(buffer,sizeof(buffer),"%a %d-%m-%Y %H:%M:%S",date);
-											printf("mode=%o\n",st.st_mode);
 											fileAccessed=strdup(buffer);
 											oReadBit=st.st_mode & S_IRUSR;
 											oWriteBit=st.st_mode & S_IWUSR;
@@ -493,11 +492,12 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 {
 	GtkWidget	*menuitem;
 	GtkWidget	*submenu;
-    GtkTreePath	*treepath;
+    GtkTreePath	*treepath=NULL;
 	GList		*ptr;
+	bool		pathfound=false;
+	GList		*si=gtk_icon_view_get_selected_items(page->iconView);
 
 	fromPageID=page->pageID;
-
 	treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
 
 	if(event->state==0)
@@ -522,7 +522,6 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 
 	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
 		{
-			treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
 			if(G_IS_OBJECT(tabMenu))
 				{
 					g_object_ref_sink(tabMenu);
@@ -531,6 +530,22 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 			tabMenu=gtk_menu_new();
 			if(treepath!=NULL)
 				{
+					if(si!=NULL)
+						{
+							while(si!=NULL)
+								{
+									if(si->data!=NULL && treepath!=NULL)
+										if(gtk_tree_path_compare((const GtkTreePath*)si->data,treepath)==0)
+											pathfound=true;
+										si=si->next;
+								}
+							if(pathfound==false)
+								{
+									gtk_icon_view_unselect_all(page->iconView);
+									//if(treepath!=NULL)
+									//	gtk_icon_view_select_path(page->iconView,treepath);
+								}
+						}
 					gtk_icon_view_select_path(page->iconView,treepath);
 //open file
 					menuitem=newMenuItem(CONTEXTOPEN,tabMenu);
@@ -626,6 +641,8 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 				}
 			gtk_menu_popup(GTK_MENU(tabMenu),NULL,NULL,NULL,NULL,event->button,event->time);
 			gtk_widget_show_all((GtkWidget*)tabMenu);
+			//printf("11111111111111\n");
+			//thing=true;
 			return(true);
 		}
 	return(false);
@@ -947,6 +964,7 @@ void setFileProps(GtkWidget* widget,gpointer ptr)
 	char		*command;
 	unsigned	mode;
 	const char	*recursive="";
+	//pageStruct	*page;
 
 	if((long)ptr<0)
 		{
@@ -967,6 +985,11 @@ void setFileProps(GtkWidget* widget,gpointer ptr)
 					sprintf(command,"chmod %s 00%o \"%s\"",recursive,mode,filePath);
 					system(command);
 				}			
+			//page=getPageFromCurrentTab();
+					//page->toggleOff=true;
+					//page->stdBehaviour=true;
+					//page->startedDrag=false;
+			//gtk_icon_view_unselect_all(page->iconView);
 			gtk_widget_destroy((GtkWidget*)filepropsWindow);
 		}
 }
