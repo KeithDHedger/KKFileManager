@@ -161,6 +161,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 						int				statret;
 						struct passwd	*pws;
 						struct group	*grp;
+						struct tm		*date;
 						while(selectionarray[cnt]!=NULL)
 							{
 								filePath=selectionarray[cnt];
@@ -173,7 +174,31 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 											ownerName=pws->pw_name;
 											grp=getgrgid(st.st_gid);
 											groupName=grp->gr_name;
+											date=localtime(&st.st_mtime);
+											strftime(buffer,sizeof(buffer),"%a %d-%m-%Y %H:%M:%S",date);
+											fileModified=strdup(buffer);
+											date=localtime(&st.st_atime);
+											strftime(buffer,sizeof(buffer),"%a %d-%m-%Y %H:%M:%S",date);
+											printf("mode=%o\n",st.st_mode);
+											fileAccessed=strdup(buffer);
+											oReadBit=st.st_mode & S_IRUSR;
+											oWriteBit=st.st_mode & S_IWUSR;
+											oExecuteBit=st.st_mode & S_IXUSR;
+											gReadBit=st.st_mode & S_IRGRP;
+											gWriteBit=st.st_mode & S_IWGRP;
+											gExecuteBit=st.st_mode & S_IXGRP;
+											rReadBit=st.st_mode & S_IROTH;
+											rWriteBit=st.st_mode & S_IWOTH;
+											rExecuteBit=st.st_mode & S_IXOTH;
+											setUIDBit=st.st_mode & S_ISUID;
+											setGIDBit=st.st_mode & S_ISGID;
+											stickyBit=st.st_mode & S_ISVTX;
+											//TODO//
+											//gtk_widget_set_sensitive(filepropsCheck[RECURSIVE13CHK],S_ISDIR(st.st_mode));
 											doFileProps(NULL,NULL);
+											free(fileSize);
+											free(fileModified);
+											free(fileAccessed);
 										}
 								cnt++;
 							}
@@ -919,11 +944,30 @@ void externalTool(GtkWidget *widget,gpointer data)
 
 void setFileProps(GtkWidget* widget,gpointer ptr)
 {
-	printf(">>%i<<\n",(int)(long)ptr);
+	char		*command;
+	unsigned	mode;
+	const char	*recursive="";
+
 	if((long)ptr<0)
 		{
+			if((long)ptr==DIALOGAPPLY)
+				{
+					//file modes
+					mode=((gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[READ1CHK])*4 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[WRITE2CHK])*2 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[EXECUTE3CHK])*1)*0100 ) + 
+					((gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[READ4CHK])*4 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[WRITE5CHK])*2 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[EXECUTE6CHK])*1)*010 ) + 
+					((gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[READ7CHK])*4 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[WRITE8CHK])*2 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[EXECUTE9CHK])*1)*01 );
+					//world modes
+					mode=mode+(gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[SUID10CHK])*4 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[SGID11CHK])*2 + gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[STICKY12CHK])*1)*01000;
+					
+					command=(char*)alloca(PATH_MAX);
+					if(gtk_toggle_button_get_active((GtkToggleButton*)filepropsCheck[RECURSIVE13CHK])==true)
+						recursive="-R";
+					sprintf(command,"chown %s %s:%s \"%s\"",recursive,gtk_entry_get_text((GtkEntry*)filepropsText[TXT0]),gtk_entry_get_text((GtkEntry*)filepropsText[TXT1]),filePath);
+					system(command);					
+					sprintf(command,"chmod %s 00%o \"%s\"",recursive,mode,filePath);
+					system(command);
+				}			
 			gtk_widget_destroy((GtkWidget*)filepropsWindow);
 		}
-//	    gtk_main_quit();
 }
 

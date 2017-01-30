@@ -83,6 +83,9 @@
 #define DROP_TEXT_URI_LIST 1
 #define DROP_TEXT_PLAIN    2
 
+#define DIALOGAPPLY -1
+#define DIALOGCANCEL -2
+
 struct	args
 {
 	const char	*name;
