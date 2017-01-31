@@ -253,16 +253,30 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 						while((array[cnt]!=NULL) && (strlen(array[cnt])>0))
 							{
 								setFilePathStruct(&fps,"fDp",array[cnt],ctx->page->thisFolder);
-								fps.askFileName=true;
-								getValidToPathFromFilepath(&fps);
-								if(fps.modified==true)
-									doFileAction(&fps,GDK_ACTION_COPY);
+								getUniqueFilenameOnly(&fps);
+									{
+										if(fps.modified==true)
+											{
+												setFilePathStruct(&fps,"fDp",array[cnt],ctx->page->thisFolder);
+												fps.askFileName=true;
+												getValidToPathFromFilepath(&fps);
+												if(fps.modified==true)
+													doFileAction(&fps,GDK_ACTION_COPY);
+											}
+										else
+											{
+												setFilePathStruct(&fps,"fDpT",array[cnt],ctx->page->thisFolder);
+												doFileAction(&fps,GDK_ACTION_COPY);
+											}
+									}
 								cnt++;
 							}
-						g_strfreev(array);
+						if(array!=NULL)
+							g_strfreev(array);
+						free(path);
 					}
-				free(path);
 				break;
+
 			case CONTEXTSHOW:
 			case CONTEXTHIDE:
 				showHidden=!showHidden;

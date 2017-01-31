@@ -18,15 +18,25 @@
  * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <stdlib.h>
-//#include <string.h>
-//#include <sys/stat.h>
-//#include <gtk/gtk.h>
-//#include <gdk/gdk.h>
-//#include <gdk/gdkkeysyms.h>
-
 #include "globals.h"
+/*
+struct	filePathStruct
+{
+	char	*fromDirPath;
+	char	*fromFileName;
+	char	*fromFilePath;
 
+	char	*toDirPath;
+	char	*toFileName;
+	char	*toFilePath;
+
+	bool	modified;
+	bool	askFileName;
+	bool	fromFilePathIsDir;
+	bool	toFilePathIsDir;
+};
+
+*/
 void getValidToPathFromFilepath(filePathStruct *fps)
 {
 	char	*tmppathbuffer=(char*)alloca(PATH_MAX);
