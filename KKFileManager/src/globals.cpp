@@ -506,7 +506,6 @@ unsigned selectionToArray(char ***array,bool touri)
 					g_list_foreach(iconlist,(GFunc)gtk_tree_path_free,NULL);
 					g_list_free(iconlist);
 					ar[cnt]=NULL;
-					//return(arraylen);
 				}
 		}
 	return(arraylen);

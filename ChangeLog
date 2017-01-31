@@ -1,4 +1,5 @@
 0.0.4
+Can now open multiple files from context menu.
 Multple files can now have props set at once.
 Right clicking icon with icons already selected now works as expected.
 Properties dialog now sets as well as read file props.

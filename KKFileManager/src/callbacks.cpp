@@ -90,7 +90,17 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				gtk_list_store_set(bmList,&iter,BMPATH,buffer,BMLABEL,basename(buffer),-1);
 				break;
 			case CONTEXTOPEN:
-				selectItem(ctx->page->iconView,ctx->treepath,ctx->page);
+				iconlist=gtk_icon_view_get_selected_items(ctx->page->iconView);
+				if(iconlist!=NULL)
+					{
+						while(iconlist!=NULL)
+							{
+								selectItem(ctx->page->iconView,(GtkTreePath*)iconlist->data,ctx->page);
+								iconlist=iconlist->next;
+							}
+						g_list_foreach(iconlist,(GFunc)gtk_tree_path_free,NULL);
+						g_list_free(iconlist);
+					}
 				break;
 			case CONTEXTDELETE:
 				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);

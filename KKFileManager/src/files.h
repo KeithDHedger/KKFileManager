@@ -24,6 +24,8 @@
 
 #include "globals.h"
 
+#define MIME_OPEN_FILE 10000
+
 struct	filePathStruct
 {
 	char	*fromDirPath;
