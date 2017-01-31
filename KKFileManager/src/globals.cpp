@@ -459,7 +459,7 @@ char *selectionToString(const char *seperator)
 	return(NULL);
 }
 
-char **selectionToArray(bool touri)
+char **xxxselectionToArray(bool touri)
 {
 	pageStruct		*page=NULL;
 	char			*path;
@@ -507,4 +507,57 @@ char **selectionToArray(bool touri)
 				}
 		}
 	return(NULL);
+}
+
+unsigned selectionToArray(char ***array,bool touri)
+{
+	pageStruct		*page=NULL;
+	char			*path;
+	GtkTreeIter		iter;
+	GList			*iconlist;
+	char			**ar=NULL;
+	unsigned		cnt=0;
+	gchar			*filename=NULL;
+	unsigned		arraylen=0;
+
+	page=getPageStructByIDFromList(getPageIdFromTab());
+	if(page!=NULL)
+		{
+			iconlist=gtk_icon_view_get_selected_items(page->iconView);
+			arraylen=g_list_length(iconlist);
+			if(iconlist!=NULL)
+				{
+					*array=(char**)calloc(g_list_length(iconlist)+1,sizeof(char*));
+					ar=*array;
+					while(iconlist!=NULL)
+						{
+							gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,(GtkTreePath*)iconlist->data);
+							gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,-1);
+							if(path!=NULL)
+								{
+									if(touri==true)
+										{
+											filename=g_filename_to_uri(path,NULL,NULL);
+											if(filename!=NULL)
+												{
+													ar[cnt]=strdup(filename);
+													free(filename);
+												}
+										}
+									else
+										{
+											ar[cnt]=strdup(path);
+										}
+									cnt++;
+									free(path);
+								}
+							iconlist=iconlist->next;
+						}
+					g_list_foreach(iconlist,(GFunc)gtk_tree_path_free,NULL);
+					g_list_free(iconlist);
+					ar[cnt]=NULL;
+					//return(arraylen);
+				}
+		}
+	return(arraylen);
 }

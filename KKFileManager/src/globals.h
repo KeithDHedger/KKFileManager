@@ -238,6 +238,6 @@ int yesNo(const char *question,char *file);
 int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
 char *selectionToString(const char *seperator);
-char **selectionToArray(bool touri);
+unsigned selectionToArray(char ***array,bool touri);
 
 #endif
