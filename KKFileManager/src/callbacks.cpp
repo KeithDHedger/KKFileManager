@@ -103,19 +103,38 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					}
 				break;
 			case CONTEXTDELETE:
-				gtk_tree_model_get_iter(GTK_TREE_MODEL(ctx->page->listStore),&iter,ctx->treepath);
-				gtk_tree_model_get(GTK_TREE_MODEL(ctx->page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
+				{
+					char			*files=NULL;
 
-				result=yesNo("Really delete\n",path);
-				if(result==GTK_RESPONSE_YES)
-					{
-						if(isdir==true)
-							sprintf(buffer,"rm -r \"%s\"",path);
-						else
-							sprintf(buffer,"rm \"%s\"",path);
-						system(buffer);
-					}
-				free(path);
+					arraylen=selectionToArray(&selectionarray,false);
+					if(arraylen>1)
+						{
+							files=selectionToString("\n");
+							if(yesNo("Delete multple files?\n\n",files)==GTK_RESPONSE_YES)
+								{
+									if(selectionarray!=NULL)
+										{
+											for(int j=0;j<arraylen;j++)
+												{
+													sprintf(buffer,"rm -r \"%s\"",selectionarray[j]);
+													system(buffer);
+												}
+										}
+									
+								}
+							free(files);
+						}
+					else
+						{
+							if(yesNo("Really delete?\n\n",selectionarray[0])==GTK_RESPONSE_YES)
+								{
+									sprintf(buffer,"rm -r \"%s\"",selectionarray[0]);
+									system(buffer);
+								}
+						}
+					if(selectionarray!=NULL)
+						g_strfreev(selectionarray);
+				}
 				break;
 			case CONTEXTDUP:
 				iconlist=gtk_icon_view_get_selected_items(ctx->page->iconView);
