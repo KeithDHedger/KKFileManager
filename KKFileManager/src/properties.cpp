@@ -1,23 +1,12 @@
-/*
- *
- * ©K. D. Hedger. Sun 29 Jan 18:23:22 GMT 2017 kdhedger68713@gmail.com
 
- * This file (properties.cpp) is part of KKFileManager.
-
- * KKFileManager is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * at your option) any later version.
-
- * KKFileManager is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License
- * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
- */
-
+/******************************************************
+*
+*     ©keithhedger Tue 31 Jan 11:10:24 GMT 2017
+*     kdhedger68713@gmail.com
+*
+*     properties.cpp
+* 
+******************************************************/
 
 #include "globals.h"
 
@@ -200,5 +189,6 @@ void doFileProps(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,2);
 	gtk_box_pack_start(GTK_BOX(content),(GtkWidget*)vbox,true,true,2);
 	gtk_widget_show_all((GtkWidget*)vbox);
+	gtk_window_set_transient_for((GtkWindow*)filepropsWindow,(GtkWindow*)mainWindow);
 	gtk_dialog_run((GtkDialog*)filepropsWindow);
 }

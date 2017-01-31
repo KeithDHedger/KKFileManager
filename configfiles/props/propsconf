@@ -9,6 +9,8 @@ WINDOWTITLE:File Properties
 NOBOXCODE
 #function name for dialog create
 DONAME:doFileProps
+TRANSIENTFOR:mainWindow
+NOBASEHEADER
 
 #add an include file
 INCLUDE:"globals.h"
@@ -21,8 +23,8 @@ addspace:10
 ENDHBOX
 HLINE
 
-VARIABLE:char		*ownerName="nobody":global
-VARIABLE:char		*groupName="nobody":global
+VARIABLE:char		*ownerName=NULL:global
+VARIABLE:char		*groupName=NULL:global
 
 VARIABLE:bool		oReadBit=true:global
 VARIABLE:bool		oWriteBit=true:global
@@ -41,10 +43,10 @@ VARIABLE:bool		setGIDBit=false:global
 VARIABLE:bool		stickyBit=false:global
 VARIABLE:bool		doRecursive=false:global
 
-VARIABLE:char		*filePath:global
-VARIABLE:char		*fileSize:global
-VARIABLE:char		*fileModified:global
-VARIABLE:char		*fileAccessed:global
+VARIABLE:char		*filePath=NULL:global
+VARIABLE:char		*fileSize=NULL:global
+VARIABLE:char		*fileModified=NULL:global
+VARIABLE:char		*fileAccessed=NULL:global
 
 BEGINHBOX
 label:"Owner\\t"
@@ -114,7 +116,7 @@ label:"Accessed\\t"
 label:fileAccessed
 ENDHBOX
 
-#prefsmaker propsconf properties props.cpp ;./props.cpp 
+#prefsmaker propsconf ../../KKFileManager/src/properties
 
 
 

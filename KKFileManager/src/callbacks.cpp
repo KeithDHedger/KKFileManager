@@ -192,8 +192,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 											setUIDBit=st.st_mode & S_ISUID;
 											setGIDBit=st.st_mode & S_ISGID;
 											stickyBit=st.st_mode & S_ISVTX;
-											//TODO//
-											//gtk_widget_set_sensitive(filepropsCheck[RECURSIVE13CHK],S_ISDIR(st.st_mode));
 											doFileProps(NULL,NULL);
 											free(fileSize);
 											free(fileModified);
@@ -540,11 +538,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 										si=si->next;
 								}
 							if(pathfound==false)
-								{
-									gtk_icon_view_unselect_all(page->iconView);
-									//if(treepath!=NULL)
-									//	gtk_icon_view_select_path(page->iconView,treepath);
-								}
+								gtk_icon_view_unselect_all(page->iconView);
 						}
 					gtk_icon_view_select_path(page->iconView,treepath);
 //open file
@@ -964,7 +958,6 @@ void setFileProps(GtkWidget* widget,gpointer ptr)
 	char		*command;
 	unsigned	mode;
 	const char	*recursive="";
-	//pageStruct	*page;
 
 	if((long)ptr<0)
 		{
@@ -985,11 +978,6 @@ void setFileProps(GtkWidget* widget,gpointer ptr)
 					sprintf(command,"chmod %s 00%o \"%s\"",recursive,mode,filePath);
 					system(command);
 				}			
-			//page=getPageFromCurrentTab();
-					//page->toggleOff=true;
-					//page->stdBehaviour=true;
-					//page->startedDrag=false;
-			//gtk_icon_view_unselect_all(page->iconView);
 			gtk_widget_destroy((GtkWidget*)filepropsWindow);
 		}
 }
