@@ -234,6 +234,12 @@ void appStart(GApplication  *application,gpointer data)
 	magicInstance=magic_open(MAGIC_MIME_TYPE);
 	magic_load(magicInstance,NULL);
 
+
+
+mime_type_init();
+
+
+
 	iconSize=ICONSIZE;
 	loadPrefs();
 #ifdef _USEGTK3_

@@ -247,15 +247,39 @@ void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool i
 
 char *getMimeType(const char *path)
 {
-	char	*retdata;
-	gboolean	uncertain=false;
 
-	retdata=g_content_type_guess(path,NULL,0,&uncertain);
-//printf("g_content_type_guess=%s, uncetain=%i true=%i\n",retdata,uncertain,true);
-	if(uncertain==false)
-		return(retdata);
-	
-	retdata=strdup(magic_file(magicInstance,path));
+char	*retdata;
+//retdata=getFIcon(mime_type_get_by_file(path,NULL,NULL),NULL);
+
+if(g_file_test(G_FILE_TEST_IS_DIR)==true)
+	{
+		retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"folder");
+		if(retdata==NULL)
+			retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"gnome-fs-directory");
+		if(retdata==NULL)
+			retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"gtk-directory");
+		if(retdata!=NULL)
+			return(strdup(retdata));
+	}
+//		if(retdata==NULL)
+			retdata=strdup((char*)mime_type_get_by_file(path,NULL,NULL));
+			
+//	printf("icon path=%s ptr=%p\n",iconpath,iconpath);
+//	iconpath=getDIcon(mime_type_get_by_file(argv[1],NULL,NULL),"gnome-fs-directory");
+//	printf("icon path=%s ptr=%p\n",iconpath,iconpath);
+//	iconpath=getDIcon(mime_type_get_by_file(argv[1],NULL,NULL),"gtk-directory");
+
+//
+//
+//	
+//	gboolean	uncertain=false;
+//
+//	retdata=g_content_type_guess(path,NULL,0,&uncertain);
+////printf("g_content_type_guess=%s, uncetain=%i true=%i\n",retdata,uncertain,true);
+//	if(uncertain==false)
+//		return(retdata);
+//	
+//	retdata=strdup(magic_file(magicInstance,path));
 //printf("magic_file=%s\n",retdata);
 	return(retdata);
 }
