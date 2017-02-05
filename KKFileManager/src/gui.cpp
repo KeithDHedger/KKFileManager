@@ -251,7 +251,7 @@ char *getMimeType(const char *path)
 char	*retdata;
 //retdata=getFIcon(mime_type_get_by_file(path,NULL,NULL),NULL);
 
-if(g_file_test(G_FILE_TEST_IS_DIR)==true)
+if(g_file_test(path,G_FILE_TEST_IS_DIR)==true)
 	{
 		retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"folder");
 		if(retdata==NULL)
