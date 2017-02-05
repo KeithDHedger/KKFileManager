@@ -253,6 +253,7 @@ char	*retdata;
 
 if(g_file_test(path,G_FILE_TEST_IS_DIR)==true)
 	{
+	printf("folder\n");
 		retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"folder");
 		if(retdata==NULL)
 			retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"gnome-fs-directory");
