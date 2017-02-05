@@ -226,14 +226,22 @@ int yesNo(const char *question,char *file)
 	GtkWidget	*dialog;
 	int			result;
 
-	dialog=gtk_message_dialog_new(GTK_WINDOW(mainWindow),GTK_DIALOG_DESTROY_WITH_PARENT,GTK_MESSAGE_WARNING,GTK_BUTTONS_NONE,"%s %s",question,file);
-
-	gtk_dialog_add_buttons((GtkDialog*)dialog,GTK_STOCK_YES,GTK_RESPONSE_YES,GTK_STOCK_NO,GTK_RESPONSE_CANCEL,NULL);
+	dialog=gtk_message_dialog_new(GTK_WINDOW(mainWindow),GTK_DIALOG_DESTROY_WITH_PARENT,GTK_MESSAGE_WARNING,GTK_BUTTONS_YES_NO,"%s %s",question,file);
 	gtk_window_set_title(GTK_WINDOW(dialog),"What Do You Want To Do?");
 	result=gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 
 	return(result);
+}
+
+void information(const char *info,char *file)
+{
+	GtkWidget	*dialog;
+	int			result;
+
+	dialog=gtk_message_dialog_new(GTK_WINDOW(mainWindow),GTK_DIALOG_DESTROY_WITH_PARENT,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s %s",info,file);
+	result=gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
 }
 
 varStrings* allocVStrings(char *string)
@@ -510,3 +518,21 @@ unsigned selectionToArray(char ***array,bool touri)
 		}
 	return(arraylen);
 }
+
+bool checkAccess(const char *path)
+{
+	int mode;
+
+	if(g_file_test(path,G_FILE_TEST_IS_DIR))
+		{
+			mode=R_OK|X_OK;
+		}
+	else
+		mode=F_OK;
+	mode=access(path,mode);
+	return(!mode);
+}
+
+
+
+

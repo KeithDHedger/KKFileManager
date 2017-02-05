@@ -40,6 +40,7 @@
 #include "internet.h"
 #include "files.h"
 #include "properties.h"
+#include "mimetype.h"
 
 #ifdef _USEGTK3_
 //menus
@@ -235,9 +236,11 @@ char* oneLiner(const char *command);
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool updatenav,bool force);
 int yesNo(const char *question,char *file);
+void information(const char *info,char *file);
 int loadVarsFromFile(char *filepath,args *dataptr);
 void writeExitData(void);
 char *selectionToString(const char *seperator);
 unsigned selectionToArray(char ***array,bool touri);
+bool checkAccess(const char *path);
 
 #endif

@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Tue 31 Jan 11:10:24 GMT 2017
+*     ©keithhedger Thu  2 Feb 14:09:42 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     properties.cpp
@@ -190,5 +190,5 @@ void doFileProps(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start(GTK_BOX(content),(GtkWidget*)vbox,true,true,2);
 	gtk_widget_show_all((GtkWidget*)vbox);
 	gtk_window_set_transient_for((GtkWindow*)filepropsWindow,(GtkWindow*)mainWindow);
-	gtk_dialog_run((GtkDialog*)filepropsWindow);
+	
 }

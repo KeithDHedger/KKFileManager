@@ -251,7 +251,7 @@ char *getMimeType(const char *path)
 	gboolean	uncertain=false;
 
 	retdata=g_content_type_guess(path,NULL,0,&uncertain);
-//printf("g_content_type_guess=%s\n",retdata);
+//printf("g_content_type_guess=%s, uncetain=%i true=%i\n",retdata,uncertain,true);
 	if(uncertain==false)
 		return(retdata);
 	
@@ -368,7 +368,7 @@ gboolean loadFilesDir(gpointer data)
 
 	switch(page->fileType)
 		{
-			case 0:
+			case LOADHIDENFOLDERS:
 				if(showHidden==false)
 					{
 						page->fileType++;
@@ -405,7 +405,7 @@ gboolean loadFilesDir(gpointer data)
 							page->uptoHere=page->fileCnt;
 					}
 				break;
-			case 1:
+			case LOADFOLDERs:
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type==DT_DIR)
@@ -433,7 +433,7 @@ gboolean loadFilesDir(gpointer data)
 					}
 			break;
 
-			case 2:
+			case LOADHIDDENFILES:
 				if(showHidden==false)
 					{
 						page->fileType++;
@@ -470,7 +470,7 @@ gboolean loadFilesDir(gpointer data)
 					}
 				break;
 
-			case 3:
+			case LOADFILES:
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type!=DT_DIR)

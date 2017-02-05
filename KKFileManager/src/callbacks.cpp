@@ -59,7 +59,6 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	gchar			*path;
 	GtkTreeIter		iter;
 	gboolean		isdir;
-	int				result=0;
 	char			*output=NULL;
 	int				cnt;
 	char			*stringlist;
@@ -114,7 +113,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 								{
 									if(selectionarray!=NULL)
 										{
-											for(int j=0;j<arraylen;j++)
+											for(unsigned j=0;j<arraylen;j++)
 												{
 													sprintf(buffer,"rm -r \"%s\"",selectionarray[j]);
 													system(buffer);
@@ -242,6 +241,8 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 													setGIDBit=st.st_mode & S_ISGID;
 													stickyBit=st.st_mode & S_ISVTX;
 													doFileProps(NULL,NULL);
+													//gtk_toggle_button_set_inconsistent((GtkToggleButton*)filepropsCheck[READ1CHK],true);
+													gtk_dialog_run((GtkDialog*)filepropsWindow);
 													free(fileSize);
 													free(fileModified);
 													free(fileAccessed);
@@ -814,20 +815,30 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,tree_path);
 	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&path,ISDIR,&isdir,-1);
-	if(isdir==true)
+
+	if(checkAccess(path)==true)
 		{
-			setCurrentFolderForTab(path,page,true,false);
-			clearForward(page);
-			free(page->thisFolder);
-			page->thisFolder=strdup(path);
-			gtk_entry_set_text(locationTextBox,page->thisFolder);
-			gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
+			if(isdir==true)
+				{
+					setCurrentFolderForTab(path,page,true,false);
+					clearForward(page);
+					free(page->thisFolder);
+					page->thisFolder=strdup(path);
+					gtk_entry_set_text(locationTextBox,page->thisFolder);
+					gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
+				}
+			else
+				{
+				//TODO//
+					asprintf(&command,"mimeopen -L -n \"%s\" &",path);
+					//asprintf(&command,"\"%s\" &",path);
+					system(command);
+					free(command);
+				}
 		}
 	else
 		{
-			asprintf(&command,"mimeopen -L -n \"%s\" &",path);
-			system(command);
-			free(command);
+			information("Can't access:\n",path);
 		}
 	free(path);
 }
@@ -1075,5 +1086,12 @@ void setFileProps(GtkWidget* widget,gpointer ptr)
 				propsCanceled=true;
 
 			gtk_widget_destroy((GtkWidget*)filepropsWindow);
+		}
+	else
+		{
+			if((long)ptr==READ1CHK+1000)
+			{
+			gtk_toggle_button_set_inconsistent((GtkToggleButton*)filepropsCheck[READ1CHK],false);
+			}
 		}
 }

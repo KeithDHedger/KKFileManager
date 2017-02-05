@@ -115,7 +115,8 @@ void monitorFolderForPage(pageStruct *page)
 			if(G_IS_OBJECT(page->monitorDir))
 				g_object_unref(page->monitorDir);
 			page->dirPath=g_file_new_for_path(page->thisFolder);
-			page->monitorDir=g_file_monitor_directory(page->dirPath,(GFileMonitorFlags)(G_FILE_MONITOR_NONE),NULL,NULL);
+			//page->monitorDir=g_file_monitor_directory(page->dirPath,(GFileMonitorFlags)(G_FILE_MONITOR_NONE),NULL,NULL);
+			page->monitorDir=g_file_monitor_directory(page->dirPath,(GFileMonitorFlags)(G_FILE_MONITOR_SEND_MOVED|G_FILE_MONITOR_WATCH_MOUNTS),NULL,NULL);
 			g_signal_connect(G_OBJECT(page->monitorDir),"changed",G_CALLBACK(dirChanged),page);
 		}
 }

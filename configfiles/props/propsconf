@@ -11,6 +11,7 @@ NOBOXCODE
 DONAME:doFileProps
 TRANSIENTFOR:mainWindow
 NOBASEHEADER
+NORUNDIALOG
 
 #add an include file
 INCLUDE:"globals.h"
