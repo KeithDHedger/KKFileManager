@@ -248,22 +248,25 @@ void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool i
 char *getMimeType(const char *path)
 {
 
+	return(strdup((char*)mime_type_get_by_file(path,NULL,NULL)));
+
 char	*retdata;
 //retdata=getFIcon(mime_type_get_by_file(path,NULL,NULL),NULL);
 
-if(g_file_test(path,G_FILE_TEST_IS_DIR)==true)
-	{
-	printf("folder\n");
-		retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"folder");
-		if(retdata==NULL)
-			retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"gnome-fs-directory");
-		if(retdata==NULL)
-			retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"gtk-directory");
-		if(retdata!=NULL)
-			return(strdup(retdata));
-	}
+//if(g_file_test(path,G_FILE_TEST_IS_DIR)==true)
+//	{
+//	printf("folder\n");
+//		retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"folder");
+//printf("retdata=%s\n",retdata);
 //		if(retdata==NULL)
-			retdata=strdup((char*)mime_type_get_by_file(path,NULL,NULL));
+//			retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"gnome-fs-directory");
+//		if(retdata==NULL)
+//			retdata=getDIcon(mime_type_get_by_file(path,NULL,NULL),"gtk-directory");
+//		if(retdata!=NULL)
+//			return(strdup(retdata));
+//	}
+//		if(retdata==NULL)
+	retdata=strdup((char*)mime_type_get_by_file(path,NULL,NULL));
 			
 //	printf("icon path=%s ptr=%p\n",iconpath,iconpath);
 //	iconpath=getDIcon(mime_type_get_by_file(argv[1],NULL,NULL),"gnome-fs-directory");
@@ -305,7 +308,6 @@ GdkPixbuf* getPixBuf(const char *file)
 	char			*newf=NULL;
 	bool			isbrokenlink=false;
 
-//return(testpb);
 	mime=getMimeType(file);
 //mime=strdup("application-octet-stream");
 //printf("mime=%s file %s\n",mime,file);
@@ -333,18 +335,38 @@ GdkPixbuf* getPixBuf(const char *file)
 	else
 		hash=hashMimeType(mime);
 
+
 	if(pixBuffCache.find(hash)!=pixBuffCache.end())
 		{
 			free(mime);
 			return(pixBuffCache.find(hash)->second);
 		}
 
-	icon=g_content_type_get_icon(mime);
-	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,iconSize,(GtkIconLookupFlags)0);
-	if(info==NULL)
-		pb=genericText;
+	if(strcmp(mime,"inode/directory")==0)
+		{
+		//hack for mising icons
+			char *folderpath=NULL;
+			folderpath=getDIcon("inode/directory","folder");
+			if(folderpath==NULL)
+				folderpath=getDIcon("inode/directory","gnome-fs-directory");
+			if(folderpath==NULL)
+				folderpath=getDIcon("inode/directory","gtk-directory");
+			if(folderpath==NULL)
+				pb=genericText;
+			else
+				pb=gdk_pixbuf_new_from_file_at_size(folderpath,-1,iconSize,NULL);
+			if(folderpath!=NULL)
+				free(folderpath);
+		}
 	else
-		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,iconSize,NULL);
+		{
+			icon=g_content_type_get_icon(mime);
+			info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,iconSize,(GtkIconLookupFlags)0);
+			if(info==NULL)
+				pb=genericText;
+			else
+				pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,iconSize,NULL);
+		}
 
 	if(issymlink==true)
 		gdk_pixbuf_composite(symLink,pb,iconSize-16,iconSize-16,16,16,iconSize-16,iconSize-16,1.0,1.0,GDK_INTERP_NEAREST,255);
@@ -354,7 +376,8 @@ GdkPixbuf* getPixBuf(const char *file)
 
 	pixBuffCache[hash]=pb;
 	free(mime);
-	g_object_unref(icon);
+	if(icon!=NULL)
+		g_object_unref(icon);
 	if(info!=NULL)
 #ifndef _USEGTK3_
 		gtk_icon_info_free(info);

@@ -31,24 +31,8 @@
 #include "globals.h"
 #include "gui.h"
 
-int		cnt=0;
 bool	singleOverRide=false;
 gchar	*mounts=NULL;
-
-const char	*mimetypestocache[]=
-{
-		"application/x-executable",
-		"application/x-maneditdoc",
-		"inode/directory",
-		"inode/x-empty",
-		"text/plain",
-		"text/x-c++src",
-		"text/x-gettext-translation",
-		"text/x-patch",
-		"text/x-python",
-		"text/x-shellscript",
-		NULL
-};
 
 void themeChanged(GtkIconTheme *icon_theme,gpointer user_data)
 {
@@ -67,43 +51,6 @@ void themeChanged(GtkIconTheme *icon_theme,gpointer user_data)
 			page=getPageStructByIDFromList(pageid);
 			populatePageStore(page);
 		}
-}
-
-gboolean loadCache(gpointer data)
-{
-	unsigned		hash;
-	GIcon			*icon=NULL;
-	GtkIconInfo		*info=NULL;
-	GdkPixbuf		*pb=NULL;
-
-	if(mimetypestocache[cnt]==NULL)
-		return(FALSE);
-
-	hash=hashMimeType((char*)mimetypestocache[cnt]);
-	if(pixBuffCache.find(hash)!=pixBuffCache.end())
-		{
-			cnt++;
-			return(true);
-		}
-
-	icon=g_content_type_get_icon(mimetypestocache[cnt]);
-	info=gtk_icon_theme_lookup_by_gicon(defaultTheme,icon,iconSize,(GtkIconLookupFlags)0);
-	if(info==NULL)
-		pb=genericText;
-	else
-		pb=gdk_pixbuf_new_from_file_at_size(gtk_icon_info_get_filename(info),-1,iconSize,NULL);
-	pixBuffCache[hash]=pb;
-	//printf("gicon str=%s\n",g_icon_to_string (icon));
-	g_object_unref(icon);
-	if(info!=NULL)
-#ifndef _USEGTK3_
-		gtk_icon_info_free(info);
-#else
-		g_object_unref(info);
-#endif
-
-	cnt++;
-	return(true);
 }
 
 void loadPrefs(void)
@@ -249,7 +196,6 @@ mime_type_init();
 #endif
 
 	loadPixbufs();
-	g_timeout_add(10,loadCache,NULL);
 
 	buidMainGui(NULL);
 

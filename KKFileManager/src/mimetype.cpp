@@ -17,7 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with KKFileManager.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+/*
+Large portions of code in this file are from the great filemanager SpaceFM, available here:
+http://ignorantguru.github.io/spacefm/
+HUGE thanks to ignorantguru for his great work.
+*/
+
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <fnmatch.h>

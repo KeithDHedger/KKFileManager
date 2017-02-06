@@ -1,4 +1,5 @@
 0.0.4
+Redone mimetypes and icons, thanks to some code from the great SpacFM file manager.
 Fixed folder monitoring.
 Can now delete multiple files from context menu.
 Can now paste multiple files from context menu.
