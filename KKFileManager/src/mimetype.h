@@ -24,6 +24,6 @@
 void mime_type_init(void);
 char *getFIcon(const char *mime_type,char *name);
 const char* mime_type_get_by_file(const char* filepath,struct stat* statbuf,const char* basename);
-char *getDIcon(const char *mime_type,char *name);
+char *getDIcon(const char *mime_type,const char *name);
 
 #endif

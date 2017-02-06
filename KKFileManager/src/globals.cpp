@@ -33,7 +33,6 @@ GtkWidget		*toolBarBox=NULL;
 GtkWidget		*mainWindow = NULL;
 GtkWidget		*mainVBox=NULL;
 char			*sinkReturnStr=NULL;
-magic_t			magicInstance=NULL;
 GtkIconTheme	*defaultTheme=NULL;
 GtkIconTheme	*gnomeTheme=NULL;
 GtkNotebook		*mainNotebook=NULL;
@@ -237,10 +236,9 @@ int yesNo(const char *question,char *file)
 void information(const char *info,char *file)
 {
 	GtkWidget	*dialog;
-	int			result;
 
 	dialog=gtk_message_dialog_new(GTK_WINDOW(mainWindow),GTK_DIALOG_DESTROY_WITH_PARENT,GTK_MESSAGE_INFO,GTK_BUTTONS_OK,"%s %s",info,file);
-	result=gtk_dialog_run(GTK_DIALOG(dialog));
+	sinkReturn=gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
 

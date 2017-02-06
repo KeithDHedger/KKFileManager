@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 
 #include <gtk/gtk.h>
-#include <magic.h>
+//#include <magic.h>
 #include <map>
 
 #include "config.h"
@@ -127,7 +127,6 @@ extern GtkWidget		*toolBarBox;
 extern GtkWidget		*mainWindow;
 extern GtkWidget		*mainVBox;
 extern char				*sinkReturnStr;
-extern magic_t			magicInstance;
 extern GtkIconTheme		*defaultTheme;
 extern GtkIconTheme		*gnomeTheme;
 extern GtkNotebook		*mainNotebook;

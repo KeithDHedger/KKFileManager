@@ -99,7 +99,7 @@ gboolean mime_type_is_data_plain_text(const char* data,int len)
 	return(false);
 }
 
-static gboolean magic_rule_match(const char* buf,const char* rule,const char* data,int len)
+static gboolean magic_rule_match(const char* buf,const char* rule,const char* data,unsigned len)
 {
 	gboolean	match=false;
 	guint32		offset=VAL32(rule,0);
@@ -116,7 +116,7 @@ static gboolean magic_rule_match(const char* buf,const char* rule,const char* da
 
 			if(mask_off>0)    /* compare with mask applied */
 				{
-					int	i=0;
+					unsigned	i=0;
 					const char	*mask=buf+mask_off;
 
 					for(i=0; i<val_len; ++i)
@@ -159,9 +159,8 @@ static gboolean magic_match(const char* buf,const char* magic,const char* data,i
 	guint32		n_rules=VAL32(magic,8);
 	guint32		rules_off=VAL32(magic,12);
 	const char	*rule=buf+rules_off;
-	int			i;
 
-	for(i=0; i<n_rules; ++i,rule+=32)
+	for(unsigned i=0; i<n_rules; ++i,rule+=32)
 		if(magic_rule_match(buf,rule,data,len))
 			return(true);
 	return(false);
@@ -180,17 +179,14 @@ static void mime_cache_unload(MimeCache* cache,gboolean clear)
 const char* mime_cache_lookup_magic(MimeCache* cache,const char* data,int len)
 {
 	const char	*magic=cache->magics;
-	int			i;
 
 	if(! data || (0==len) || ! magic)
 		return(NULL);
 
-	for(i=0; i<cache->n_magics; ++i,magic+=16)
+	for(unsigned i=0; i<cache->n_magics;++i,magic+=16)
 		{
 			if(magic_match(cache->buffer,magic,data,len))
-				{
-					return(cache->buffer+VAL32(magic,4));
-				}
+				return(cache->buffer+VAL32(magic,4));
 		}
 	return(NULL);
 }
@@ -292,7 +288,6 @@ MimeCache* mime_cache_new(const char* file_path)
 void mime_cache_load_all()
 {
 	const char	*const *dirs;
-	int			i;
 	const char filename[]="/mime/mime.cache";
 	char* path;
 
@@ -307,7 +302,7 @@ void mime_cache_load_all()
 	if(caches[0]->magic_max_extent>mime_cache_max_extent)
 		mime_cache_max_extent=caches[0]->magic_max_extent;
 
-	for(i=1; i<n_caches; ++i)
+	for(unsigned i=1; i<n_caches; ++i)
 		{
 			path=g_build_filename(dirs[i - 1],filename,NULL);
 			caches[i]=mime_cache_new(path);
@@ -391,7 +386,7 @@ static const char* lookup_reverse_suffix_nodes(const char* buf,const char* nodes
 
 	uchar=suffix ? g_unichar_tolower(g_utf8_get_char(suffix)) : 0;
 
-	for(int i=0; i<n; ++i)
+	for(unsigned i=0; i<n; ++i)
 		{
 			const char	*node =nodes+i * 12;
 			guint32	ch=VAL32(node,0);
@@ -542,7 +537,7 @@ const char* mime_cache_lookup_glob(MimeCache* cache,const char* filename,int *gl
 	/* entry size is changed in mime.cache 1.1 */
 	size_t entry_size=cache->has_str_weight ? 12 : 8;
 
-	for(int i=0; i<cache->n_globs; ++i)
+	for(unsigned i=0; i<cache->n_globs; ++i)
 		{
 			const char	*glob=cache->buffer+VAL32(entry,0);
 			int	_glob_len;
@@ -565,7 +560,7 @@ const char* mime_type_get_by_filename(const char* filename,struct stat* statbuf)
 	if(statbuf && S_ISDIR(statbuf->st_mode))
 		return(XDG_MIME_TYPE_DIRECTORY);
 
-	for(int i=0; ! type && i<n_caches; ++i)
+	for(unsigned i=0; ! type && i<n_caches; ++i)
 		{
 			cache=caches[i];
 			type=mime_cache_lookup_literal(cache,filename);
@@ -583,7 +578,7 @@ const char* mime_type_get_by_filename(const char* filename,struct stat* statbuf)
 	if(! type)  /* glob matching */
 		{
 			int	max_glob_len=0,glob_len=0;
-			for(int i=0; ! type && i<n_caches; ++i)
+			for(unsigned i=0; ! type && i<n_caches; ++i)
 				{
 					cache=caches[i];
 					const char	*matched_type;
@@ -649,8 +644,7 @@ const char* mime_type_get_by_file(const char* filepath,struct stat* statbuf,cons
 
 					if(data!=(void*)-1)
 						{
-							int	i;
-							for(i=0; ! type && i<n_caches; ++i)
+							for(unsigned i=0; ! type && i<n_caches; ++i)
 								type=mime_cache_lookup_magic(caches[i],data,len);
 
 							/* Check for executable file */
@@ -677,23 +671,16 @@ const char* mime_type_get_by_file(const char* filepath,struct stat* statbuf,cons
 	return(type && *type ? type : XDG_MIME_TYPE_UNKNOWN);
 }
 
-char *getDIcon(const char *mime_type,char *name)
+char *getDIcon(const char *mime_type,const char *name)
 {
-	GdkPixbuf		*icon=NULL;
-	const char		*sep;
-	char 			icon_name[100];
-	GtkIconTheme	*icon_theme;
-	int				size;
 	char			*file;
 
-	icon_theme=gtk_icon_theme_get_default ();
-
-	GtkIconInfo* inf=gtk_icon_theme_lookup_icon( icon_theme,name, 48,GTK_ICON_LOOKUP_GENERIC_FALLBACK);
+	GtkIconInfo* inf=gtk_icon_theme_lookup_icon(defaultTheme,name,48,GTK_ICON_LOOKUP_GENERIC_FALLBACK);
 
 	if( ! inf )
 		return(NULL);
-	file=strdup( gtk_icon_info_get_filename( inf ));
-	gtk_icon_info_free( inf );
+	file=strdup(gtk_icon_info_get_filename(inf));
+	gtk_icon_info_free(inf);
 
 	return(file);
 
@@ -701,11 +688,8 @@ char *getDIcon(const char *mime_type,char *name)
 
 char *getFIcon(const char *mime_type,char *name)
 {
-	GdkPixbuf		*icon=NULL;
 	const char		*sep;
 	char			icon_name[100];
-	GtkIconTheme	*icon_theme;
-	int				size;
 	char			*file;
 	char			*file1;
 
@@ -756,10 +740,7 @@ char *getFIcon(const char *mime_type,char *name)
 				}
 		}
 
-
-	icon_theme=gtk_icon_theme_get_default ();
-
-	GtkIconInfo	*inf=gtk_icon_theme_lookup_icon( icon_theme,icon_name, 48,GTK_ICON_LOOKUP_GENERIC_FALLBACK);
+	GtkIconInfo	*inf=gtk_icon_theme_lookup_icon(defaultTheme,icon_name, 48,GTK_ICON_LOOKUP_GENERIC_FALLBACK);
 
 	if( ! inf )
 		return(NULL);
@@ -769,34 +750,3 @@ char *getFIcon(const char *mime_type,char *name)
 	return(file1);
 
 }
-
-//
-//int main(int argc,char **argv)
-//{
-//
-//	char* basename;//=g_path_get_basename(argv[1]);
-//	char *iconpath=NULL;
-//
-//	gtk_init(&argc,&argv);
-//	mime_type_init();
-////	printf(">>%s<<\n",mime_type_get_by_file(argv[1],NULL,"xyz.py"));
-//	printf(">>%s<<\n",mime_type_get_by_file(argv[1],NULL,NULL));
-////	printf(">>%s<<\n",mime_type_get_by_filename(argv[1],NULL));
-//
-////is folder
-//	iconpath=getDIcon(mime_type_get_by_file(argv[1],NULL,NULL),"folder");
-//	printf("icon path=%s ptr=%p\n",iconpath,iconpath);
-//	iconpath=getDIcon(mime_type_get_by_file(argv[1],NULL,NULL),"gnome-fs-directory");
-//	printf("icon path=%s ptr=%p\n",iconpath,iconpath);
-//	iconpath=getDIcon(mime_type_get_by_file(argv[1],NULL,NULL),"gtk-directory");
-//	printf("icon path=%s ptr=%p\n",iconpath,iconpath);
-////is folder
-//
-////is file
-//	iconpath=getFIcon(mime_type_get_by_file(argv[1],NULL,NULL),NULL);
-//	printf("icon path=%s ptr=%p\n",iconpath,iconpath);
-////is file
-//
-//	printf("Hello World!\n");
-//	return(0);
-//}

@@ -178,14 +178,7 @@ void appStart(GApplication  *application,gpointer data)
 	gtk_icon_info_free(info);
 #endif
 
-	magicInstance=magic_open(MAGIC_MIME_TYPE);
-	magic_load(magicInstance,NULL);
-
-
-
-mime_type_init();
-
-
+	mime_type_init();
 
 	iconSize=ICONSIZE;
 	loadPrefs();
@@ -254,7 +247,6 @@ int main(int argc,char **argv)
 	free(origpath);
 	if(G_IS_OBJECT(defaultTheme))
 		g_object_unref(defaultTheme);
-	magic_close(magicInstance);
 	if(mounts!=NULL)
 		g_free(mounts);
 	return(status);
