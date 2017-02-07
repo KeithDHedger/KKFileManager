@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Thu  2 Feb 14:09:42 GMT 2017
+*     ©keithhedger Mon  6 Feb 16:57:50 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     properties.cpp
@@ -25,6 +25,8 @@ bool		setUIDBit=false;
 bool		setGIDBit=false;
 bool		stickyBit=false;
 bool		doRecursive=false;
+bool		multipleFiles=false;
+const char	*fileMime=NULL;
 char		*filePath=NULL;
 char		*fileSize=NULL;
 char		*fileModified=NULL;
@@ -150,6 +152,10 @@ void doFileProps(GtkWidget* widget,gpointer data)
 #else
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),true,true,4);
 #endif
+	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
+	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("File Mimetype\t"),false,false,0);
+	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new(fileMime),false,false,0);
+	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("File Size\t\t"),false,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new(fileSize),false,false,0);

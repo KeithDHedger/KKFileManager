@@ -1,6 +1,6 @@
 /******************************************************
 *
-*     ©keithhedger Thu  2 Feb 14:09:43 GMT 2017
+*     ©keithhedger Mon  6 Feb 16:57:51 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     properties.h
@@ -32,6 +32,8 @@ extern bool setUIDBit;
 extern bool setGIDBit;
 extern bool stickyBit;
 extern bool doRecursive;
+extern bool multipleFiles;
+extern const char *fileMime;
 extern char *filePath;
 extern char *fileSize;
 extern char *fileModified;

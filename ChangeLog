@@ -1,4 +1,6 @@
 0.0.5
+Properties dialog now visually better for single and multiple files.
+Added mimetype to file props.
 No longer uses magic lib to get mimetypes.
 Code clean.
 

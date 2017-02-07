@@ -43,7 +43,9 @@ VARIABLE:bool		setUIDBit=false:global
 VARIABLE:bool		setGIDBit=false:global
 VARIABLE:bool		stickyBit=false:global
 VARIABLE:bool		doRecursive=false:global
+VARIABLE:bool		multipleFiles=false:global
 
+VARIABLE:const char	*fileMime=NULL:global
 VARIABLE:char		*filePath=NULL:global
 VARIABLE:char		*fileSize=NULL:global
 VARIABLE:char		*fileModified=NULL:global
@@ -101,6 +103,11 @@ addspace:10
 ENDHBOX
 
 HLINE
+
+BEGINHBOX
+label:"File Mimetype\\t"
+label:fileMime
+ENDHBOX
 
 BEGINHBOX
 label:"File Size\\t\\t"
