@@ -1,6 +1,6 @@
 /******************************************************
 *
-*     ©keithhedger Mon  6 Feb 16:57:51 GMT 2017
+*     ©keithhedger Tue  7 Feb 17:16:04 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     properties.h

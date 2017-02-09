@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Mon  6 Feb 16:57:50 GMT 2017
+*     ©keithhedger Tue  7 Feb 17:16:03 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     properties.cpp
@@ -144,7 +144,7 @@ void doFileProps(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,false,0),false,false,25);
 	makeFilePropsCheck(STICKY12CHK,"Sticky",stickyBit,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,false,0),false,false,10);
-	makeFilePropsCheck(RECURSIVE13CHK,"Recursive",doRecursive,tbox);
+	makeFilePropsCheck(RECURSIVE13CHK,"Recursive",false,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,false,0),false,false,10);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 #ifdef _USEGTK3_

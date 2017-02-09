@@ -98,7 +98,7 @@ checkbox:SGID:setGIDBit
 addspace:25
 checkbox:Sticky:stickyBit
 addspace:10
-checkbox:Recursive:doRecursive
+checkbox:Recursive:false
 addspace:10
 ENDHBOX
 
