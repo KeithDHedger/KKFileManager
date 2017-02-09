@@ -85,7 +85,7 @@ void addNewPage(char *startdir)
 	page->bList=NULL;
 
 	pageList=g_list_prepend(pageList,(gpointer)page);
-
+//set_property
 	newIconView(page);
 	monitorFolderForPage(page);
 
@@ -96,6 +96,8 @@ void addNewPage(char *startdir)
 	gtk_widget_show_all((GtkWidget*)page->vBox);
 	gtk_notebook_append_page(mainNotebook,page->vBox,page->tabBox);
 	gtk_notebook_set_tab_reorderable(mainNotebook,page->vBox,true);
+
+	gtk_container_child_set_property((GtkContainer*)mainNotebook,page->vBox,"tab-expand",&boolVal);
 	g_object_set_data(G_OBJECT(page->vBox),"pageid",(gpointer)(long)page->pageID);
 	gtk_widget_show_all((GtkWidget*)mainNotebook);
 	pageCnt++;

@@ -179,9 +179,12 @@ void appStart(GApplication  *application,gpointer data)
 #endif
 
 	mime_type_init();
+	g_value_init(&boolVal,G_TYPE_BOOLEAN);
+	g_value_set_boolean(&boolVal,true);
 
 	iconSize=ICONSIZE;
 	loadPrefs();
+
 #ifdef _USEGTK3_
 	iconSize3=1;
 #else
@@ -193,7 +196,7 @@ void appStart(GApplication  *application,gpointer data)
 	buidMainGui(NULL);
 
 	mainClipboard=gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
-	testpb=gdk_pixbuf_new_from_file_at_size("/usr/share/icons/gnome/48x48/mimetypes/application-x-executable.png",-1,48,NULL);
+	//testpb=gdk_pixbuf_new_from_file_at_size("/usr/share/icons/gnome/48x48/mimetypes/application-x-executable.png",-1,48,NULL);
 	g_signal_connect_after(G_OBJECT(defaultTheme),"changed",G_CALLBACK(themeChanged),NULL);
 
 	mounts=strdup("");

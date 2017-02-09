@@ -490,11 +490,11 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 
 	g_print("<<< DRAG DATA RECEIVED >>>\n");
 
-	if(data->length==0 || data->format!=8)
-		{
-		 	gtk_drag_finish(context,false,false,time);
-		 	return;
-		 }
+//	if(data->length==0 || data->format!=8)
+//		{
+//		 	gtk_drag_finish(context,false,false,time);
+//		 	return;
+//		 }
 
 	if (info==DRAG_TEXT_URI_LIST)
 		{

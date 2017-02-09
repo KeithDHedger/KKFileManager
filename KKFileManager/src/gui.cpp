@@ -630,14 +630,10 @@ char *truncateWithElipses(char *str,unsigned int maxlen)
 					sinkReturn=asprintf(&retstr,"%s ... %s",front,back);
 					free(front);
 					free(back);
+					return(retstr);
 				}
-			else
-				retstr=strdup(str);
 		}
-	else
-		retstr=strdup(str);
-
-	return(retstr);
+	return(strdup(str));
 }
 
 GtkWidget *makeNewTab(char *name,pageStruct *page)
@@ -657,6 +653,8 @@ GtkWidget *makeNewTab(char *name,pageStruct *page)
 
 	gtk_button_set_relief((GtkButton*)button,GTK_RELIEF_NONE);
 	gtk_box_pack_start(GTK_BOX(hbox),(GtkWidget*)page->tabLabel,false,false,0);
+
+	gtk_box_pack_start(GTK_BOX(hbox),(GtkWidget*)gtk_label_new(""),true,true,0);
 
 	gtk_button_set_focus_on_click(GTK_BUTTON(button),FALSE);
 	gtk_container_add(GTK_CONTAINER(button),close);
@@ -1055,6 +1053,7 @@ void buidMainGui(const char *startdir)
 	setUpContextMenus();
 
 	mainNotebook=(GtkNotebook*)gtk_notebook_new();
+	gtk_notebook_set_scrollable(mainNotebook,true);
 	g_signal_connect(G_OBJECT(mainNotebook),"switch-page",G_CALLBACK(switchPage),NULL);
 
 	mainVBox=createNewBox(NEWVBOX,false,0);

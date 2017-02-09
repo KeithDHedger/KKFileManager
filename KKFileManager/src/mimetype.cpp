@@ -680,8 +680,11 @@ char *getDIcon(const char *mime_type,const char *name)
 	if( ! inf )
 		return(NULL);
 	file=strdup(gtk_icon_info_get_filename(inf));
+#ifndef _USEGTK3_
 	gtk_icon_info_free(inf);
-
+#else
+	g_object_unref(inf);
+#endif
 	return(file);
 
 }
@@ -745,8 +748,11 @@ char *getFIcon(const char *mime_type,char *name)
 	if( ! inf )
 		return(NULL);
 	file1 =strdup( gtk_icon_info_get_filename( inf ));
-	gtk_icon_info_free( inf );
-
+#ifndef _USEGTK3_
+	gtk_icon_info_free(inf);
+#else
+	g_object_unref(inf);
+#endif
 	return(file1);
 
 }

@@ -50,6 +50,7 @@ int				sessionID=-1;
 GApplication	*mainApp;
 bool			openDefault=false;
 GtkClipboard	*mainClipboard=NULL;
+GValue			boolVal=G_VALUE_INIT;
 
 //file menu
 GtkWidget		*fileMenu=NULL;
@@ -110,7 +111,6 @@ unsigned		iconSize3=ICONSIZE;
 unsigned		maxTabChars=32;
 
 //menus
-//GtkWidget		*backButtonMenu=NULL;
 
 //prefs
 bool			showMenuIcons=true;
@@ -128,6 +128,7 @@ int				windowWidth=1000;
 int				windowHeight=600;
 int				leftPaneWidth=260;
 int				leftPaneHeight=400;
+
 args			kkfilemanager_rc[]=
 {
 	//bools
@@ -145,7 +146,7 @@ args			kkfilemanager_rc[]=
 };
 
 //tests
-GdkPixbuf		*testpb=NULL;
+//GdkPixbuf		*testpb=NULL;
 
 //pixmaps
 GdkPixbuf		*genericText=NULL;

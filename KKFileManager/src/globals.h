@@ -69,6 +69,10 @@
 #define GTK_STOCK_PREFERENCES "preferences-system"
 #define GTK_STOCK_EXECUTE "system-run"
 #define GTK_STOCK_CONVERT "stock_convert"
+#define GTK_STOCK_PROPERTIES "document-properties"
+#define GTK_STOCK_ZOOM_100 "zoom-original"
+
+
 #endif
 
 #define ICONSIZE 48
@@ -144,6 +148,7 @@ extern int				sessionID;
 extern GApplication		*mainApp;
 extern bool				openDefault;
 extern GtkClipboard		*mainClipboard;
+extern GValue			boolVal;
 
 //file menu
 extern GtkWidget		*fileMenu;
