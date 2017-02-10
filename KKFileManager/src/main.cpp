@@ -129,6 +129,7 @@ gboolean checkDisks(gpointer data)
 {
 	gchar	*temp=NULL;
 	g_file_get_contents("/proc/mounts",&temp,NULL,NULL);
+//printf(">>temp=%s<<\n>>mounts=%s<<<\n",temp,mounts);
 	if(strcmp(temp,mounts)!=0)
 		{
 			if(mounts!=NULL)

@@ -29,7 +29,7 @@
 #include "globals.h"
 
 GdkPixbuf		*pixbuft;
-const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical","gnome-dev-disc-dvdrom","gnome-dev-cdrom"};
+const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical","gnome-dev-disc-dvdrom","gnome-dev-cdrom","network-workgroup"};
 
 //GtkTargetEntry dragTargets[]={{ "text/uri-list",0,DRAG_TEXT_URI_LIST},{ "text/plain",0,DRAG_TEXT_PLAIN}};
 GtkTargetEntry dragTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
@@ -771,6 +771,35 @@ void updateDiskList(void)
 	bool		gotrom=false;
 
 	gtk_list_store_clear(diskList);
+
+	asprintf(&command,"cat /proc/mounts|grep \"^//\"|awk '{print $1 \" \" $2}'");
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			gchar	**array=NULL;
+			char	*sharename=(char*)alloca(256);
+			while(fgets(buffer,2048,fp))
+				{
+					if(strlen(buffer)>0)
+						buffer[strlen(buffer)-1]=0;
+						array=g_strsplit(buffer," ",-1);
+						if(array!=NULL)
+							{
+								ptr=strrchr(array[0],'/');
+								*ptr=0;
+								ptr++;
+								sprintf(sharename,"%s",ptr);
+								ptr=strrchr(array[0],'/');
+								ptr++;
+								drive=guiPixbufs[NETWORKDIVE];
+								gtk_list_store_append(diskList,&iter);
+								gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,sharename,MOUNTPATH,array[1],MOUNTED,true,-1);
+								g_strfreev(array);
+							}
+				}
+			pclose(fp);
+		}
+
 	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
 //printf("command=%s\n",command);
 	fp=popen(command,"r");

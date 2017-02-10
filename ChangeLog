@@ -1,4 +1,5 @@
 0.0.5
+Added smb shares to disk list.
 Tabs now expanded to width of window.
 Fixed KKFILEMANAGER_CURRENT_TAB env var not being set correctly with multiple tabs.
 Properties dialog now visually better for single and multiple files.
