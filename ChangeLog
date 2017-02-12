@@ -1,4 +1,5 @@
 0.0.5
+All mounted network shares now listed.
 Added smb shares to disk list.
 Tabs now expanded to width of window.
 Fixed KKFILEMANAGER_CURRENT_TAB env var not being set correctly with multiple tabs.

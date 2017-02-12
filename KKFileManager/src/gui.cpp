@@ -755,29 +755,148 @@ bool checkCDROMChanged(void)
 	return(false);
 }
 
+/*
+Large portions of code in this function are from the great filemanager SpaceFM, available here:
+http://ignorantguru.github.io/spacefm/
+HUGE thanks to ignorantguru for his great work.
+*/
+int parseNetworkUrl(const char* url,networkDriveStruct* netmount)
+{
+	// returns NOTNETURL=not a network url  VALIDNETURL=valid network url  INVALIDNETURL=invalid network url
+	if(!url || !netmount)
+		return(NOTNETURL);
+
+	int					ret=NOTNETURL;
+	char				*str;
+	char				*origurl=strdup(url);
+	char				*xurl=origurl;
+
+	gboolean is_colon=false;
+
+	// determine url type
+	if(g_str_has_prefix(xurl,"smb:") || g_str_has_prefix(xurl,"smbfs:") || g_str_has_prefix(xurl,"cifs:") || g_str_has_prefix(xurl,"//"))
+		{
+			ret=INVALIDNETURL;
+			if(!g_str_has_prefix(xurl,"//"))
+				is_colon=true;
+			if(g_str_has_prefix(xurl,"smbfs:"))
+				netmount->fsType=g_strdup("smbfs");
+			else
+				netmount->fsType=g_strdup("cifs");
+		}
+	else if(g_str_has_prefix(xurl,"nfs:"))
+		{
+			ret=INVALIDNETURL;
+			is_colon=true;
+			netmount->fsType=g_strdup("nfs");
+		}
+	else if(g_str_has_prefix(xurl,"curlftpfs#"))
+		{
+			ret=INVALIDNETURL;
+			if(g_str_has_prefix(xurl,"curlftpfs#ftp:"))
+				is_colon=true;
+			netmount->fsType=g_strdup("curlftpfs");
+		}
+	else if(g_str_has_prefix(xurl,"ftp:"))
+		{
+			ret=INVALIDNETURL;
+			is_colon=true;
+			str=g_find_program_in_path("curlftpfs");
+			if(str!=NULL)
+				netmount->fsType=g_strdup("curlftpfs");
+			else
+				netmount->fsType=g_strdup("ftpfs");
+			g_free(str);
+		}
+	else if(g_str_has_prefix(xurl,"sshfs#"))
+		{
+			ret=INVALIDNETURL;
+			if(g_str_has_prefix(xurl,"sshfs#ssh:") || g_str_has_prefix(xurl,"sshfs#sshfs:") || g_str_has_prefix(xurl,"sshfs#sftp:"))
+				is_colon=true;
+			netmount->fsType=g_strdup("sshfs");
+		}
+	else if(g_str_has_prefix(xurl,"ssh:") || g_str_has_prefix(xurl,"sshfs:") || g_str_has_prefix(xurl,"sftp:"))
+		{
+			ret=INVALIDNETURL;
+			is_colon=true;
+			netmount->fsType=g_strdup("sshfs");
+		}
+	else if(g_str_has_prefix(xurl,"http:") || g_str_has_prefix(xurl,"https:"))
+		{
+			ret=INVALIDNETURL;
+			is_colon=true;
+			netmount->fsType=g_strdup("davfs");
+		}
+	else if((str=strstr(xurl,":/")) && xurl[0]!=':' && xurl[0]!='/')
+		{
+			ret=INVALIDNETURL;
+			str[0]='\0';
+			if(strchr(xurl,'@'))
+				{
+					netmount->fsType=g_strdup("sshfs");
+				}
+			else
+				{
+					netmount->fsType=g_strdup("nfs");
+				}
+			str[0]=':';
+		}
+
+	if(ret!=INVALIDNETURL)
+		return(ret);
+
+	// parse
+	if(is_colon && (str=strchr(xurl,':')))
+		xurl=str + 1;
+
+	while (xurl[0] == '/')
+		xurl++;
+
+	// sharePath
+	str=strchr(xurl,'/');
+	if(str!=NULL)
+		{
+			if(strlen(str)>1 && str[strlen(str)-1]=='/')
+				str[strlen(str)-1]=0;
+			netmount->sharePath=g_strdup(str);
+			str[0]='\0';
+		}
+	else
+		netmount->sharePath=g_strdup("/");
+
+	if(xurl[0] != '\0')
+		{
+			str=strchr(xurl,':');
+			if(str!=NULL)
+				str[0]='\0';
+			netmount->serverName=g_strdup(xurl);
+		}
+	return(VALIDNETURL);
+}
+
 void updateDiskList(void)
 {
-	char		*command;
-	FILE		*fp=NULL;
-	char		buffer[2048];
-	GtkTreeIter	iter;
-	char		*ptr;
-	char		buffercommand[2048];
-	char		*mountpath=NULL;
-	char		*label=NULL;
-	char		*isusb=NULL;
-	char		*isdvd=NULL;
-	GdkPixbuf	*drive=NULL;
-	bool		gotrom=false;
+	char				*command;
+	FILE				*fp=NULL;
+	char				buffer[2048];
+	GtkTreeIter			iter;
+	char				*ptr;
+	char				buffercommand[2048];
+	char				*mountpath=NULL;
+	char				*label=NULL;
+	char				*isusb=NULL;
+	char				*isdvd=NULL;
+	GdkPixbuf			*drive=NULL;
+	bool				gotrom=false;
+	networkDriveStruct	*netmount=(networkDriveStruct*)alloca(sizeof(networkDriveStruct));
 
 	gtk_list_store_clear(diskList);
 
-	asprintf(&command,"cat /proc/mounts|grep \"^//\"|awk '{print $1 \" \" $2}'");
+	asprintf(&command,"cat /proc/mounts|awk '{print $1 \" \" $2}'");
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
 			gchar	**array=NULL;
-			char	*sharename=(char*)alloca(256);
 			while(fgets(buffer,2048,fp))
 				{
 					if(strlen(buffer)>0)
@@ -785,15 +904,25 @@ void updateDiskList(void)
 						array=g_strsplit(buffer," ",-1);
 						if(array!=NULL)
 							{
-								ptr=strrchr(array[0],'/');
-								*ptr=0;
-								ptr++;
-								sprintf(sharename,"%s",ptr);
-								ptr=strrchr(array[0],'/');
-								ptr++;
-								drive=guiPixbufs[NETWORKDIVE];
-								gtk_list_store_append(diskList,&iter);
-								gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,sharename,MOUNTPATH,array[1],MOUNTED,true,-1);
+								//printf(">>>%s<<<\n",array[0]);
+								netmount->fsType=NULL;
+								netmount->serverName=NULL;
+								netmount->sharePath=NULL;
+								if(parseNetworkUrl(array[0],netmount)==1)
+									{
+										printf(">>%s<<\n",netmount->fsType);
+										printf(">>%s<<\n",netmount->serverName);
+										printf(">>%s<<\n",netmount->sharePath);
+										printf("-----------------------------\n");
+										gtk_list_store_append(diskList,&iter);
+										gtk_list_store_set(diskList,&iter,DEVPIXBUF,guiPixbufs[NETWORKDIVE],DEVPATH,netmount->serverName,DISKNAME,netmount->sharePath,MOUNTPATH,array[1],MOUNTED,true,-1);
+									}
+								if(netmount->fsType!=NULL)
+									free(netmount->fsType);
+								if(netmount->serverName!=NULL)
+									free(netmount->serverName);
+								if(netmount->sharePath!=NULL)
+									free(netmount->sharePath);
 								g_strfreev(array);
 							}
 				}
