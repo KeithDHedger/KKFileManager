@@ -910,10 +910,10 @@ void updateDiskList(void)
 								netmount->sharePath=NULL;
 								if(parseNetworkUrl(array[0],netmount)==1)
 									{
-										printf(">>%s<<\n",netmount->fsType);
-										printf(">>%s<<\n",netmount->serverName);
-										printf(">>%s<<\n",netmount->sharePath);
-										printf("-----------------------------\n");
+										//printf(">>%s<<\n",netmount->fsType);
+										//printf(">>%s<<\n",netmount->serverName);
+										//printf(">>%s<<\n",netmount->sharePath);
+										//printf("-----------------------------\n");
 										gtk_list_store_append(diskList,&iter);
 										gtk_list_store_set(diskList,&iter,DEVPIXBUF,guiPixbufs[NETWORKDIVE],DEVPATH,netmount->serverName,DISKNAME,netmount->sharePath,MOUNTPATH,array[1],MOUNTED,true,-1);
 									}
