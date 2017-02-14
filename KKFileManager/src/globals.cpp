@@ -639,7 +639,7 @@ int parseNetworkUrl(const char *url,networkDriveStruct* netmount)
 			is_colon=TRUE;
 			netmount->fstype=g_strdup("sshfs");
 		}
-	else if(g_str_has_prefix(xurl,"http:") || g_str_has_prefix(xurl,"https:"))
+	else if(g_str_has_prefix(xurl,"http:") || g_str_has_prefix(xurl,"https:") || (g_str_has_prefix(xurl,"dav:")))
 		{
 			ret=INVALIDURL;
 			is_colon=TRUE;

@@ -91,7 +91,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	struct passwd		*pws;
 	pageStruct			*page=getPageStructByIDFromList(getPageIdFromTab());
 	const char			*text=gtk_entry_get_text(entry);
-	const char			*mounttypes[]={"smb://","ftp://","ssh://","http://",NULL};
+	const char			*mounttypes[]={"smb://","ftp://","ssh://","http://","dav://",NULL};
 	unsigned			cnt=0;
 	networkDriveStruct	*nm=(networkDriveStruct*)alloca(sizeof(networkDriveStruct));
 	char				portname[16];
@@ -114,7 +114,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 		}
 //smb://keithhedger:hogandnana@192.168.1.66:445/lansite
 //smb://guest@192.168.1.201/sdcard
-	if(cnt<4)
+	if(cnt<5)
 		{
 			parseNetworkUrl(text,nm);
 			printDriveDetails(nm);
@@ -189,8 +189,10 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 						}
 						break;
 					case 3:
+					case 4:
 						//davfs://user:pass@server
 						//http://kdhedger:sparky@192.168.1.201:8080
+						//http://192.168.1.201
 						if(nm->user!=NULL)
 							sprintf(uid,"%s",nm->user);
 						else
@@ -203,11 +205,11 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 						if(nm->port!=NULL)
 							sprintf(portname,":%s",nm->port);
 						else
-							sprintf(portname,"%s","");
+							sprintf(portname,":%s","8080");
 
 						asprintf(&command,"echo -e \"%s\\n%s\\n\"|udevil mount http://%s%s",uid,password,nm->host,portname);
 						system(command);
-						//printf("dav->%s\n",command);
+						printf("dav->%s\n",command);
 						free(command);
 						break;
 				}
