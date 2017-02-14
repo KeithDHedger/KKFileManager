@@ -1,4 +1,6 @@
 0.0.5
+Mount ftp share from address bar with format:ftp://[USERNAME[:PASSWORD]@][SERVER]. curlftpfs needs to be installed.
+Mount samba share from address bar with format:smb://[USERNAME[:PASSWORD]@][SERVER][:PORT]/[SHARE].
 All mounted network shares now listed.
 Added smb shares to disk list.
 Tabs now expanded to width of window.

@@ -119,36 +119,57 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 			parseNetworkUrl(text,nm);
 			printDriveDetails(nm);
 
-			if(nm->user==NULL)
-				nm->user=strdup("guest");
-
-			if(nm->port!=NULL)
-				sprintf(portname,",port=%s",nm->port);
-			else
-				sprintf(portname,"%s","");
-
-			if(nm->pass!=NULL)
-				sprintf(password,",password=%s",nm->pass);
-			else
-				sprintf(password,"%s","");
-
-			pws=getpwnam(nm->user);
-			if(pws!=NULL)
-				sprintf(uid,",uid=%i",pws->pw_uid);
-			else
-				sprintf(uid,"%s","");
-			
 			switch(cnt)
 				{
 					case 0:
 					//udevil mount -t cifs  -o username=keithhedger,password=hogandnana,uid=1000,port=445 //192.168.1.66/lansite
+						if(nm->user==NULL)
+							nm->user=strdup("guest");
+
+						if(nm->port!=NULL)
+							sprintf(portname,",port=%s",nm->port);
+						else
+							sprintf(portname,"%s","");
+
+						if(nm->pass!=NULL)
+							sprintf(password,",password=%s",nm->pass);
+						else
+							sprintf(password,"%s","");
+
+						pws=getpwnam(nm->user);
+						if(pws!=NULL)
+							sprintf(uid,",uid=%i",pws->pw_uid);
+						else
+							sprintf(uid,"%s","");
+			
 						asprintf(&command,"udevil mount -t cifs -o username=%s%s%s%s //%s%s",nm->user,password,uid,portname,nm->host,nm->path);
 						//printf(">>>command=%s<<<\n",command);
 						system(command);
 						free(command);
 						break;
 					case 1:
-						printf("ftp\n");
+					//ftp://kdhedger:sparky@192.168.1.201
+					//udevil mount ftp://kdhedger:sparky@192.168.1.201
+					{
+						const char	*at="";
+						const char	*colon="";
+						if(nm->user!=NULL)
+							at="@";
+						else
+							nm->user=strdup("");
+						if(nm->pass!=NULL)
+							{
+								sprintf(password,":%s",nm->pass);
+//								colon=":";
+							}
+						else
+							sprintf(password,"%s","");
+						
+						asprintf(&command,"udevil mount ftp://%s%s%s%s",nm->user,password,at,nm->host);
+						//printf(">>>command=%s<<<\n",command);
+						system(command);
+						free(command);
+					}
 						break;
 					case 2:
 						printf("ssh\n");
