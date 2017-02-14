@@ -91,13 +91,13 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	struct passwd		*pws;
 	pageStruct			*page=getPageStructByIDFromList(getPageIdFromTab());
 	const char			*text=gtk_entry_get_text(entry);
-	const char			*mounttypes[]={"smb://","ftp://","ssh://","dav://",NULL};
+	const char			*mounttypes[]={"smb://","ftp://","ssh://","http://",NULL};
 	unsigned			cnt=0;
 	networkDriveStruct	*nm=(networkDriveStruct*)alloca(sizeof(networkDriveStruct));
 	char				portname[16];
 	char				password[128];
-	char				uid[64];
-
+	char				uid[128];
+	char				sharepath[NAME_MAX+1];
 	nm->url=NULL;
 	nm->fstype=NULL;
 	nm->host=NULL;
@@ -150,9 +150,9 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 					case 1:
 					//ftp://kdhedger:sparky@192.168.1.201
 					//udevil mount ftp://kdhedger:sparky@192.168.1.201
+					//ftp://speedtest.tele2.net
 					{
 						const char	*at="";
-						const char	*colon="";
 						if(nm->user!=NULL)
 							at="@";
 						else
@@ -172,10 +172,37 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 					}
 						break;
 					case 2:
-						printf("ssh\n");
+						{
+						//ssh://192.168.1.66
+							if(nm->path!=NULL)
+								sprintf(sharepath,"%s",nm->port);
+							else
+								sprintf(sharepath,"%s","/");
+
+							asprintf(&command,"mkdir -vp ~/.local/%s",nm->host);
+							system(command);
+							free(command);
+							asprintf(&command,"sshfs %s:%s ~/.local/%s",nm->host,sharepath,nm->host);
+							system(command);
+							//printf("ssh -> %s\n",command);
+							free(command);
+						}
 						break;
 					case 3:
-						printf("dav\n");
+						//davfs://user:pass@server
+						//http://kdhedger:sparky@192.168.1.201:8080
+						if(nm->user!=NULL)
+							sprintf(uid,"%s",nm->user);
+						else
+							sprintf(uid,"%s","");
+						if(nm->pass!=NULL)
+							sprintf(password,"%s",nm->pass);
+						else
+							sprintf(password,"%s","");
+						asprintf(&command,"echo -e \"%s\\n%s\\n\"|udevil mount http://%s:%s",uid,password,nm->host,nm->port);
+						system(command);
+						//printf("dav->%s\n",command);
+						free(command);
 						break;
 				}
 			return;

@@ -368,8 +368,16 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				if((mountpoint!=NULL) && (strcmp(mountpoint,"…")!=0))
 					{
 						asprintf(&command,"udevil umount \"%s\"",mountpoint);
-						system(command);
-						free(path);
+						sinkReturn=system(command);
+						if(sinkReturn!=0)
+							{
+								free(command);
+								asprintf(&command,"fusermount -u \"%s\"",mountpoint);
+								system(command);
+								free(command);
+								asprintf(&command,"rmdir \"%s\"",mountpoint);
+								system(command);
+							}
 						free(command);
 						updateDiskList();
 						free(mountpoint);
@@ -382,7 +390,16 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				if(path!=NULL)
 					{
 						asprintf(&command,"udevil umount \"%s\";eject \"%s\"",mountpoint,path);
-						system(command);
+						sinkReturn=system(command);
+						if(sinkReturn!=0)
+							{
+								free(command);
+								asprintf(&command,"fusermount -u \"%s\";eject \"%s\"",mountpoint,path);
+								system(command);
+								free(command);
+								asprintf(&command,"rmdir \"%s\"",mountpoint);
+								system(command);
+							}
 						free(command);
 						updateDiskList();
 						free(mountpoint);

@@ -1,4 +1,6 @@
 0.0.5
+Mount davfs share from address bar with format:http://[USERNAME[:PASSWORD]@][SERVER][:PORT].
+Mount sshfs share from address bar with format:ssh://SERVER[:/PATH]. for security rsa keys are used so no password etc.
 Mount ftp share from address bar with format:ftp://[USERNAME[:PASSWORD]@][SERVER]. curlftpfs needs to be installed.
 Mount samba share from address bar with format:smb://[USERNAME[:PASSWORD]@][SERVER][:PORT]/[SHARE].
 All mounted network shares now listed.
