@@ -199,7 +199,13 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 							sprintf(password,"%s",nm->pass);
 						else
 							sprintf(password,"%s","");
-						asprintf(&command,"echo -e \"%s\\n%s\\n\"|udevil mount http://%s:%s",uid,password,nm->host,nm->port);
+
+						if(nm->port!=NULL)
+							sprintf(portname,":%s",nm->port);
+						else
+							sprintf(portname,"%s","");
+
+						asprintf(&command,"echo -e \"%s\\n%s\\n\"|udevil mount http://%s%s",uid,password,nm->host,portname);
 						system(command);
 						//printf("dav->%s\n",command);
 						free(command);
