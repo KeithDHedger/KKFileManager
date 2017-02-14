@@ -23,6 +23,8 @@
 #include <sys/stat.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "globals.h"
 
@@ -75,10 +77,171 @@ void goNew(GtkWidget *widget,gpointer data)
 		addNewPage((char*)getenv("HOME"));
 }
 
+//struct mountShare
+//{
+//	char	*user;
+//	char	*pass;
+//	char	*server;
+//	char	*share;
+//};
+
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
-	char		*command;
-	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+	char				*command;
+	struct passwd		*pws;
+	pageStruct			*page=getPageStructByIDFromList(getPageIdFromTab());
+	const char			*text=gtk_entry_get_text(entry);
+	const char			*mounttypes[]={"smb://","ftp://","ssh://","dav://",NULL};
+	unsigned			cnt=0;
+	networkDriveStruct	*nm=(networkDriveStruct*)alloca(sizeof(networkDriveStruct));
+	char				portname[16];
+	char				password[128];
+	char				uid[64];
+
+	nm->url=NULL;
+	nm->fstype=NULL;
+	nm->host=NULL;
+	nm->port=NULL;
+	nm->user=NULL;
+	nm->pass=NULL;
+	nm->path=NULL;
+
+	while(mounttypes[cnt]!=NULL)
+		{
+			if(g_str_has_prefix(text,mounttypes[cnt])==true)
+				break;
+			cnt++;
+		}
+//smb://keithhedger:hogandnana@192.168.1.66:445/lansite
+//smb://guest@192.168.1.201/sdcard
+	if(cnt<4)
+		{
+			parseNetworkUrl(text,nm);
+			printDriveDetails(nm);
+
+			if(nm->user==NULL)
+				nm->user=strdup("guest");
+
+			if(nm->port!=NULL)
+				sprintf(portname,",port=%s",nm->port);
+			else
+				sprintf(portname,"%s","");
+
+			if(nm->pass!=NULL)
+				sprintf(password,",password=%s",nm->pass);
+			else
+				sprintf(password,"%s","");
+
+			pws=getpwnam(nm->user);
+			if(pws!=NULL)
+				sprintf(uid,",uid=%i",pws->pw_uid);
+			else
+				sprintf(uid,"%s","");
+			
+			switch(cnt)
+				{
+					case 0:
+					//udevil mount -t cifs  -o username=keithhedger,password=hogandnana,uid=1000,port=445 //192.168.1.66/lansite
+						asprintf(&command,"udevil mount -t cifs -o username=%s%s%s%s //%s%s",nm->user,password,uid,portname,nm->host,nm->path);
+						//printf(">>>command=%s<<<\n",command);
+						system(command);
+						free(command);
+						break;
+					case 1:
+						printf("ftp\n");
+						break;
+					case 2:
+						printf("ssh\n");
+						break;
+					case 3:
+						printf("dav\n");
+						break;
+				}
+			return;
+		}
+
+//format
+//udevil mount -t cifs  -o username=keithhedger,password=hogandnana,uid=1000,port=445 //192.168.1.66:/media
+//
+/*
+smb://user:pass@server:/share
+
+smb://keithhedger:hogandnana@192.168.1.66:/media
+smb://192.168.1.66:/media
+
+*/
+#if 0
+			if(g_str_has_prefix(text,"smb://")==true)
+				{
+					char	*ptr;
+					char	*start;
+					char	*end;
+					mountShare ms={NULL,};
+					printf("text entry=>>%s<<\n",text);
+					
+					ptr=text;
+					ptr+=6;
+//user
+					start=ptr;
+					while(*ptr!=':')
+						ptr++;
+					*ptr=0;
+					asprintf(&ms.user,"%s",start);
+					ptr++;
+//pass
+					start=ptr;
+					while(*ptr!='@')
+						ptr++;
+					*ptr=0;
+					asprintf(&ms.pass,"%s",start);
+					ptr++;
+//server
+					start=ptr;
+					while(*ptr!=':')
+						ptr++;
+					*ptr=0;
+					asprintf(&ms.server,"%s",start);
+					ptr++;
+//share
+					start=ptr;
+					while(*ptr!=0)
+						ptr++;
+					asprintf(&ms.share,"%s",start);
+
+					printf("user=>>%s<<\n",ms.user);
+					printf("pass=>>%s<<\n",ms.pass);
+					printf("server=>>%s<<\n",ms.server);
+					printf("share=>>%s<<\n",ms.share);
+					free(text);
+					char options[256];
+					if((ms.user!=NULL && ms.pass!=NULL) && (strlen(ms.user)>0 || strlen(ms.pass)>0))
+						{
+							sprintf(options,"-o ");
+							if((ms.user!=NULL) && (strlen(ms.user)>0))
+								{
+									sprintf(&options[3],"username=%s",ms.user);
+									if((ms.pass!=NULL) && (strlen(ms.pass)>0))
+										strcat(options,",");
+								}
+							if((ms.pass!=NULL) && (strlen(ms.pass)>0))
+								{
+									strcat(options,"password=");
+									strcat(options,ms.pass);
+								}
+						}
+					asprintf(&text,"udevil mount -t cifs %s //%s:%s",options,ms.server,ms.share);
+					//system(text);
+					printf(">>%s<<\n",text);
+					free(text);
+					free(ms.user);
+					free(ms.pass);
+					free(ms.server);
+					free(ms.share);
+				}
+			else
+				{
+#endif
+
 
 	if(g_file_test(gtk_entry_get_text(entry),G_FILE_TEST_IS_DIR)==false)
 		{
@@ -88,6 +251,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 			return;
 		}
 	setCurrentFolderForTab(gtk_entry_get_text(entry),page,true,true);
+//	}
 }
 
 gboolean trapTabKey(GtkEntry *entry,GdkEvent *event,gpointer data)

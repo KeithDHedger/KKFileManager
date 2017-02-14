@@ -755,12 +755,13 @@ bool checkCDROMChanged(void)
 	return(false);
 }
 
+#if 0
 /*
 Large portions of code in this function are from the great filemanager SpaceFM, available here:
 http://ignorantguru.github.io/spacefm/
 HUGE thanks to ignorantguru for his great work.
 */
-int parseNetworkUrl(const char* url,networkDriveStruct* netmount)
+int parseNetworkUrlXX(const char* url,networkDriveStruct* netmount)
 {
 	// returns NOTNETURL=not a network url  VALIDNETURL=valid network url  INVALIDNETURL=invalid network url
 	if(!url || !netmount)
@@ -873,6 +874,7 @@ int parseNetworkUrl(const char* url,networkDriveStruct* netmount)
 		}
 	return(VALIDNETURL);
 }
+#endif
 
 void updateDiskList(void)
 {
@@ -889,6 +891,13 @@ void updateDiskList(void)
 	GdkPixbuf			*drive=NULL;
 	bool				gotrom=false;
 	networkDriveStruct	*netmount=(networkDriveStruct*)alloca(sizeof(networkDriveStruct));
+	netmount->url=NULL;
+	netmount->fstype=NULL;
+	netmount->host=NULL;
+	netmount->port=NULL;
+	netmount->user=NULL;
+	netmount->pass=NULL;
+	netmount->path=NULL;
 
 	gtk_list_store_clear(diskList);
 
@@ -905,29 +914,24 @@ void updateDiskList(void)
 						if(array!=NULL)
 							{
 								//printf(">>>%s<<<\n",array[0]);
-								netmount->fsType=NULL;
-								netmount->serverName=NULL;
-								netmount->sharePath=NULL;
-								if(parseNetworkUrl(array[0],netmount)==1)
+								netmount->fstype=NULL;
+								netmount->host=NULL;
+								netmount->path=NULL;
+								if(parseNetworkUrl(array[0],netmount)==VALIDURL)
 									{
 										//printf(">>%s<<\n",netmount->fsType);
 										//printf(">>%s<<\n",netmount->serverName);
 										//printf(">>%s<<\n",netmount->sharePath);
 										//printf("-----------------------------\n");
 										gtk_list_store_append(diskList,&iter);
-										gtk_list_store_set(diskList,&iter,DEVPIXBUF,guiPixbufs[NETWORKDIVE],DEVPATH,netmount->serverName,DISKNAME,netmount->sharePath,MOUNTPATH,array[1],MOUNTED,true,-1);
+										gtk_list_store_set(diskList,&iter,DEVPIXBUF,guiPixbufs[NETWORKDIVE],DEVPATH,netmount->host,DISKNAME,netmount->path,MOUNTPATH,array[1],MOUNTED,true,-1);
 									}
-								if(netmount->fsType!=NULL)
-									free(netmount->fsType);
-								if(netmount->serverName!=NULL)
-									free(netmount->serverName);
-								if(netmount->sharePath!=NULL)
-									free(netmount->sharePath);
 								g_strfreev(array);
 							}
 				}
 			pclose(fp);
 		}
+	clearNMStruct(netmount);
 
 	asprintf(&command,"find /dev -maxdepth 1 -mindepth 1  -regextype sed -regex \"%s\"|grep -v \"%s\"|sort --version-sort",diskIncludePattern,diskExcludePattern);
 //printf("command=%s\n",command);

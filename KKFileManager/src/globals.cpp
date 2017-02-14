@@ -532,6 +532,228 @@ bool checkAccess(const char *path)
 	return(!mode);
 }
 
+void printDriveDetails(networkDriveStruct *netmount)
+{
+			printf(">>%s<<\n",netmount->url);
+			printf(">>%s<<\n",netmount->fstype);
+			printf(">>%s<<\n",netmount->host);
+			printf(">>%s<<\n",netmount->port);
+			printf(">>%s<<\n",netmount->user);
+			printf(">>%s<<\n",netmount->pass);
+			printf(">>%s<<\n",netmount->path);
+}
+
+void clearNMStruct(networkDriveStruct *netmount)
+{
+	if(netmount->url!=NULL)
+		free(netmount->url);
+	if(netmount->fstype!=NULL)
+		free(netmount->fstype);
+	if(netmount->host!=NULL)
+		free(netmount->host);
+	if(netmount->port!=NULL)
+		free(netmount->port);
+	if(netmount->user!=NULL)
+		free(netmount->user);
+	if(netmount->pass!=NULL)
+		free(netmount->pass);
+	if(netmount->path!=NULL)
+		free(netmount->path);
+	netmount->url=NULL;
+	netmount->fstype=NULL;
+	netmount->host=NULL;
+	netmount->port=NULL;
+	netmount->user=NULL;
+	netmount->pass=NULL;
+	netmount->path=NULL;
+}
+
+/*
+Large portions of code in this function are from the great filemanager SpaceFM, available here:
+http://ignorantguru.github.io/spacefm/
+HUGE thanks to ignorantguru for his great work.
+*/
+int parseNetworkUrl(const char *url,networkDriveStruct* netmount)
+{
+	// returns NOTANETDRIVE=not a network url  VALIDURL=valid network url  INVALIDURL=invalid network url
+	if(!url || !netmount)
+		return NOTANETDRIVE;
+
+	int			ret=NOTANETDRIVE;
+	char		*str;
+	char		*str2;
+
+	char		*orig_url=strdup(url);
+	char		*xurl=orig_url;
+	gboolean	is_colon=FALSE;
+	char		*trim_url;
+
+	clearNMStruct(netmount);
+
+	// determine url type
+	if(g_str_has_prefix(xurl,"smb:") || g_str_has_prefix(xurl,"smbfs:") || g_str_has_prefix(xurl,"cifs:") || g_str_has_prefix(xurl,"//"))
+		{
+			ret=INVALIDURL;
+			if(!g_str_has_prefix(xurl,"//"))
+				is_colon=TRUE;
+
+			if(g_str_has_prefix(xurl,"smbfs:"))
+				netmount->fstype=g_strdup("smbfs");
+			else
+				netmount->fstype=g_strdup("cifs");
+		}
+	else if(g_str_has_prefix(xurl,"nfs:"))
+		{
+			ret=INVALIDURL;
+			is_colon=TRUE;
+			netmount->fstype=g_strdup("nfs");
+		}
+	else if(g_str_has_prefix(xurl,"curlftpfs#"))
+		{
+			ret=INVALIDURL;
+			if(g_str_has_prefix(xurl,"curlftpfs#ftp:"))
+				is_colon=TRUE;
+			netmount->fstype=g_strdup("curlftpfs");
+		}
+	else if(g_str_has_prefix(xurl,"ftp:"))
+		{
+			ret=INVALIDURL;
+			is_colon=TRUE;
+			str=g_find_program_in_path("curlftpfs");
+			if(str!=NULL)
+				netmount->fstype=g_strdup("curlftpfs");
+			else
+				netmount->fstype=g_strdup("ftpfs");
+			g_free(str);
+		}
+	else if(g_str_has_prefix(xurl,"sshfs#"))
+		{
+			ret=INVALIDURL;
+			if(g_str_has_prefix(xurl,"sshfs#ssh:") || g_str_has_prefix(xurl,"sshfs#sshfs:") || g_str_has_prefix(xurl,"sshfs#sftp:"))
+				is_colon=TRUE;
+			netmount->fstype=g_strdup("sshfs");
+		}
+	else if(g_str_has_prefix(xurl,"ssh:") || g_str_has_prefix(xurl,"sshfs:") || g_str_has_prefix(xurl,"sftp:"))
+		{
+			ret=INVALIDURL;
+			is_colon=TRUE;
+			netmount->fstype=g_strdup("sshfs");
+		}
+	else if(g_str_has_prefix(xurl,"http:") || g_str_has_prefix(xurl,"https:"))
+		{
+			ret=INVALIDURL;
+			is_colon=TRUE;
+			netmount->fstype=g_strdup("davfs");
+		}
+	else if((str=strstr(xurl,":/")) && xurl[0]!=':' && xurl[0]!='/')
+		{
+			ret=INVALIDURL;
+			str[0]='\0';
+			if(strchr(xurl,'@'))
+				netmount->fstype=g_strdup("sshfs");
+			else
+				netmount->fstype=g_strdup("nfs");
+			str[0]=':';
+		}
+
+	if(ret!=INVALIDURL)
+		return(ret);
+
+	// parse
+	if(is_colon && (str=strchr(xurl,':')))
+		xurl=str + 1;
+
+	while (xurl[0]=='/')
+		xurl++;
+
+	trim_url=g_strdup(xurl);
+
+	// user:pass
+	str=strchr(xurl,'@');
+	if(str!=NULL)
+		{
+			str2=strchr(str + 1,'@');
+			if(str2!=NULL)
+				str=str2;// there is a second @ - assume username contains email address
+			str[0]='\0';
+			str2=strchr(xurl,':');
+			if(str2!=NULL)
+				{
+					str2[0]='\0';
+					if(str2[1]!='\0')
+						netmount->pass=g_strdup(str2 + 1);
+				}
+			if(xurl[0]!='\0')
+				netmount->user=g_strdup(xurl);
+			xurl=str + 1;
+		}
+
+	// path
+	str=strchr(xurl,'/');
+	if(str!=NULL)
+		{
+			netmount->path=g_strdup(str);
+			str[0]='\0';
+		}
+
+	// host:port
+	if(xurl[0]=='[')
+		{
+			// ipv6 literal
+			str=strchr(xurl,']');
+			if(str!=NULL)
+				{
+					str[0]='\0';
+					if(xurl[1]!='\0')
+						netmount->host=g_strdup(xurl + 1);
+					if(str[1]==':' && str[2]!='\0')
+						netmount->port=g_strdup(str + 1);
+				}
+		}
+	else if(xurl[0]!='\0')
+		{
+			str=strchr(xurl,':');
+			if(str!=NULL)
+				{
+					str[0]='\0';
+					if(str[1]!='\0')
+						netmount->port=g_strdup(str + 1);
+				}
+			netmount->host=g_strdup(xurl);
+		}
+
+	// url
+	//TODO//
+	if(netmount->host)
+		{
+			if(!g_strcmp0(netmount->fstype,"cifs") || !g_strcmp0(netmount->fstype,"smbfs"))
+				netmount->url=g_strdup_printf("//%s%s",netmount->host,netmount->path ? netmount->path : "/");
+			else if(!g_strcmp0(netmount->fstype,"nfs"))
+				netmount->url=g_strdup_printf("%s:%s",netmount->host,netmount->path ? netmount->path : "/");
+			else if(!g_strcmp0(netmount->fstype,"curlftpfs"))
+				netmount->url=g_strdup_printf("curlftpfs#ftp://%s%s%s%s",netmount->host,netmount->port ? ":" : "",netmount->port ? netmount->port : "",netmount->path ? netmount->path : "/");
+			else if(!g_strcmp0(netmount->fstype,"ftpfs"))
+				netmount->url=g_strdup("none");
+			else if(!g_strcmp0(netmount->fstype,"sshfs"))
+				netmount->url=g_strdup_printf("sshfs#%s%s%s%s%s:%s",netmount->user ? netmount->user : g_get_user_name(),netmount->pass ? ":" : "",netmount->pass ? netmount->pass : "","@",netmount->host,netmount->path ? netmount->path : "/");
+			else if(!g_strcmp0(netmount->fstype,"davfs"))
+				netmount->url=g_strdup(url);
+			else
+				netmount->url=g_strdup(trim_url);
+		}
+	g_free(trim_url);
+	g_free(orig_url);
+
+	if(!netmount->host)
+		return(ret);
+
+	// check user pass port
+	if((netmount->user && strchr(netmount->user,' ')) || (netmount->pass && strchr(netmount->pass,' ')) || (netmount->port && strchr(netmount->port,' ')))
+		return(ret);
+
+	return(VALIDURL);
+}
+
 
 
 

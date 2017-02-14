@@ -117,6 +117,18 @@ struct toolStruct
 	bool				global;
 };
 
+struct networkDriveStruct
+{
+	char	* url;
+	char	* fstype;
+	char	* host;
+	char	* port;
+	char	* user;
+	char	* pass;
+	char	* path;
+};
+
+enum {NOTANETDRIVE=0,VALIDURL,INVALIDURL};
 enum {NEWVBOX=0,NEWHBOX};
 enum {TEXT_COLUMN=0,PIXBUF_COLUMN,FILEPATH,ISDIR,NUMCOLS};
 enum {DEVPIXBUF=0,DEVPATH,DISKNAME,MOUNTPATH,MOUNTED,NUMDISKCOLS};
@@ -246,5 +258,8 @@ void writeExitData(void);
 char *selectionToString(const char *seperator);
 unsigned selectionToArray(char ***array,bool touri);
 bool checkAccess(const char *path);
+int parseNetworkUrl(const char *url,networkDriveStruct* netmount);
+void clearNMStruct(networkDriveStruct *netmount);
+void printDriveDetails(networkDriveStruct *netmount);
 
 #endif
