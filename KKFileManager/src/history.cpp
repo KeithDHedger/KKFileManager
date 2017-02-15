@@ -165,7 +165,8 @@ void clearForward(pageStruct *page)
 
 void clearMenu(GtkMenuShell *menushell,gpointer user_data)
 {
-	GList		*childs;
+	GList	*childs;
+
 	childs=gtk_container_get_children ((GtkContainer*)menushell);
 	for(unsigned j=0;j<g_list_length(childs);j++)
 		gtk_widget_destroy((GtkWidget*)g_list_nth_data(childs,j));
@@ -284,7 +285,7 @@ void updateNetHistoryFile(const char *newurl,unsigned what)
 
 void goLocHistory(GtkWidget *widget,gpointer data)
 {
-	pageStruct			*page=getPageFromCurrentTab();
+	pageStruct	*page=getPageFromCurrentTab();
 
 	setCurrentFolderForTab(locFolderArray[(int)(long)data],page,true,true);
 }
