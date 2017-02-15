@@ -171,6 +171,86 @@ void clearMenu(GtkMenuShell *menushell,gpointer user_data)
 	g_list_free(childs);
 }
 
+void goNetDisk(GtkWidget *widget,gpointer data)
+{
+	char	*holdtext=strdup(gtk_entry_get_text(locationTextBox));
+
+	gtk_entry_set_text(locationTextBox,netDiskArray[(long)data]);
+	goLocation(locationTextBox,NULL,NULL);
+	gtk_entry_set_text(locationTextBox,holdtext);
+	free(holdtext);
+}
+
+void connectMenu(GtkMenuToolButton *toolbutton,gpointer data)
+{
+	GtkWidget	*menu;
+	GtkWidget	*menuitem;
+	pageStruct	*page=getPageStructByIDFromList(getPageIdFromTab());
+	int			cnt=0;
+
+	if(page==NULL)
+		return;
+
+	menu=gtk_menu_tool_button_get_menu(toolbutton);
+
+	while(netDiskArray[cnt]!=NULL)
+		{
+			menuitem=gtk_menu_item_new_with_label(netDiskArray[cnt]);
+			g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(goNetDisk),(void*)(long)cnt);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+			cnt++;
+		}
+	gtk_widget_show_all(menu);
+}
+
+void loadNetHistory(void)
+{
+	char		buffer[2048];
+	FILE		*fp;
+	char		*command;
+	unsigned	cnt=0;
+
+	for(int j=0;j<MAXNETURLS;j++)
+		{
+			if(netDiskArray[j]!=NULL)
+				free(netDiskArray[j]);
+			netDiskArray[j]=NULL;
+		}
+
+	asprintf(&command,"tail -n%i \"%s/%s/%s\"",MAXNETURLS-1,getenv("HOME"),APPFOLDENAME,NETHISTORYFILE);
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(buffer,2048,fp))
+				{
+					if(strlen(buffer)>0)
+						buffer[strlen(buffer)-1]=0;
+					netDiskArray[cnt]=strdup(buffer);
+					cnt++;
+				}
+			pclose(fp);
+		}
+}
+
+void updateNetHistoryFile(const char *newurl)
+{
+	char	*command;
+	char	*nmh;
+
+	asprintf(&nmh,"%s/%s/%s",getenv("HOME"),APPFOLDENAME,NETHISTORYFILE);
+	asprintf(&command,"echo \"%s\" >>  \"%s\"",newurl,nmh);
+	system(command);
+	free(command);
+	asprintf(&command,"sort -u \"%s\" | tail -n%i > \"%s.BAK\";mv \"%s.BAK\" \"%s\"",nmh,MAXNETURLS-1,nmh,nmh,nmh);
+	system(command);
+	free(command);
+	free(nmh);
+	loadNetHistory();
+}
+
+
+
+
 
 
 

@@ -25,5 +25,6 @@
 void setUpToolBar(void);
 void goNew(GtkWidget *widget,gpointer data);
 void refreshView(GtkWidget *widget,gpointer data);
+void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data);
 
 #endif

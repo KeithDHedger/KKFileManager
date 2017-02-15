@@ -77,14 +77,6 @@ void goNew(GtkWidget *widget,gpointer data)
 		addNewPage((char*)getenv("HOME"));
 }
 
-//struct mountShare
-//{
-//	char	*user;
-//	char	*pass;
-//	char	*server;
-//	char	*share;
-//};
-
 void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 {
 	char				*command;
@@ -98,6 +90,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	char				password[128];
 	char				uid[128];
 	char				sharepath[NAME_MAX+1];
+
 	nm->url=NULL;
 	nm->fstype=NULL;
 	nm->host=NULL;
@@ -117,7 +110,8 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	if(cnt<5)
 		{
 			parseNetworkUrl(text,nm);
-			printDriveDetails(nm);
+			//printDriveDetails(nm);
+			updateNetHistoryFile(text);
 
 			switch(cnt)
 				{
@@ -216,89 +210,6 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 			return;
 		}
 
-//format
-//udevil mount -t cifs  -o username=keithhedger,password=hogandnana,uid=1000,port=445 //192.168.1.66:/media
-//
-/*
-smb://user:pass@server:/share
-
-smb://keithhedger:hogandnana@192.168.1.66:/media
-smb://192.168.1.66:/media
-
-*/
-#if 0
-			if(g_str_has_prefix(text,"smb://")==true)
-				{
-					char	*ptr;
-					char	*start;
-					char	*end;
-					mountShare ms={NULL,};
-					printf("text entry=>>%s<<\n",text);
-					
-					ptr=text;
-					ptr+=6;
-//user
-					start=ptr;
-					while(*ptr!=':')
-						ptr++;
-					*ptr=0;
-					asprintf(&ms.user,"%s",start);
-					ptr++;
-//pass
-					start=ptr;
-					while(*ptr!='@')
-						ptr++;
-					*ptr=0;
-					asprintf(&ms.pass,"%s",start);
-					ptr++;
-//server
-					start=ptr;
-					while(*ptr!=':')
-						ptr++;
-					*ptr=0;
-					asprintf(&ms.server,"%s",start);
-					ptr++;
-//share
-					start=ptr;
-					while(*ptr!=0)
-						ptr++;
-					asprintf(&ms.share,"%s",start);
-
-					printf("user=>>%s<<\n",ms.user);
-					printf("pass=>>%s<<\n",ms.pass);
-					printf("server=>>%s<<\n",ms.server);
-					printf("share=>>%s<<\n",ms.share);
-					free(text);
-					char options[256];
-					if((ms.user!=NULL && ms.pass!=NULL) && (strlen(ms.user)>0 || strlen(ms.pass)>0))
-						{
-							sprintf(options,"-o ");
-							if((ms.user!=NULL) && (strlen(ms.user)>0))
-								{
-									sprintf(&options[3],"username=%s",ms.user);
-									if((ms.pass!=NULL) && (strlen(ms.pass)>0))
-										strcat(options,",");
-								}
-							if((ms.pass!=NULL) && (strlen(ms.pass)>0))
-								{
-									strcat(options,"password=");
-									strcat(options,ms.pass);
-								}
-						}
-					asprintf(&text,"udevil mount -t cifs %s //%s:%s",options,ms.server,ms.share);
-					//system(text);
-					printf(">>%s<<\n",text);
-					free(text);
-					free(ms.user);
-					free(ms.pass);
-					free(ms.server);
-					free(ms.share);
-				}
-			else
-				{
-#endif
-
-
 	if(g_file_test(gtk_entry_get_text(entry),G_FILE_TEST_IS_DIR)==false)
 		{
 			asprintf(&command,"mimeopen -L -n \"%s\" &",gtk_entry_get_text(entry));
@@ -307,7 +218,6 @@ smb://192.168.1.66:/media
 			return;
 		}
 	setCurrentFolderForTab(gtk_entry_get_text(entry),page,true,true);
-//	}
 }
 
 gboolean trapTabKey(GtkEntry *entry,GdkEvent *event,gpointer data)
@@ -342,7 +252,7 @@ gboolean getLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	const char	*text=gtk_entry_get_text(entry);
 	if(text!=NULL && strlen(text)>0)
 		{
-			asprintf(&command,"find  \"%s\"* -mindepth 0 -maxdepth 0 -follow -type d -print",text);
+			asprintf(&command,"find  \"%s\"* -mindepth 0 -maxdepth 0 -follow -type d -print 2>/dev/null",text);
 			fp=popen(command,"r");
 			if(fp!=NULL)
 				{
@@ -422,6 +332,25 @@ void setUpToolBar(void)
 						g_signal_connect(G_OBJECT(refreshButton),"clicked",G_CALLBACK(refreshView),NULL);
 						break;
 
+//connect
+					case 'C':
+#ifdef _USEGTK3_
+						image=gtk_image_new_from_icon_name(GTK_STOCK_NETWORK,GTK_ICON_SIZE_LARGE_TOOLBAR);
+						gtk_image_set_pixel_size((GtkImage*)image,24);
+						connectButton=gtk_menu_tool_button_new(image,"Connect");
+#else
+						connectButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_NETWORK);
+#endif
+						gtk_toolbar_insert(toolBar,connectButton,-1);
+						//g_signal_connect(G_OBJECT(connectButton),"clicked",G_CALLBACK(navigateHistory),NULL);
+//connect history
+						menu=gtk_menu_new();
+						//backButtonMenu=gtk_menu_new();
+						gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(connectButton),menu);
+						//gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(backButton),backButtonMenu);
+						g_signal_connect(G_OBJECT(connectButton),"show-menu",G_CALLBACK(connectMenu),NULL);
+						g_signal_connect_after(GTK_MENU_SHELL(menu),"selection-done",G_CALLBACK(clearMenu),NULL);
+						break;					
 //go back
 					case 'B':
 #ifdef _USEGTK3_

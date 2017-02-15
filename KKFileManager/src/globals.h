@@ -71,6 +71,7 @@
 #define GTK_STOCK_CONVERT "stock_convert"
 #define GTK_STOCK_PROPERTIES "document-properties"
 #define GTK_STOCK_ZOOM_100 "zoom-original"
+#define GTK_STOCK_NETWORK "network-workgroup"
 
 
 #endif
@@ -82,6 +83,8 @@
 #define GDOCSFOLDER  DATADIR _EXECSUFFIX_ "/docs"
 #define ABOUTICON "KKFileManager" _EXECSUFFIX_
 #define GTOOLSFOLDER DATADIR _EXECSUFFIX_ "/tools"
+#define NETHISTORYFILE "nethistory"
+#define MAXNETURLS 8
 
 #define LOADICONCNT 128
 #define DRAG_TEXT_URI_LIST 1
@@ -188,6 +191,7 @@ extern GtkWidget		*aboutMenu;
 //tool bar
 extern GtkToolItem		*upButton;
 extern GtkToolItem		*refreshButton;
+extern GtkToolItem		*connectButton;
 extern GtkToolItem		*backButton;
 extern GtkToolItem		*forwardButton;
 extern GtkToolItem		*homeButton;
@@ -233,6 +237,7 @@ extern unsigned			fromPageID;
 
 //odds
 extern int				sinkReturn;
+extern char				*netDiskArray[MAXNETURLS];
 
 //tests
 extern GdkPixbuf		*testpb;

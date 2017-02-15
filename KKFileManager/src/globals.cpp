@@ -89,6 +89,7 @@ GtkWidget		*helpMenu=NULL;
 GtkWidget		*aboutMenu=NULL;
 
 //tool bar
+GtkToolItem		*connectButton=NULL;
 GtkToolItem		*refreshButton=NULL;
 GtkToolItem		*upButton=NULL;
 GtkToolItem		*backButton=NULL;
@@ -164,6 +165,7 @@ unsigned		fromPageID=0;
 
 //odds
 int				sinkReturn;
+char			*netDiskArray[MAXNETURLS]={NULL,};
 
 //global functions
 char* oneLiner(const char *command)
