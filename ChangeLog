@@ -1,5 +1,6 @@
 0.0.5
-Added net mount history to toolbar ( use 'C' in prefs toolbar layout to enable ).
+Added persistent right click pop menu to location box for recent locations.
+Added persistent net mount history to toolbar ( use 'C' in prefs toolbar layout to enable ).
 Mount davfs share from address bar with format:http://[USERNAME[:PASSWORD]@][SERVER][:PORT].
 Mount sshfs share from address bar with format:ssh://SERVER[:/PATH]. for security rsa keys are used so no password etc.
 Mount ftp share from address bar with format:ftp://[USERNAME[:PASSWORD]@][SERVER]. curlftpfs needs to be installed.

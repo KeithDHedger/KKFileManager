@@ -166,6 +166,7 @@ unsigned		fromPageID=0;
 //odds
 int				sinkReturn;
 char			*netDiskArray[MAXNETURLS]={NULL,};
+char			*locFolderArray[MAXLOCATIONS]={NULL,};
 
 //global functions
 char* oneLiner(const char *command)
@@ -220,6 +221,7 @@ void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool updatena
 			gtk_entry_completion_complete(completion);
 			gtk_widget_show_all(page->vBox);
 			updateTabLabel(page);
+			updateNetHistoryFile(page->thisFolder,1);
 		}
 }
 

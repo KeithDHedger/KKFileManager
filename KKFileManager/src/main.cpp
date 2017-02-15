@@ -193,7 +193,8 @@ void appStart(GApplication  *application,gpointer data)
 #endif
 
 	loadPixbufs();
-	loadNetHistory();
+	loadHistory(0);
+	loadHistory(1);
 
 	buidMainGui(NULL);
 

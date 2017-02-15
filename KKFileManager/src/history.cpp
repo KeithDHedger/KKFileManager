@@ -20,6 +20,8 @@
 
 #include "globals.h"
 
+GtkWidget	*historyMenu=NULL;
+
 void doGoBack(GtkWidget *widget,GList *lst)
 {
 	GList		*blst=NULL;
@@ -203,21 +205,37 @@ void connectMenu(GtkMenuToolButton *toolbutton,gpointer data)
 	gtk_widget_show_all(menu);
 }
 
-void loadNetHistory(void)
+void loadHistory(unsigned what)
 {
 	char		buffer[2048];
 	FILE		*fp;
 	char		*command;
 	unsigned	cnt=0;
+	unsigned	whatmax;
+	char		**whaturls;
+	const char	*filename;
 
-	for(int j=0;j<MAXNETURLS;j++)
+	if(what==0)
 		{
-			if(netDiskArray[j]!=NULL)
-				free(netDiskArray[j]);
-			netDiskArray[j]=NULL;
+			whatmax=MAXNETURLS;
+			whaturls=(char**)&netDiskArray;
+			filename=NETHISTORYFILE;
+		}
+	else
+		{
+			whatmax=MAXLOCATIONS;
+			whaturls=(char**)&locFolderArray;
+			filename=LOCATIONHISTORYFILE;
 		}
 
-	asprintf(&command,"tail -n%i \"%s/%s/%s\"",MAXNETURLS-1,getenv("HOME"),APPFOLDENAME,NETHISTORYFILE);
+	for(unsigned j=0;j<whatmax;j++)
+		{
+			if(whaturls[j]!=NULL)
+				free((char*)whaturls[j]);
+			whaturls[j]=NULL;
+		}
+
+	asprintf(&command,"tail -n%i \"%s/%s/%s\"",whatmax-1,getenv("HOME"),APPFOLDENAME,filename);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -225,33 +243,78 @@ void loadNetHistory(void)
 				{
 					if(strlen(buffer)>0)
 						buffer[strlen(buffer)-1]=0;
-					netDiskArray[cnt]=strdup(buffer);
+					whaturls[cnt]=strdup(buffer);
 					cnt++;
 				}
 			pclose(fp);
 		}
 }
 
-void updateNetHistoryFile(const char *newurl)
+void updateNetHistoryFile(const char *newurl,unsigned what)
 {
-	char	*command;
-	char	*nmh;
+	char		*command;
+	char		*nmh;
+	unsigned	whatmax;
+	const char	*filename;
 
-	asprintf(&nmh,"%s/%s/%s",getenv("HOME"),APPFOLDENAME,NETHISTORYFILE);
+	if(what==0)
+		{
+			whatmax=MAXNETURLS;
+			filename=NETHISTORYFILE;
+		}
+	else
+		{
+			whatmax=MAXLOCATIONS;
+			filename=LOCATIONHISTORYFILE;
+		}
+
+	asprintf(&nmh,"%s/%s/%s",getenv("HOME"),APPFOLDENAME,filename);
 	asprintf(&command,"echo \"%s\" >>  \"%s\"",newurl,nmh);
 	system(command);
 	free(command);
-	asprintf(&command,"sort -u \"%s\" | tail -n%i > \"%s.BAK\";mv \"%s.BAK\" \"%s\"",nmh,MAXNETURLS-1,nmh,nmh,nmh);
+	if(what==0)
+		asprintf(&command,"sort -u \"%s\" | tail -n%i > \"%s.BAK\";mv \"%s.BAK\" \"%s\"",nmh,whatmax-1,nmh,nmh,nmh);
+	else
+		asprintf(&command,"tail -n%i \"%s\" > \"%s.BAK\";mv \"%s.BAK\" \"%s\"",whatmax-1,nmh,nmh,nmh,nmh);
 	system(command);
 	free(command);
 	free(nmh);
-	loadNetHistory();
+	loadHistory(what);
 }
 
+void goLocHistory(GtkWidget *widget,gpointer data)
+{
+	pageStruct			*page=getPageFromCurrentTab();
 
+	setCurrentFolderForTab(locFolderArray[(int)(long)data],page,true,true);
+}
 
+gboolean locateBarHistory(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
+{
+	GtkWidget	*menuitem;
+	unsigned	cnt=0;
 
+	if(event->button==3 && event->type==GDK_BUTTON_PRESS)
+		{
+			if(G_IS_OBJECT(historyMenu))
+				{
+					g_object_ref_sink(historyMenu);
+					g_object_unref(historyMenu);
+				}
+			historyMenu=gtk_menu_new();
 
+			while(locFolderArray[cnt]!=NULL)
+				{
+					menuitem=gtk_menu_item_new_with_label(locFolderArray[cnt]);
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(goLocHistory),(void*)(long)cnt);
+					gtk_menu_shell_append(GTK_MENU_SHELL(historyMenu),menuitem);
+					cnt++;
+				}
+			gtk_menu_popup(GTK_MENU(historyMenu),NULL,NULL,NULL,NULL,event->button,event->time);
+			gtk_widget_show_all((GtkWidget*)historyMenu);
 
-
+			return(true);
+		}
+	return(false);
+}
 

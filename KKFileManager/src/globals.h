@@ -84,7 +84,9 @@
 #define ABOUTICON "KKFileManager" _EXECSUFFIX_
 #define GTOOLSFOLDER DATADIR _EXECSUFFIX_ "/tools"
 #define NETHISTORYFILE "nethistory"
+#define LOCATIONHISTORYFILE "locationhistory"
 #define MAXNETURLS 8
+#define MAXLOCATIONS 16
 
 #define LOADICONCNT 128
 #define DRAG_TEXT_URI_LIST 1
@@ -238,7 +240,7 @@ extern unsigned			fromPageID;
 //odds
 extern int				sinkReturn;
 extern char				*netDiskArray[MAXNETURLS];
-
+extern char				*locFolderArray[MAXLOCATIONS];
 //tests
 extern GdkPixbuf		*testpb;
 

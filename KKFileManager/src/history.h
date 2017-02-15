@@ -29,7 +29,8 @@ void addToHistory(pageStruct *page,char *folder,bool addtoback);
 void clearForward(pageStruct *page);
 void clearMenu(GtkMenuShell *menushell,gpointer user_data);
 void connectMenu(GtkMenuToolButton *toolbutton,gpointer data);
-void loadNetHistory(void);
-void updateNetHistoryFile(const char *newurl);
+void loadHistory(unsigned what);
+void updateNetHistoryFile(const char *newurl,unsigned what);
+gboolean locateBarHistory(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
 
 #endif

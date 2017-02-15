@@ -111,7 +111,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 		{
 			parseNetworkUrl(text,nm);
 			//printDriveDetails(nm);
-			updateNetHistoryFile(text);
+			updateNetHistoryFile(text,0);
 
 			switch(cnt)
 				{
@@ -296,6 +296,7 @@ void setUpToolBar(void)
 						gtk_toolbar_insert(toolBar,locationButton,-1);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-release-event",G_CALLBACK(getLocation),locationTextBox);
 						g_signal_connect(G_OBJECT(locationTextBox),"key-press-event",G_CALLBACK(trapTabKey),locationTextBox);
+						g_signal_connect(G_OBJECT(locationTextBox),"button-press-event",G_CALLBACK(locateBarHistory),locationTextBox);
 						/* Create the completion object */
 						completion=gtk_entry_completion_new();
 						gtk_entry_completion_set_inline_completion(completion,true);
