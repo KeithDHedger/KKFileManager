@@ -587,6 +587,12 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	bool		pathfound=false;
 	GList		*si=gtk_icon_view_get_selected_items(page->iconView);
 
+	if(page!=NULL)
+		{
+			gtk_tree_model_get_iter_first((GtkTreeModel*)page->listStore,&page->searchIter);
+			page->searchString[0]=0;
+		}
+
 	fromPageID=page->pageID;
 	treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
 

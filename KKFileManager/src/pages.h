@@ -50,7 +50,8 @@ struct pageStruct
 	int					uptoHere;
 	int					fromHere;
 	struct dirent		**fileList;
-
+	GtkTreeIter			searchIter;
+	char				searchString[NAME_MAX];
 };
 
 unsigned getPageIdFromTabNum(int tabnum);
