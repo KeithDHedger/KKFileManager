@@ -25,6 +25,7 @@
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <dirent.h>
+#include <ctype.h>
 
 #include "globals.h"
 
@@ -551,40 +552,34 @@ void populatePageStore(pageStruct *page)
 
 }
 
-unsigned keypos=0;
-//#include <gdkkeysyms.h>
-#include <ctype.h>
-
 gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 {
-char temp[16];
-char	*filename;
-GtkTreePath *treepath=NULL;
+	bool		downkey=false;
+	char		temp[16];
+	char		*filename;
+	GtkTreePath	*treepath=NULL;
 
-//if(gtk_tree_model_get_iter_first ((GtkTreeModel *)page->listStore,&page->searchIter))
-//{
-//if(strlen(page->searchString)>0)
-//{
 	temp[0]=0;
 	switch(event->keyval)
 		{
 			case GDK_KEY_Down:
 				if(strlen(page->searchString)>0)
 					{
+						downkey=true;
 						if(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==false)
-							{
-							printf("here\n");
-								gtk_tree_model_get_iter_first((GtkTreeModel *)page->listStore,&page->searchIter);
-								//gtk_icon_view_unselect_all(page->iconView);
-							}
-
+							gtk_tree_model_get_iter_first((GtkTreeModel *)page->listStore,&page->searchIter);
 					}
 				else
 					return(false);
 				break;
 
+			case GDK_KEY_Return:
+				treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
+				selectItem(page->iconView,treepath,page);
+				return(true);
+				break;
 			default:
-				 if(isalnum(event->keyval))
+				 if((isalnum(event->keyval)) || (ispunct(event->keyval)))
 				 	{
 						sprintf(&temp[0],"%c",event->keyval);
 						strcat(page->searchString,temp);
@@ -592,43 +587,30 @@ GtkTreePath *treepath=NULL;
 				else
 					return(false);
 				break;
-					
 		}
 
-printf("%s - %s\n",temp,page->searchString);
-fflush(stdout);
-bool gotiter=true;
-bool foundit=false;
+	do
+		{
+			filename=NULL;
+			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&page->searchIter,TEXT_COLUMN,&filename,-1);
+			if(filename!=NULL)
+				{
+					if(strcasestr(filename,page->searchString)!=NULL)
+						{
+							treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
+							gtk_icon_view_unselect_all(page->iconView);
+							gtk_icon_view_select_path(page->iconView,treepath);
+							gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
+							return(true);
+						}
+					free(filename);
+				}
+		}
+	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==true);
 
-do
-	{
-		filename=NULL;
-		gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&page->searchIter,TEXT_COLUMN,&filename,-1);
-		//printf(">>>path=%s\n<<<",filename);
-		if(filename!=NULL)
-			{
-				if(strcasestr(filename,page->searchString)!=NULL)
-					{
-						treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
-						gtk_icon_view_unselect_all(page->iconView);
-						gtk_icon_view_select_path(page->iconView,treepath);
-						gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
-						printf("path match=%s\n",filename);
-						foundit=true;
-						return(true);
-					}
-				free(filename);
-			}
-		gotiter=gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter);
-	}
-//	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter));
-	while(gotiter==true);
-//page->searchIter=NULL;
-//if(foundit==false)
-//gtk_tree_model_get_iter_first((GtkTreeModel *)page->listStore,&page->searchIter);
-//						gtk_icon_view_unselect_all(page->iconView);
-//}
-return(false);
+	if(downkey==true)
+		return(true);
+	return(false);
 }
 
 void newIconView(pageStruct *page)
@@ -645,6 +627,7 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),TEXT_COLUMN);
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
+
 
 //GtkTreeView *tv=(GtkTreeView*)page->listStore;
 //selection = gtk_tree_view_get_selection(tv);
