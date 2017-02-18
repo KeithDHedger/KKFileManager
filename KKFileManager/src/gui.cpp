@@ -574,10 +574,16 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 				break;
 
 			case GDK_KEY_Return:
-				treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
-				selectItem(page->iconView,treepath,page);
-				return(true);
+				if(strlen(page->searchString)>0)
+					{
+						treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
+						selectItem(page->iconView,treepath,page);
+						return(true);
+					}
+				else
+					return(false);
 				break;
+
 			default:
 				 if((isalnum(event->keyval)) || (ispunct(event->keyval)))
 				 	{
@@ -608,9 +614,9 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 		}
 	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==true);
 
-	if(downkey==true)
-		return(true);
-	return(false);
+//	if(downkey==true)
+//		return(true);
+	return(downkey);
 }
 
 void newIconView(pageStruct *page)
