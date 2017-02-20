@@ -51,6 +51,7 @@ GApplication	*mainApp;
 bool			openDefault=false;
 GtkClipboard	*mainClipboard=NULL;
 GValue			boolVal=G_VALUE_INIT;
+GtkWidget		*statusBar=NULL;
 
 //file menu
 GtkWidget		*fileMenu=NULL;

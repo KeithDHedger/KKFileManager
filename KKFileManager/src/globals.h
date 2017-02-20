@@ -166,6 +166,7 @@ extern GApplication		*mainApp;
 extern bool				openDefault;
 extern GtkClipboard		*mainClipboard;
 extern GValue			boolVal;
+extern GtkWidget		*statusBar;
 
 //file menu
 extern GtkWidget		*fileMenu;

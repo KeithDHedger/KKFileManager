@@ -65,5 +65,7 @@ void loadPixbufs(void);
 void updateBMList(void);
 bool checkCDROMChanged(void);
 bool checkDisksChanged(void);
+void setStatusMessage(const char *msg);
+void buildMessgage(pageStruct *page);
 
 #endif

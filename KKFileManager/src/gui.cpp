@@ -35,6 +35,7 @@ const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks"
 //GtkTargetEntry dragTargets[]={{ "text/uri-list",0,DRAG_TEXT_URI_LIST},{ "text/plain",0,DRAG_TEXT_PLAIN}};
 GtkTargetEntry dragTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
 GtkTargetEntry dropTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
+int				statusID;
 
 menuDataStruct	menuData[]=
 	{
@@ -560,6 +561,8 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 	GtkTreePath	*treepath=NULL;
 
 	temp[0]=0;
+
+
 	switch(event->keyval)
 		{
 			case GDK_KEY_Down:
@@ -568,9 +571,13 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 						downkey=true;
 						if(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==false)
 							gtk_tree_model_get_iter_first((GtkTreeModel *)page->listStore,&page->searchIter);
+						buildMessgage(page);
 					}
 				else
-					return(false);
+					{
+						buildMessgage(page);
+						return(false);
+					}
 				break;
 
 			case GDK_KEY_Return:
@@ -578,6 +585,7 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 					{
 						treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
 						selectItem(page->iconView,treepath,page);
+//						buildMessgage(page);
 						return(true);
 					}
 				else
@@ -589,6 +597,8 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 				 	{
 						sprintf(&temp[0],"%c",event->keyval);
 						strcat(page->searchString,temp);
+						//setStatusMessage(page->searchString);
+//						buildMessgage(page);
 					}
 				else
 					return(false);
@@ -607,12 +617,14 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 							gtk_icon_view_unselect_all(page->iconView);
 							gtk_icon_view_select_path(page->iconView,treepath);
 							gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
+							buildMessgage(page);
 							return(true);
 						}
 					free(filename);
 				}
 		}
 	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==true);
+		
 
 //	if(downkey==true)
 //		return(true);
@@ -644,6 +656,7 @@ void newIconView(pageStruct *page)
 	page->selectsignal=g_signal_connect_after(page->iconView,"item-activated",G_CALLBACK(selectItem),page);	
 //	g_signal_connect(page->iconView,"selection-changed",G_CALLBACK(rochanged),page);	
 	g_signal_connect(page->iconView,"key-press-event",G_CALLBACK(keyIcon),page);	
+	g_signal_connect(page->iconView,"selection-changed",G_CALLBACK(buildMessgage),page);	
 
 	populatePageStore(page);
 
@@ -1266,6 +1279,9 @@ void buidMainGui(const char *startdir)
 	gtk_paned_set_position((GtkPaned*)mainHPane,275);
 
 	gtk_box_pack_start(GTK_BOX(mainVBox),(GtkWidget*)mainHPane,true,true,0);
+	statusBar=gtk_statusbar_new();
+	statusID=gtk_statusbar_get_context_id((GtkStatusbar*)statusBar,"stuff");
+	gtk_box_pack_start((GtkBox*)mainVBox,statusBar,false,false,0);
 
 	gtk_container_add((GtkContainer*)mainWindow,mainVBox);
 
@@ -1364,6 +1380,51 @@ void loadPixbufs(void)
 			guiPixbufs[CDROMPB]=guiPixbufs[DVDROMPB];
 			g_object_ref(guiPixbufs[CDROMPB]);
 		}
+}
+
+void setStatusMessage(const char *msg)
+{
+	gtk_statusbar_remove_all((GtkStatusbar*)statusBar,statusID);
+	gtk_statusbar_push ((GtkStatusbar*)statusBar,statusID,msg);
+}
+
+void buildMessgage(pageStruct *page)
+{
+	char		*buffer;
+	int			cnt;
+	char		**array=NULL;
+	struct stat	st;
+	int			totsize=0;
+	const char	*file;
+	int			charsprinted;
+
+	if(page==NULL)
+		return;
+
+//printf(">>%s<<\n","void buildMessgage(pageStruct *page)");
+	buffer=(char*)alloca(PATH_MAX);
+
+	cnt=selectionToArray(&array,false);
+	totsize=0;
+	if(cnt==1)
+		file=array[0];
+	else
+		file="...";
+
+	for(int j=0;j<cnt;j++)
+		{
+	//						filePath=selectionarray[0];
+			stat(array[j],&st);
+			totsize+=st.st_size;
+
+//			printf(">>%s<<\n",array[j]);
+		}
+
+	charsprinted=sprintf(buffer,"Size:%i - %s",totsize,file);
+	if(page->searchString!=NULL && strlen(page->searchString)>0)
+		sprintf(&buffer[charsprinted],", Search=\"%s\"",page->searchString);
+	setStatusMessage(buffer);
+	g_strfreev(array);
 }
 
 
