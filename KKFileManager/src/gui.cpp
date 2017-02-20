@@ -1395,7 +1395,7 @@ void buildMessgage(pageStruct *page)
 	char		**array=NULL;
 	struct stat	st;
 	int			totsize=0;
-	const char	*file;
+	const char	*file=NULL;
 	int			charsprinted;
 
 	if(page==NULL)
@@ -1408,8 +1408,8 @@ void buildMessgage(pageStruct *page)
 	totsize=0;
 	if(cnt==1)
 		file=array[0];
-	else
-		file="...";
+//	else
+//		file="...";
 
 	for(int j=0;j<cnt;j++)
 		{
@@ -1420,7 +1420,10 @@ void buildMessgage(pageStruct *page)
 //			printf(">>%s<<\n",array[j]);
 		}
 
-	charsprinted=sprintf(buffer,"Size:%i - %s",totsize,file);
+	if(cnt>1)
+		charsprinted=sprintf(buffer,"Size:%i - %i files",totsize,cnt);
+	else
+		charsprinted=sprintf(buffer,"Size:%i - %s",totsize,file);
 	if(page->searchString!=NULL && strlen(page->searchString)>0)
 		sprintf(&buffer[charsprinted],", Search=\"%s\"",page->searchString);
 	setStatusMessage(buffer);
