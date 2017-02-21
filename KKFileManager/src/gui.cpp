@@ -1414,17 +1414,15 @@ void buildMessgage(pageStruct *pagex)
 			stat(array[j],&st);
 			totsize+=st.st_size;
 		}
-//numfmt --to=iec 1 177152 48832200 1975684956 1025
+
 	if(cnt!=0)
 		{
 			sprintf(command,"numfmt --to=iec %i",totsize);
 			sinkReturnStr=oneLiner(command,sizestr);
 
 			if(cnt>1)
-				//charsprinted=sprintf(buffer,"Total size of %i files=%ib",cnt,totsize);
 				charsprinted=sprintf(buffer,"Total size of %i files=%s",cnt,sizestr);
 			else
-				//charsprinted=sprintf(buffer,"Size of %s=%ib",file,totsize);
 				charsprinted=sprintf(buffer,"Size of %s=%s",file,sizestr);
 
 			if(page->searchString!=NULL && strlen(page->searchString)>0)
