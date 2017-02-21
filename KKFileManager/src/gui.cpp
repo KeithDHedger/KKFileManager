@@ -789,7 +789,7 @@ bool checkDisksChanged(void)
 	char	*command;
 	int		cnt=0;;
 	
-	command=oneLiner("ls /dev/disk/by-path -1|wc -l");
+	command=oneLiner("ls /dev/disk/by-path -1|wc -l",NULL);
 	cnt=atoi(command);
 	free(command);
 	if(cnt!=diskCnt)
@@ -822,7 +822,7 @@ bool checkCDROMChanged(void)
 						buffer[strlen(buffer)-1]=0;
 
 					sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_",buffer);
-					isdvd=oneLiner(buffercommand);
+					isdvd=oneLiner(buffercommand,NULL);
 					if(isdvd!=NULL)
 						{
 							romCnt=romCnt+(mult*1);
@@ -905,11 +905,11 @@ void updateDiskList(void)
 					if(strlen(buffer)>0)
 						buffer[strlen(buffer)-1]=0;
 						sprintf(buffercommand,"findmnt -no TARGET \"%s\"",buffer);
-						mountpath=oneLiner(buffercommand);
+						mountpath=oneLiner(buffercommand,NULL);
 						if(mountpath==NULL)
 							mountpath=strdup("…");
 						sprintf(buffercommand,"lsblk -no label \"%s\"",buffer);
-						label=oneLiner(buffercommand);
+						label=oneLiner(buffercommand,NULL);
 
 						ptr=strrchr(buffer,'/');
 						ptr++;
@@ -918,7 +918,7 @@ void updateDiskList(void)
 						drive=guiPixbufs[HDDRIVEPB];
 //usb disk
 						sprintf(buffercommand,"udevadm info --query=all --name=\"%s\" |grep -i usb",ptr);
-						isusb=oneLiner(buffercommand);
+						isusb=oneLiner(buffercommand,NULL);
 						if((isusb!=NULL) && (strlen(isusb)>0))
 							{
 								drive=guiPixbufs[USBDISKPB];
@@ -926,14 +926,14 @@ void updateDiskList(void)
 							}
 //dvd disk
 						sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM",ptr);
-						isdvd=oneLiner(buffercommand);
+						isdvd=oneLiner(buffercommand,NULL);
 						if(isdvd!=NULL)
 							{
 								free(isdvd);
 								isdvd=NULL;
 								gotrom=false;
 								sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_DVD",ptr);
-								isdvd=oneLiner(buffercommand);
+								isdvd=oneLiner(buffercommand,NULL);
 								if((isdvd!=NULL) && (strlen(isdvd)>0))
 									{
 										drive=guiPixbufs[DVDROMPB];
@@ -942,7 +942,7 @@ void updateDiskList(void)
 									}
 //cdrom
 								sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_CD",ptr);
-								isdvd=oneLiner(buffercommand);
+								isdvd=oneLiner(buffercommand,NULL);
 								if((isdvd!=NULL) && (strlen(isdvd)>0))
 									{
 										drive=guiPixbufs[CDROMPB];
@@ -1388,44 +1388,53 @@ void setStatusMessage(const char *msg)
 	gtk_statusbar_push ((GtkStatusbar*)statusBar,statusID,msg);
 }
 
-void buildMessgage(pageStruct *page)
+void buildMessgage(pageStruct *pagex)
 {
-	char		*buffer;
-	int			cnt;
-	char		**array=NULL;
-	struct stat	st;
-	int			totsize=0;
-	const char	*file=NULL;
-	int			charsprinted;
+	int				cnt;
+	char			**array=NULL;
+	struct stat		st;
+	int				totsize=0;
+	const char		*file=NULL;
+	int				charsprinted;
+	char			*command=(char*)alloca(PATH_MAX);
+	char			*buffer=(char*)alloca(PATH_MAX);
+	char			*sizestr=(char*)alloca(128);
+	pageStruct		*page=getPageFromCurrentTab();
 
 	if(page==NULL)
 		return;
-
-//printf(">>%s<<\n","void buildMessgage(pageStruct *page)");
-	buffer=(char*)alloca(PATH_MAX);
 
 	cnt=selectionToArray(&array,false);
 	totsize=0;
 	if(cnt==1)
 		file=array[0];
-//	else
-//		file="...";
 
 	for(int j=0;j<cnt;j++)
 		{
-	//						filePath=selectionarray[0];
 			stat(array[j],&st);
 			totsize+=st.st_size;
-
-//			printf(">>%s<<\n",array[j]);
 		}
+//numfmt --to=iec 1 177152 48832200 1975684956 1025
+	if(cnt!=0)
+		{
+			sprintf(command,"numfmt --to=iec %i",totsize);
+			sinkReturnStr=oneLiner(command,sizestr);
 
-	if(cnt>1)
-		charsprinted=sprintf(buffer,"Size:%i - %i files",totsize,cnt);
+			if(cnt>1)
+				//charsprinted=sprintf(buffer,"Total size of %i files=%ib",cnt,totsize);
+				charsprinted=sprintf(buffer,"Total size of %i files=%s",cnt,sizestr);
+			else
+				//charsprinted=sprintf(buffer,"Size of %s=%ib",file,totsize);
+				charsprinted=sprintf(buffer,"Size of %s=%s",file,sizestr);
+
+			if(page->searchString!=NULL && strlen(page->searchString)>0)
+				sprintf(&buffer[charsprinted],", Search=\"%s\"",page->searchString);
+		}
 	else
-		charsprinted=sprintf(buffer,"Size:%i - %s",totsize,file);
-	if(page->searchString!=NULL && strlen(page->searchString)>0)
-		sprintf(&buffer[charsprinted],", Search=\"%s\"",page->searchString);
+		{
+			sprintf(command,"df -h %s|tail -n1|awk '{print \"Disk \" $1 \": Size \" $2 \" Used \" $3 \" Avail \" $4 \" Usage \" $5 \" Mountpoint \" $6}'",page->thisFolder);
+			sinkReturnStr=oneLiner(command,buffer);
+		}
 	setStatusMessage(buffer);
 	g_strfreev(array);
 }

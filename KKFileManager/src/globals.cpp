@@ -170,7 +170,36 @@ char			*netDiskArray[MAXNETURLS]={NULL,};
 char			*locFolderArray[MAXLOCATIONS]={NULL,};
 
 //global functions
-char* oneLiner(const char *command)
+char* oneLiner(const char *command,char *buf)
+{
+	FILE	*fp=NULL;
+	char	*retstr=NULL;
+	
+	if(buf==NULL)
+		retstr=(char*)calloc(1,256);
+	else
+		retstr=buf;
+
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			sinkReturnStr=fgets(retstr,256,fp);
+			pclose(fp);
+		}
+	if(sinkReturnStr==NULL)
+		{
+			free(retstr);
+			return(NULL);
+		}
+	else
+		{
+			if(retstr[strlen(retstr)-1]=='\n')
+				retstr[strlen(retstr)-1]=0;
+		}
+	return(retstr);
+}
+
+char* oneLinerXXX(const char *command)
 {
 	FILE	*fp=NULL;
 	char	*retstr=(char*)calloc(1,256);

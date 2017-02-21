@@ -256,7 +256,7 @@ extern GdkPixbuf		*brokenLink;
 extern GdkPixbuf		*guiPixbufs[NUMPBS];
 
 //global functions
-char* oneLiner(const char *command);
+char* oneLiner(const char *command,char *buf);
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct	*page);
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool updatenav,bool force);
 int yesNo(const char *question,char *file);
