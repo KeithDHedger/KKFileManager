@@ -557,6 +557,9 @@ gboolean buttonUp(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	GtkTreePath	*treepath;
 	GList		*l;
 
+	page->buttonDown=false;
+	buildMessgage(page);
+
 	if(page->stdBehaviour==true)
 		return(false);
 
@@ -587,11 +590,12 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	bool		pathfound=false;
 	GList		*si=gtk_icon_view_get_selected_items(page->iconView);
 
-	if(page!=NULL)
-		{
-			gtk_tree_model_get_iter_first((GtkTreeModel*)page->listStore,&page->searchIter);
-			page->searchString[0]=0;
-		}
+	//if(page!=NULL)
+	//	{
+	gtk_tree_model_get_iter_first((GtkTreeModel*)page->listStore,&page->searchIter);
+	page->searchString[0]=0;
+	page->buttonDown=true;
+	//	}
 
 	fromPageID=page->pageID;
 	treepath=gtk_icon_view_get_path_at_pos(page->iconView,event->x,event->y);
@@ -609,7 +613,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 				{
 					event->state=4;
 					page->startedDrag=false;
-					page->toggleOff=true;		
+					page->toggleOff=true;
 					gtk_icon_view_unselect_path(page->iconView,treepath);
 				}
 		}

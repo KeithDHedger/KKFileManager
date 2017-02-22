@@ -1,4 +1,5 @@
 0.0.5
+Fixed '//' in filepaths when '/' is current folder.
 Status bar now shows file/disk details in human readable form.
 Added status bar.
 Search as you type now added, use down key for next item, return to select, click anywhere to rteset search term.

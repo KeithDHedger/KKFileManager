@@ -396,7 +396,10 @@ gboolean loadFilesDir(gpointer data)
 						if(page->fileList[j]->d_type==DT_DIR)
 							if(page->fileList[j]->d_name[0]=='.')
 								{
-									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									if(strcmp(page->thisFolder,"/")==0)
+										sprintf(buffer,"/%s",page->fileList[j]->d_name);
+									else
+										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
 									pixbuf=getPixBuf(buffer);
 									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
 								}
@@ -423,7 +426,10 @@ gboolean loadFilesDir(gpointer data)
 						if(page->fileList[j]->d_type==DT_DIR)
 							if(page->fileList[j]->d_name[0]!='.')
 								{
-									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									if(strcmp(page->thisFolder,"/")==0)
+										sprintf(buffer,"/%s",page->fileList[j]->d_name);
+									else
+										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
 									pixbuf=getPixBuf(buffer);
 									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
 								}
@@ -460,7 +466,10 @@ gboolean loadFilesDir(gpointer data)
 						if(page->fileList[j]->d_type!=DT_DIR)
 							if(page->fileList[j]->d_name[0]=='.')
 								{
-									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									if(strcmp(page->thisFolder,"/")==0)
+										sprintf(buffer,"/%s",page->fileList[j]->d_name);
+									else
+										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
 									pixbuf=getPixBuf(buffer);
 									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
 								}
@@ -488,7 +497,10 @@ gboolean loadFilesDir(gpointer data)
 						if(page->fileList[j]->d_type!=DT_DIR)
 							if(page->fileList[j]->d_name[0]!='.')
 								{
-									sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
+									if(strcmp(page->thisFolder,"/")==0)
+										sprintf(buffer,"/%s",page->fileList[j]->d_name);
+									else
+										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
 									pixbuf=getPixBuf(buffer);
 									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
 								}
@@ -657,6 +669,7 @@ void newIconView(pageStruct *page)
 //	g_signal_connect(page->iconView,"selection-changed",G_CALLBACK(rochanged),page);	
 	g_signal_connect(page->iconView,"key-press-event",G_CALLBACK(keyIcon),page);	
 	g_signal_connect(page->iconView,"selection-changed",G_CALLBACK(buildMessgage),page);	
+//	page->bupsignal=g_signal_connect(page->iconView,"button-release-event",G_CALLBACK(buildMessgage),page);	
 
 	populatePageStore(page);
 
@@ -1388,42 +1401,60 @@ void setStatusMessage(const char *msg)
 	gtk_statusbar_push ((GtkStatusbar*)statusBar,statusID,msg);
 }
 
+void bytesToHuman(int64_t n,humanUnitsStruct *u)
+{
+	int s=0;
+	char S[]={'B','K','M','G','T','E','P'};
+	double  y=0.0;
+	y=(double)n;
+	while(y>=1024.0)
+		{
+			y=y/1024.0;
+			s++;
+		}
+	u->number=y;
+	u->suffix=S[s];
+}
+
 void buildMessgage(pageStruct *pagex)
 {
-	int				cnt;
-	char			**array=NULL;
-	struct stat		st;
-	int				totsize=0;
-	const char		*file=NULL;
-	int				charsprinted;
-	char			*command=(char*)alloca(PATH_MAX);
-	char			*buffer=(char*)alloca(PATH_MAX);
-	char			*sizestr=(char*)alloca(128);
-	pageStruct		*page=getPageFromCurrentTab();
+	int					cnt;
+	char				**array=NULL;
+	struct stat			st;
+	int64_t				totsize=0;
+	const char			*file=NULL;
+	int					charsprinted;
+	bool				ignore=false;
+	char				*command=(char*)alloca(PATH_MAX);
+	char				*buffer=(char*)alloca(PATH_MAX);
+	pageStruct			*page=getPageFromCurrentTab();
+	humanUnitsStruct	hu;
 
 	if(page==NULL)
 		return;
 
 	cnt=selectionToArray(&array,false);
-	totsize=0;
-	if(cnt==1)
-		file=array[0];
-
-	for(int j=0;j<cnt;j++)
-		{
-			stat(array[j],&st);
-			totsize+=st.st_size;
-		}
-
 	if(cnt!=0)
 		{
-			sprintf(command,"numfmt --to=iec %i",totsize);
-			sinkReturnStr=oneLiner(command,sizestr);
+			totsize=0;
+			if(cnt==1)
+				file=array[0];
 
+			for(int j=0;j<cnt;j++)
+				{
+					stat(array[j],&st);
+					totsize+=st.st_size;
+				}
+
+			bytesToHuman(totsize,&hu);
 			if(cnt>1)
-				charsprinted=sprintf(buffer,"Total size of %i files=%s",cnt,sizestr);
+				{
+					if(page->buttonDown==true)
+						ignore=true;
+					charsprinted=sprintf(buffer,"Total size of %i files=%.02f%c",cnt,hu.number,hu.suffix);
+				}
 			else
-				charsprinted=sprintf(buffer,"Size of %s=%s",file,sizestr);
+				charsprinted=sprintf(buffer,"Size of %s=%.02f%c",file,hu.number,hu.suffix);
 
 			if(page->searchString!=NULL && strlen(page->searchString)>0)
 				sprintf(&buffer[charsprinted],", Search=\"%s\"",page->searchString);
@@ -1433,7 +1464,9 @@ void buildMessgage(pageStruct *pagex)
 			sprintf(command,"df -h %s|tail -n1|awk '{print \"Disk \" $1 \": Size \" $2 \" Used \" $3 \" Avail \" $4 \" Usage \" $5 \" Mountpoint \" $6}'",page->thisFolder);
 			sinkReturnStr=oneLiner(command,buffer);
 		}
-	setStatusMessage(buffer);
+
+	if(ignore==false)
+		setStatusMessage(buffer);
 	g_strfreev(array);
 }
 
