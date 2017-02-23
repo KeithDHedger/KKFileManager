@@ -1,6 +1,6 @@
 /******************************************************
 *
-*     ©keithhedger Thu 23 Feb 15:38:19 GMT 2017
+*     ©keithhedger Thu 23 Feb 16:14:23 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     connect.h
@@ -12,10 +12,10 @@
 #ifndef _CONNECT_
 #define _CONNECT_
 
-enum {connectRad6=0,connectRad7,connectRad8,connectRad9};
+enum {smbtag=0,ftptag,sshtag,davtag};
 
-enum {connectRad6ID=3000,connectRad7ID,connectRad8ID,connectRad9ID};
-enum {connectTxt1=0,connectTxt2,connectTxt3,connectTxt4,connectTxt5};
+enum {smbtagID=3000,ftptagID,sshtagID,davtagID};
+enum {usertag=0,passtag,servertag,porttag,sharetag};
 
 #define _Connect_ISDIALOG_
 extern char *userName;

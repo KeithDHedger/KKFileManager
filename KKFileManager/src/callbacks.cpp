@@ -31,7 +31,7 @@
 GtkWidget	*tabMenu=NULL;
 GtkWidget	*bmContextMenu=NULL;
 char		*dropPath=NULL;
-int			lastRadio=connectRad6ID;
+int			lastRadio=smbtagID;
 char		*saveUser=NULL;
 char		*savePass=NULL;
 char		*saveServer=NULL;
@@ -1307,41 +1307,41 @@ void doConnectWrap(GtkWidget* widget,gpointer data)
 {
 	doConnect(NULL,NULL);
 	if(saveUser!=NULL)
-		gtk_entry_set_text((GtkEntry*)connectText[connectTxt1],saveUser);
+		gtk_entry_set_text((GtkEntry*)connectText[usertag],saveUser);
 	if(savePass!=NULL)
-		gtk_entry_set_text((GtkEntry*)connectText[connectTxt2],savePass);
+		gtk_entry_set_text((GtkEntry*)connectText[passtag],savePass);
 	if(saveServer!=NULL)
-		gtk_entry_set_text((GtkEntry*)connectText[connectTxt3],saveServer);
+		gtk_entry_set_text((GtkEntry*)connectText[servertag],saveServer);
 	if(savePort!=NULL)
-		gtk_entry_set_text((GtkEntry*)connectText[connectTxt4],savePort);
+		gtk_entry_set_text((GtkEntry*)connectText[porttag],savePort);
 	if(saveShare!=NULL)
-		gtk_entry_set_text((GtkEntry*)connectText[connectTxt5],saveShare);
+		gtk_entry_set_text((GtkEntry*)connectText[sharetag],saveShare);
 
-	gtk_toggle_button_set_active((GtkToggleButton*)connectRadio[lastRadio-connectRad6ID],true);
+	gtk_toggle_button_set_active((GtkToggleButton*)connectRadio[lastRadio-smbtagID],true);
 	gtk_dialog_run((GtkDialog*)connectWindow);
 }
 
 void setConnect(GtkWidget* widget,gpointer ptr)
 {
-	const char	*servtype="";
-	char		*serverStr=NULL;
-	networkDriveStruct nm={NULL,};
+	const char			*servtype="";
+	char				*serverStr=NULL;
+	networkDriveStruct	nm={NULL,};
 
 #ifdef _Connect_ISDIALOG_
 	if((long)ptr==DIALOGAPPLY)
 		{
 			switch(lastRadio)
 				{
-					case connectRad6ID:
+					case smbtagID:
 						servtype="smb";
 						break;
-					case connectRad7ID:
+					case ftptagID:
 						servtype="ftp";
 						break;
-					case connectRad8ID:
+					case sshtagID:
 						servtype="ssh";
 						break;
-					case connectRad9ID:
+					case davtagID:
 						servtype="dav";
 						break;
 				}
@@ -1357,11 +1357,11 @@ void setConnect(GtkWidget* widget,gpointer ptr)
 			if(savePort!=NULL)
 				free(savePort);
 			
-			saveUser=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt1]));
-			savePass=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt2]));
-			saveServer=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt3]));
-			saveShare=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt5]));
-			savePort=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt4]));
+			saveUser=strdup(gtk_entry_get_text((GtkEntry*)connectText[usertag]));
+			savePass=strdup(gtk_entry_get_text((GtkEntry*)connectText[passtag]));
+			saveServer=strdup(gtk_entry_get_text((GtkEntry*)connectText[servertag]));
+			saveShare=strdup(gtk_entry_get_text((GtkEntry*)connectText[sharetag]));
+			savePort=strdup(gtk_entry_get_text((GtkEntry*)connectText[porttag]));
 
 			nm.fstype=(char*)servtype;
 			nm.host=saveServer;
@@ -1375,7 +1375,7 @@ void setConnect(GtkWidget* widget,gpointer ptr)
 			goLocation((GtkEntry*)locationTextBox,NULL,NULL);
 		}
 
-	if((long)ptr>=connectRad6ID)
+	if((long)ptr>=smbtagID)
 		lastRadio=(int)(long)ptr;
 
 	if((long)ptr<0)

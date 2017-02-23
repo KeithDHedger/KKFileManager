@@ -110,7 +110,7 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	if(cnt<5)
 		{
 			parseNetworkUrl(text,nm);
-			printDriveDetails(nm);
+			//printDriveDetails(nm);
 			updateNetHistoryFile(text,0);
 
 			switch(cnt)

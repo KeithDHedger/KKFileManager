@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Thu 23 Feb 15:38:18 GMT 2017
+*     ©keithhedger Thu 23 Feb 16:14:23 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     connect.cpp
@@ -69,33 +69,33 @@ void doConnect(GtkWidget* widget,gpointer data)
 
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("User\t\t"),false,false,0);
-	makeConnectText(connectTxt1,"",userName,tbox,false);
+	makeConnectText(usertag,"",userName,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Password\t"),false,false,0);
-	makeConnectText(connectTxt2,"",password,tbox,false);
+	makeConnectText(passtag,"",password,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Server\t\t"),false,false,0);
-	makeConnectText(connectTxt3,"",server,tbox,false);
+	makeConnectText(servertag,"",server,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Port\t\t\t"),false,false,0);
-	makeConnectText(connectTxt4,"",portName,tbox,false);
+	makeConnectText(porttag,"",portName,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Share\t\t"),false,false,0);
-	makeConnectText(connectTxt5,"",shareName,tbox,false);
+	makeConnectText(sharetag,"",shareName,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad6,"SMB",true,tbox);
+	makeConnectRadio(smbtag,"SMB",true,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad7,"FTP",false,tbox);
+	makeConnectRadio(ftptag,"FTP",false,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad8,"SSH",false,tbox);
+	makeConnectRadio(sshtag,"SSH",false,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad9,"DAV",false,tbox);
+	makeConnectRadio(davtag,"DAV",false,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 #ifdef _USEGTK3_
