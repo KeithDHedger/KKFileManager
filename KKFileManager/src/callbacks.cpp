@@ -1295,3 +1295,76 @@ void setFileProps(GtkWidget* widget,gpointer ptr)
 				gtk_toggle_button_set_inconsistent((GtkToggleButton*)filepropsCheck[(long)ptr-1000],false);
 		}
 }
+
+int		lastRadio=0;
+char	*saveUser=NULL;
+char	*savePass=NULL;
+char	*saveServer=NULL;
+char	*saveShare=NULL;
+
+void doConnectWrap(GtkWidget* widget,gpointer data)
+{
+	doConnect(NULL,NULL);
+	if(saveUser!=NULL)
+		gtk_entry_set_text((GtkEntry*)connectText[connectTxt1],saveUser);
+	if(savePass!=NULL)
+		gtk_entry_set_text((GtkEntry*)connectText[connectTxt2],savePass);
+	if(saveServer!=NULL)
+		gtk_entry_set_text((GtkEntry*)connectText[connectTxt3],saveServer);
+	if(saveShare!=NULL)
+		gtk_entry_set_text((GtkEntry*)connectText[connectTxt4],saveShare);
+
+	if(lastRadio>0)
+		gtk_toggle_button_set_active((GtkToggleButton*)connectRadio[lastRadio-connectRad5ID],true);
+	gtk_dialog_run((GtkDialog*)connectWindow);
+}
+
+void setConnect(GtkWidget* widget,gpointer ptr)
+{
+	const char	*servtype="";
+
+#ifdef _Connect_ISDIALOG_
+	if((long)ptr==DIALOGAPPLY)
+		{
+			switch(lastRadio)
+				{
+					case connectRad5ID:
+						servtype="SMB";
+						break;
+					case connectRad6ID:
+						servtype="FTP";
+						break;
+					case connectRad7ID:
+						servtype="SSH";
+						break;
+					case connectRad8ID:
+						servtype="DAV";
+						break;
+				}
+
+			if(saveUser!=NULL)
+				free(saveUser);
+			if(savePass!=NULL)
+				free(savePass);
+			if(saveServer!=NULL)
+				free(saveServer);
+			if(saveShare!=NULL)
+				free(saveShare);
+			
+			saveUser=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt1]));
+			savePass=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt2]));
+			saveServer=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt3]));
+			saveShare=strdup(gtk_entry_get_text((GtkEntry*)connectText[connectTxt4]));
+		}
+
+	if((long)ptr>=connectRad5ID)
+		lastRadio=(int)(long)ptr;
+
+	if((long)ptr<0)
+		gtk_widget_destroy((GtkWidget*)connectWindow);
+#endif
+}
+
+
+
+

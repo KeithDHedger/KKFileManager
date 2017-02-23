@@ -50,4 +50,7 @@ void externalTool(GtkWidget *widget,gpointer data);
 
 void setFileProps(GtkWidget* widget,gpointer ptr);
 
+void doConnectWrap(GtkWidget* widget,gpointer data);
+void setConnect(GtkWidget* widget,gpointer ptr);
+
 #endif

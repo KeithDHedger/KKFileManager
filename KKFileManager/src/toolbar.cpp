@@ -343,7 +343,7 @@ void setUpToolBar(void)
 						connectButton=gtk_menu_tool_button_new_from_stock(GTK_STOCK_NETWORK);
 #endif
 						gtk_toolbar_insert(toolBar,connectButton,-1);
-						//g_signal_connect(G_OBJECT(connectButton),"clicked",G_CALLBACK(navigateHistory),NULL);
+						g_signal_connect(G_OBJECT(connectButton),"clicked",G_CALLBACK(doConnectWrap),NULL);
 //connect history
 						menu=gtk_menu_new();
 						//backButtonMenu=gtk_menu_new();

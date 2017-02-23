@@ -41,6 +41,7 @@
 #include "files.h"
 #include "properties.h"
 #include "mimetype.h"
+#include "connect.h"
 
 #ifdef _USEGTK3_
 //menus
