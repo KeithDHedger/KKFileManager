@@ -168,6 +168,26 @@ unsigned		fromPageID=0;
 int				sinkReturn;
 char			*netDiskArray[MAXNETURLS]={NULL,};
 char			*locFolderArray[MAXLOCATIONS]={NULL,};
+//net dialog
+int				lastRadio=smbtagID;
+char			*saveUser=NULL;
+char			*savePass=NULL;
+char			*saveServer=NULL;
+char			*saveShare=NULL;
+char			*savePort=NULL;
+
+args			kkfmlastconnect[]=
+{
+	//bools
+	//strings
+	{"lastradio",TYPEINT,&lastRadio},
+	{"saveuser",TYPESTRING,&saveUser},
+	{"savepass",TYPESTRING,&savePass},
+	{"saveserver",TYPESTRING,&saveServer},
+	{"saveshare",TYPESTRING,&saveShare},
+	{"saveport",TYPESTRING,&savePort},
+	{NULL,0,NULL}
+};
 
 //global functions
 char* oneLiner(const char *command,char *buf)
@@ -422,10 +442,13 @@ void writeExitData(void)
 	sinkReturn=asprintf(&filename,"%s/%s",getenv("HOME"),APPFOLDENAME);
 	g_mkdir_with_parents(filename,493);
 	free(filename);
+
+	sinkReturn=asprintf(&filename,"%s/%s/kkfmlastconnect",getenv("HOME"),APPFOLDENAME);
+	saveVarsToFile(filename,kkfmlastconnect);
+	free(filename);
+
 	sinkReturn=asprintf(&filename,"%s/%s/kkfiemanager.rc",getenv("HOME"),APPFOLDENAME);
-
 	saveVarsToFile(filename,kkfilemanager_rc);
-
 	free(filename);
 	free(windowAllocData);
 
@@ -788,21 +811,6 @@ int parseNetworkUrl(const char *url,networkDriveStruct* netmount)
 	return(VALIDURL);
 }
 
-//smb://keithhedger:hogandnana@192.168.1.66:445/lansite
-/*
-struct networkDriveStruct
-{
-	char	* url;
-	char	* fstype;
-	char	* host;
-	char	* port;
-	char	* user;
-	char	* pass;
-	char	* path;
-};
-
-
-*/
 char *nsToString(networkDriveStruct *nm)
 {
 	char	*buffer=(char*)calloc(1024,1);
@@ -823,8 +831,6 @@ char *nsToString(networkDriveStruct *nm)
 	if((nm->path!=NULL) && (strlen(nm->path)>0))
 		retprinted+=sprintf(&buffer[retprinted],"/%s",nm->path);
 
-
-printf(">>>>buffer=%s<<<\n",buffer);
 	return(buffer);
 }
 

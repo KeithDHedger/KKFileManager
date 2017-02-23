@@ -243,6 +243,14 @@ extern unsigned			fromPageID;
 extern int				sinkReturn;
 extern char				*netDiskArray[MAXNETURLS];
 extern char				*locFolderArray[MAXLOCATIONS];
+//net dialog
+extern int				lastRadio;
+extern char				*saveUser;
+extern char				*savePass;
+extern char				*saveServer;
+extern char				*saveShare;
+extern char				*savePort;
+extern args				kkfmlastconnect[];
 //tests
 extern GdkPixbuf		*testpb;
 

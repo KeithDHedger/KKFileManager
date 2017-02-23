@@ -31,13 +31,6 @@
 GtkWidget	*tabMenu=NULL;
 GtkWidget	*bmContextMenu=NULL;
 char		*dropPath=NULL;
-int			lastRadio=smbtagID;
-char		*saveUser=NULL;
-char		*savePass=NULL;
-char		*saveServer=NULL;
-char		*saveShare=NULL;
-char		*savePort=NULL;
-
 
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page)
 {
@@ -1306,6 +1299,8 @@ void setFileProps(GtkWidget* widget,gpointer ptr)
 void doConnectWrap(GtkWidget* widget,gpointer data)
 {
 	doConnect(NULL,NULL);
+
+	gtk_entry_set_visibility((GtkEntry*)connectText[passtag],false);
 	if(saveUser!=NULL)
 		gtk_entry_set_text((GtkEntry*)connectText[usertag],saveUser);
 	if(savePass!=NULL)

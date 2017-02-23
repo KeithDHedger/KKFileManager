@@ -1,4 +1,6 @@
 0.0.5
+Passeword in connection box shows bullets.
+Connection details now remembered after quit.
 Added new connection dialog.
 Fixed '//' in filepaths when '/' is current folder.
 Status bar now shows file/disk details in human readable form.

@@ -32,7 +32,6 @@
 GdkPixbuf		*pixbuft;
 const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical","gnome-dev-disc-dvdrom","gnome-dev-cdrom","network-workgroup"};
 
-//GtkTargetEntry dragTargets[]={{ "text/uri-list",0,DRAG_TEXT_URI_LIST},{ "text/plain",0,DRAG_TEXT_PLAIN}};
 GtkTargetEntry dragTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
 GtkTargetEntry dropTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
 int				statusID;
@@ -74,12 +73,11 @@ menuDataStruct	menuData[]=
 		{"",NULL,0,0,NULL,NULL,NULL}
 	};
 
-
-
 contextStruct	**contextMenus;
 GtkTargetEntry	*target=NULL;
 int				romCnt=0;
 int				diskCnt=0;
+char			keyStrBuffer[32];
 
 GtkWidget *createNewBox(int orient,bool homog,int spacing)
 {
@@ -101,7 +99,6 @@ GtkWidget *createNewBox(int orient,bool homog,int spacing)
 	return(retwidg);
 }
 
-char	keyStrBuffer[32];
 void setHotKeyString(unsigned menunumber)
 {
 	const char	*ckeystr="";
