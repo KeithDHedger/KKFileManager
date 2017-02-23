@@ -788,6 +788,44 @@ int parseNetworkUrl(const char *url,networkDriveStruct* netmount)
 	return(VALIDURL);
 }
 
+//smb://keithhedger:hogandnana@192.168.1.66:445/lansite
+/*
+struct networkDriveStruct
+{
+	char	* url;
+	char	* fstype;
+	char	* host;
+	char	* port;
+	char	* user;
+	char	* pass;
+	char	* path;
+};
 
+
+*/
+char *nsToString(networkDriveStruct *nm)
+{
+	char	*buffer=(char*)calloc(1024,1);
+	int		retprinted=0;
+
+	retprinted=sprintf(buffer,"%s://",nm->fstype);
+	if((nm->user!=NULL) && (strlen(nm->user)>0))
+		{
+			retprinted+=sprintf(&buffer[retprinted],"%s",nm->user);
+			if((nm->pass!=NULL) && (strlen(nm->pass)>0))
+				retprinted+=sprintf(&buffer[retprinted],":%s",nm->pass);
+			retprinted+=sprintf(&buffer[retprinted],"%s","@");
+		}
+	retprinted+=sprintf(&buffer[retprinted],"%s",nm->host);
+	if((nm->port!=NULL) && (strlen(nm->port)>0))
+		retprinted+=sprintf(&buffer[retprinted],":%s",nm->port);
+
+	if((nm->path!=NULL) && (strlen(nm->path)>0))
+		retprinted+=sprintf(&buffer[retprinted],"/%s",nm->path);
+
+
+printf(">>>>buffer=%s<<<\n",buffer);
+	return(buffer);
+}
 
 

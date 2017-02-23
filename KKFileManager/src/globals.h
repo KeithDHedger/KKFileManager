@@ -270,5 +270,6 @@ bool checkAccess(const char *path);
 int parseNetworkUrl(const char *url,networkDriveStruct* netmount);
 void clearNMStruct(networkDriveStruct *netmount);
 void printDriveDetails(networkDriveStruct *netmount);
+char *nsToString(networkDriveStruct *nm);
 
 #endif

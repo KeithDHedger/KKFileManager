@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Thu 23 Feb 13:54:16 GMT 2017
+*     ©keithhedger Thu 23 Feb 15:38:18 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     connect.cpp
@@ -14,10 +14,10 @@ char		*userName=getenv("USER");
 char		*password=NULL;
 char		*server=NULL;
 char		*shareName=NULL;
-char		*mountNetCommand=NULL;
+char		*portName=NULL;
 
 GtkWidget	*connectRadio[4];
-GtkWidget	*connectText[4];
+GtkWidget	*connectText[5];
 
 GtkWidget	*connectWindow;
 
@@ -80,18 +80,22 @@ void doConnect(GtkWidget* widget,gpointer data)
 	makeConnectText(connectTxt3,"",server,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
+	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Port\t\t\t"),false,false,0);
+	makeConnectText(connectTxt4,"",portName,tbox,false);
+	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
+	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),gtk_label_new("Share\t\t"),false,false,0);
-	makeConnectText(connectTxt4,"",shareName,tbox,false);
+	makeConnectText(connectTxt5,"",shareName,tbox,false);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad5,"SMB",true,tbox);
+	makeConnectRadio(connectRad6,"SMB",true,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad6,"FTP",false,tbox);
+	makeConnectRadio(connectRad7,"FTP",false,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad7,"SSH",false,tbox);
+	makeConnectRadio(connectRad8,"SSH",false,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
-	makeConnectRadio(connectRad8,"DAV",false,tbox);
+	makeConnectRadio(connectRad9,"DAV",false,tbox);
 	gtk_box_pack_start(GTK_BOX(tbox),createNewBox(NEWHBOX,true,0),true,true,1);
 	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 #ifdef _USEGTK3_
