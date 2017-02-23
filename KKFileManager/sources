@@ -1,0 +1,1 @@
+COMMONSRC = ../src/callbacks.cpp ../src/connect.cpp ../src/dialogs.cpp ../src/files.cpp ../src/globals.cpp ../src/gui.cpp ../src/history.cpp ../src/internet.cpp ../src/main.cpp ../src/mimetype.cpp ../src/pages.cpp ../src/prefs.cpp ../src/properties.cpp ../src/toolbar.cpp
