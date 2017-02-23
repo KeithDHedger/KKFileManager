@@ -86,6 +86,7 @@
 #define GTOOLSFOLDER DATADIR _EXECSUFFIX_ "/tools"
 #define NETHISTORYFILE "nethistory"
 #define LOCATIONHISTORYFILE "locationhistory"
+#define KKFMLASTCONNECTFILE "kkfmlastconnect"
 #define MAXNETURLS 8
 #define MAXLOCATIONS 16
 

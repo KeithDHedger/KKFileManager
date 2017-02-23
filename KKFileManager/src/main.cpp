@@ -67,7 +67,7 @@ void loadPrefs(void)
 		sscanf(windowAllocData,"%i %i %i %i",(int*)&windowWidth,(int*)&windowHeight,(int*)&windowX,(int*)&windowY);
 	free(filename);
 
-	sinkReturn=asprintf(&filename,"%s/%s/kkfmlastconnect",getenv("HOME"),APPFOLDENAME);
+	sinkReturn=asprintf(&filename,"%s/%s/" KKFMLASTCONNECTFILE,getenv("HOME"),APPFOLDENAME);
 	loadVarsFromFile(filename,kkfmlastconnect);
 	free(filename);
 }

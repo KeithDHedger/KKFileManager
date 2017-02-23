@@ -443,7 +443,7 @@ void writeExitData(void)
 	g_mkdir_with_parents(filename,493);
 	free(filename);
 
-	sinkReturn=asprintf(&filename,"%s/%s/kkfmlastconnect",getenv("HOME"),APPFOLDENAME);
+	sinkReturn=asprintf(&filename,"%s/%s/" KKFMLASTCONNECTFILE,getenv("HOME"),APPFOLDENAME);
 	saveVarsToFile(filename,kkfmlastconnect);
 	free(filename);
 
