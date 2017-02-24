@@ -1,4 +1,5 @@
 0.0.5
+Code clean.
 Added templates to menu, templates are in ~/Tempplates.
 Password in connection box shows bullets.
 Connection details now remembered after quit.

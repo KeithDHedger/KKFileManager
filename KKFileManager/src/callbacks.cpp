@@ -182,11 +182,12 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 //props
 			case CONTEXTPROPS:
 				{
-					struct passwd	*pws;
-					struct group	*grp;
-					struct tm		*date;
-					struct stat		st;
-					char			*files=NULL;
+					struct passwd		*pws;
+					struct group		*grp;
+					struct tm			*date;
+					struct stat			st;
+					char				*files=NULL;
+					humanUnitsStruct	hu;
 
 					multipleFiles=false;
 					arraylen=selectionToArray(&selectionarray,false);
@@ -206,7 +207,8 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 					filePath=selectionarray[0];
 					stat(filePath,&st);
 					fileMime=mime_type_get_by_file(filePath,NULL,NULL);
-					sprintf(buffer,"%i",(int)st.st_size);
+					bytesToHuman(st.st_size,&hu);
+					sprintf(buffer,"%.01f%c ( %i bytes )",hu.number,hu.suffix,(int)st.st_size);
 					fileSize=strdup(buffer);
 					pws=getpwuid(st.st_uid);
 					if(ownerName!=NULL)
@@ -1070,7 +1072,6 @@ void externalTool(GtkWidget *widget,gpointer data)
 void setFileProps(GtkWidget* widget,gpointer ptr)
 {
 	char		*command;
-//	unsigned	mode;
 	char		usermode[32]={0,};
 	char		groupmode[32]={0,};
 	char		othermode[32]={0,};

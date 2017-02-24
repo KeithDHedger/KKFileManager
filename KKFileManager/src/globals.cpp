@@ -838,4 +838,19 @@ char *nsToString(networkDriveStruct *nm)
 	return(buffer);
 }
 
+void bytesToHuman(int64_t n,humanUnitsStruct *u)
+{
+	int s=0;
+	char S[]={'B','K','M','G','T','E','P'};
+	double  y=0.0;
+	y=(double)n;
+	while(y>=1024.0)
+		{
+			y=y/1024.0;
+			s++;
+		}
+	u->number=y;
+	u->suffix=S[s];
+}
+
 
