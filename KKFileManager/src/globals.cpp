@@ -71,6 +71,10 @@ int				inboth=0;
 char			*commandarg=NULL;
 char			*menuname=NULL;
 
+//templates menu
+GtkWidget		*templateMenu=NULL;
+GtkWidget		*templateSubMenu=NULL;
+
 args			tool_vars[]=
 {
 	//strings

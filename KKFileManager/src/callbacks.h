@@ -53,4 +53,6 @@ void setFileProps(GtkWidget* widget,gpointer ptr);
 void doConnectWrap(GtkWidget* widget,gpointer data);
 void setConnect(GtkWidget* widget,gpointer ptr);
 
+void makeTemplate(GtkMenuItem *widget,gpointer data);
+
 #endif

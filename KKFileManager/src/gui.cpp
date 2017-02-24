@@ -68,7 +68,7 @@ menuDataStruct	menuData[]=
 		{"Quit",GTK_STOCK_QUIT,0,0,(void*)&doShutdown,"quitmenu",NULL},
 //help
 		{"About",GTK_STOCK_ABOUT,0,0,(void*)&doAbout,"aboutmenu",NULL},
-//tools
+//tools and templates
 //blank tool menu
 		{"",NULL,0,0,NULL,NULL,NULL}
 	};
@@ -1068,6 +1068,42 @@ void buildToolsList(void)
 	toolsList=g_list_sort(toolsList,sortTools);
 }
 
+void buildTemplates(void)
+{
+	GDir			*folder;
+	const gchar		*entry=NULL;
+	char			*templatefolder=(char*)alloca(PATH_MAX);
+	GtkWidget		*submenu=gtk_menu_item_get_submenu((GtkMenuItem*)templateMenu);
+
+	if(submenu!=NULL)
+		gtk_menu_item_set_submenu((GtkMenuItem*)templateMenu,NULL);
+
+	templateSubMenu=gtk_menu_new();
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(templateMenu),templateSubMenu);
+
+	snprintf(templatefolder,PATH_MAX,"%s/Templates/",getenv("HOME"));
+	folder=g_dir_open(templatefolder,0,NULL);
+	if(folder!=NULL)
+		{
+			entry=g_dir_read_name(folder);
+
+			menuData[MAINTOOLSBLANKTOOL].cb=(void*)makeTemplate;
+			menuData[MAINTOOLSBLANKTOOL].stockID=NULL;
+			menuData[MAINTOOLSBLANKTOOL].key=0;
+			menuData[MAINTOOLSBLANKTOOL].userData=NULL;
+
+			while(entry!=NULL)
+				{
+					if(entry[0]!='.')
+						{
+							menuData[MAINTOOLSBLANKTOOL].menuLabel=entry;
+							submenu=newMenuItem(MAINTOOLSBLANKTOOL,templateSubMenu);
+						}
+					entry=g_dir_read_name(folder);
+				}
+		}
+}
+
 void buildTools(void)
 {
 	GtkWidget		*menuitem;
@@ -1147,6 +1183,11 @@ void buildMenus(void)
 //quit
 	menuItemNew=newMenuItem(MAINFILEQUIT,menu);
 
+//templates
+	templateMenu=gtk_menu_item_new_with_label("_Templates");
+	gtk_menu_item_set_use_underline((GtkMenuItem*)templateMenu,true);
+	buildTemplates();
+
 //external tools
 	toolsMenu=gtk_menu_item_new_with_label("_Tools");
 	gtk_menu_item_set_use_underline((GtkMenuItem*)toolsMenu,true);
@@ -1161,6 +1202,7 @@ void buildMenus(void)
 	aboutMenu=newMenuItem(MAINHELPABOUT,menu);
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),fileMenu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),templateMenu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),toolsMenu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menuBar),helpMenu);
 }

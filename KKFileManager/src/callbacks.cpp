@@ -1378,6 +1378,32 @@ void setConnect(GtkWidget* widget,gpointer ptr)
 #endif
 }
 
+void makeTemplate(GtkMenuItem *widget,gpointer data)
+{
+	char			*command;
+	char			*buffer=(char*)alloca(PATH_MAX);
+	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
+	char			*templatefolder=(char*)alloca(PATH_MAX);
+	pageStruct		*page=getPageFromCurrentTab();
+
+	if(page==NULL)
+		return;
+
+	snprintf(templatefolder,PATH_MAX,"%s/Templates/",getenv("HOME"));
+	sprintf(buffer,"%s/%s",page->thisFolder,gtk_menu_item_get_label(widget));
+	setFilePathStruct(&fps,"fD",buffer,page->thisFolder);
+	fps.askFileName=true;
+	getValidToPathFromFilepath(&fps);
+	if(fps.modified==true)
+		{
+			sprintf(buffer,"cp \"%s/%s\" \"%s\"",templatefolder,gtk_menu_item_get_label(widget),fps.toFilePath);
+			system(buffer);
+
+			asprintf(&command,"dialog_input1=\"%s\";while read;do REPLACE=$(echo $REPLY|awk -F= '{print $1}');DATA=$(eval echo $REPLY|awk -F= '{print $2}');sed -i \"s/$REPLACE/$DATA/g\" \"%s\";done<\"%s/.extradata\"",fps.toFileName,fps.toFilePath,templatefolder);
+			system(command);
+			free(command);
+		}
+}
 
 
 

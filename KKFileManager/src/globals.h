@@ -189,6 +189,10 @@ extern int				inboth;
 extern char				*commandarg;
 extern char				*menuname;
 
+//templates menu
+extern GtkWidget		*templateMenu;
+extern GtkWidget		*templateSubMenu;
+
 //help menu
 extern GtkWidget		*helpMenu;
 extern GtkWidget		*aboutMenu;
