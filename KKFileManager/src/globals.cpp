@@ -125,6 +125,8 @@ char			*diskIncludePattern=NULL;
 char			*diskExcludePattern=NULL;
 char			*terminalCommand=NULL;
 bool			showHidden=false;
+bool			executeOnClick=false;
+bool			fromOpen=false;
 
 //save and load var lists
 char			*windowAllocData=NULL;
@@ -138,6 +140,7 @@ int				leftPaneHeight=400;
 args			kkfilemanager_rc[]=
 {
 	//bools
+	{"executeonclick",TYPEBOOL,&executeOnClick},
 	//strings
 	{"toolbarlayout",TYPESTRING,&toolBarLayout},
 	{"includedisks",TYPESTRING,&diskIncludePattern},

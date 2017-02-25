@@ -1,4 +1,5 @@
 0.0.5
+Added click to execute tp prefs.
 Code clean.
 Added templates to menu, templates are in ~/Tempplates.
 Password in connection box shows bullets.

@@ -230,6 +230,8 @@ extern char				*diskIncludePattern;
 extern char				*diskExcludePattern;
 extern char				*terminalCommand;
 extern bool				showHidden;
+extern bool				executeOnClick;
+extern bool				fromOpen;
 
 //save and load var lists
 extern char				*windowAllocData;

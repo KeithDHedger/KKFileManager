@@ -64,6 +64,8 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 	char			**selectionarray=NULL;
 	unsigned		arraylen=0;
 
+	fromOpen=false;
+
 	switch(ctx->id)
 		{
 			case CONTEXTNEWFILE:
@@ -86,6 +88,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				gtk_list_store_set(bmList,&iter,BMPATH,buffer,BMLABEL,basename(buffer),-1);
 				break;
 			case CONTEXTOPEN:
+				fromOpen=true;
 				iconlist=gtk_icon_view_get_selected_items(ctx->page->iconView);
 				if(iconlist!=NULL)
 					{
@@ -859,9 +862,22 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 			else
 				{
 				//TODO//
-					asprintf(&command,"mimeopen -L -n \"%s\" &",path);
-					//asprintf(&command,"\"%s\" &",path);
-					//printf(">>>%s<<<\n",command);
+					if(fromOpen==true)
+						{
+							asprintf(&command,"xdg-open \"%s\" &",path);
+						}
+					else
+						{
+					//asprintf(&command,"mimeopen -L -n \"%s\" &",path);
+							if((executeOnClick==false) || (g_file_test(path,G_FILE_TEST_IS_EXECUTABLE)==false))
+								{
+									asprintf(&command,"xdg-open \"%s\" &",path);
+								}
+							else
+								{
+									asprintf(&command,"\"%s\" &",path);
+								}
+						}
 					system(command);
 					free(command);
 				}
@@ -939,8 +955,10 @@ void setPrefs(GtkWidget* widget,gpointer ptr)
 {
 //\(sda[123456]$\|sda13\)
 //*sd[abc][1-9]*
-	if((long)ptr==-1)
+	if((long)ptr==DIALOGAPPLY)
 		{
+			executeOnClick=gtk_toggle_button_get_active((GtkToggleButton*)prefsCheck[EXECUTEONCLICK]);
+
 			if(toolBarLayout!=NULL)
 				free(toolBarLayout);
 			toolBarLayout=strdup(gtk_entry_get_text((GtkEntry*)prefsText[TOOLBARLAYOUTTXT]));
@@ -962,8 +980,11 @@ void setPrefs(GtkWidget* widget,gpointer ptr)
 				free(diskIncludePattern);
 			diskIncludePattern=strdup(gtk_entry_get_text((GtkEntry*)prefsText[INCLUDEDISKLISTTXT]));
 			updateDiskList();
+			gtk_widget_destroy(prefsWindow);
 		}
-	gtk_widget_destroy(prefsWindow);
+
+	if((long)ptr==DIALOGCANCEL)
+		gtk_widget_destroy(prefsWindow);
 }
 
 void doShutdown(GtkWidget* widget,gpointer data)

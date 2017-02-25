@@ -15,4 +15,7 @@ textbox:TOOLBARLAYOUTTXT:Toolbar Layout:toolBarLayout
 textbox:INCLUDEDISKLISTTXT:Include Disk List:diskIncludePattern
 textbox:EXCLUDEDISKLISTTXT:Exclude Disk List:diskExcludePattern
 
+HLINE
+checkbox:EXECUTEONCLICK:Execute on click:executeOnClick
+
 #prefsmaker prefsconfig ../KKFileManager/src/prefs

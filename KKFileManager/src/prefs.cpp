@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Sat 25 Feb 15:24:13 GMT 2017
+*     ©keithhedger Sat 25 Feb 15:39:21 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     prefs.cpp
@@ -10,10 +10,20 @@
 
 #include "globals.h"
 
+GtkWidget	*prefsCheck[1];
 GtkWidget	*prefsText[4];
 
 GtkWidget	*prefsWindow;
 
+void makePrefsCheck(int widgnum,const char *label,bool onoff,GtkBox *box)
+{
+	prefsCheck[widgnum]=gtk_check_button_new_with_label(label);
+	gtk_widget_set_name(prefsCheck[widgnum],label);
+	gtk_toggle_button_set_active((GtkToggleButton*)prefsCheck[widgnum],onoff);
+	gtk_box_pack_start(box,prefsCheck[widgnum],false,false,0);
+	g_signal_connect(G_OBJECT(prefsCheck[widgnum]),"clicked",G_CALLBACK(setPrefs),(void*)(long)(widgnum+1000));
+}
+ 
 void makePrefsText(int widgnum,const char *label,const char *defaulttxt,GtkBox *box,bool showlabel)
 {
 	GtkWidget	*hbox=createNewBox(NEWHBOX,false,0);
@@ -56,6 +66,12 @@ void doPrefs(GtkWidget* widget,gpointer data)
 	makePrefsText(TOOLBARLAYOUTTXT,"Toolbar Layout",toolBarLayout,vbox,true);
 	makePrefsText(INCLUDEDISKLISTTXT,"Include Disk List",diskIncludePattern,vbox,true);
 	makePrefsText(EXCLUDEDISKLISTTXT,"Exclude Disk List",diskExcludePattern,vbox,true);
+#ifdef _USEGTK3_
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
+#else
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),true,true,4);
+#endif
+	makePrefsCheck(EXECUTEONCLICK,"Execute on click",executeOnClick,vbox);
 #ifdef _USEGTK3_
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
 #else
