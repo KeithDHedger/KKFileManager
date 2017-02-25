@@ -1,13 +1,18 @@
 BASE:Prefs
 WINDOWTITLE:Preferences
 NOBOXCODE
+NOBASEHEADER
+MAKEDIALOG
 
 DONAME:doPrefs
 INCLUDE:"globals.h"
 
-textbox:Terminal Command:terminalCommand
-HLINE
-textbox:Toolbar Layout:toolBarLayout
-textbox:Include Disk List:diskIncludePattern
-textbox:Exclude Disk List:diskExcludePattern
+TRANSIENTFOR:mainWindow
 
+textbox:TERMINALCOMMANDTXT:Terminal Command:terminalCommand
+HLINE
+textbox:TOOLBARLAYOUTTXT:Toolbar Layout:toolBarLayout
+textbox:INCLUDEDISKLISTTXT:Include Disk List:diskIncludePattern
+textbox:EXCLUDEDISKLISTTXT:Exclude Disk List:diskExcludePattern
+
+#prefsmaker prefsconfig ../KKFileManager/src/prefs

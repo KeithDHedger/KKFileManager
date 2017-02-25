@@ -861,6 +861,7 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 				//TODO//
 					asprintf(&command,"mimeopen -L -n \"%s\" &",path);
 					//asprintf(&command,"\"%s\" &",path);
+					//printf(">>>%s<<<\n",command);
 					system(command);
 					free(command);
 				}
