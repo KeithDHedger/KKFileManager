@@ -1,4 +1,5 @@
 0.0.5
+Search now wraps both backwards and forwards.
 Got rid of annoying gtk warnings when searching.
 Added click to execute to prefs.
 Code clean.

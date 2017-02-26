@@ -600,9 +600,7 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 	gtk_tree_model_get_iter_first((GtkTreeModel*)page->listStore,&page->searchIter);
 	page->searchString[0]=0;
 	page->buttonDown=true;
-	if(page->searchPath!=NULL)
-		gtk_tree_path_free(page->searchPath);
-	page->searchPath=gtk_tree_path_new_first();
+//	page->searchPath=gtk_tree_path_new_first();
 	//	}
 
 	fromPageID=page->pageID;
@@ -855,7 +853,7 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 		{
 			if(isdir==true)
 				{
-				printf(">>>%s<<<\n",path);
+				//printf(">>>%s<<<\n",path);
 					setCurrentFolderForTab(path,page,true,false);
 					clearForward(page);
 					free(page->thisFolder);
@@ -866,7 +864,7 @@ void selectItem(GtkIconView *icon_view,GtkTreePath *tree_path,pageStruct *page)
 			else
 				{
 				//TODO//
-				printf(">>>%s<<<\n",path);
+				//printf(">>>%s<<<\n",path);
 					if(fromOpen==true)
 						{
 							asprintf(&command,"xdg-open \"%s\" &",path);

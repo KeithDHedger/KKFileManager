@@ -83,7 +83,7 @@ void addNewPage(char *startdir)
 	page->stdBehaviour=false;
 	page->fList=NULL;
 	page->bList=NULL;
-	page->searchPath=gtk_tree_path_new_first();
+	page->searchPath=0;
 	pageList=g_list_prepend(pageList,(gpointer)page);
 
 //set_property

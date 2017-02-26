@@ -53,7 +53,7 @@ struct pageStruct
 	GtkTreeIter			searchIter;
 	char				searchString[NAME_MAX];
 	bool				buttonDown;
-	GtkTreePath			*searchPath;
+	int					searchPath;
 };
 
 unsigned getPageIdFromTabNum(int tabnum);

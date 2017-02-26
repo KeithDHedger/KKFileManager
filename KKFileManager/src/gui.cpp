@@ -568,12 +568,22 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 {
 	bool		downkey=false;
 	char		temp[16];
+	char		pathasstring[16];
 	char		*filename;
 	GtkTreeIter	searchiter;
 	GtkTreePath	*treepath=NULL;
 	bool		loopup=false;
+	bool		loop=true;
+	int			maxitems;
+	int			cntloops;
 
 	temp[0]=0;
+	sprintf(pathasstring,"%i",page->searchPath);
+	treepath=gtk_tree_path_new_from_string(pathasstring);
+	maxitems=gtk_tree_model_iter_n_children((GtkTreeModel*)page->listStore,NULL)-1;
+	if(maxitems<1)
+		return(false);
+
 	switch(event->keyval)
 		{
 			case GDK_KEY_Down:
@@ -582,7 +592,9 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 						resetSearch=true;
 						downkey=true;
 						loopup=false;
-						gtk_tree_path_next(page->searchPath);
+						page->searchPath++;
+						if(page->searchPath>maxitems)
+							page->searchPath=0;
 						buildMessgage(page);
 					}
 				else
@@ -598,7 +610,9 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 						resetSearch=true;
 						loopup=true;
 						downkey=true;
-						gtk_tree_path_prev(page->searchPath);
+						page->searchPath--;
+						if(page->searchPath<0)
+							page->searchPath=maxitems;
 						buildMessgage(page);
 					}
 				else
@@ -611,7 +625,8 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 			case GDK_KEY_Return:
 				if(strlen(page->searchString)>0)
 					{
-						selectItem(page->iconView,page->searchPath,page);
+						selectItem(page->iconView,treepath,page);
+						gtk_tree_path_free(treepath);
 						return(true);
 					}
 				else
@@ -628,163 +643,56 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 				 	{
 						sprintf(&temp[0],"%c",event->keyval);
 						strcat(page->searchString,temp);
-					}
-				else
-					return(false);
-				break;
-		}
-
-	gtk_tree_model_get_iter((GtkTreeModel *)page->listStore,&searchiter,page->searchPath);
-//	bool loop=true;
-	do
-		{
-			filename=NULL;
-			if(page->searchPath!=NULL)
-				{
-					gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,TEXT_COLUMN,&filename,-1);
-					if(filename!=NULL)
-						{
-							if(strcasestr(filename,page->searchString)!=NULL)
-								{
-									treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&searchiter);
-									if(treepath!=NULL)
-										{
-											gtk_icon_view_unselect_all(page->iconView);
-											gtk_icon_view_select_path(page->iconView,treepath);
-											gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
-											gtk_tree_path_free(page->searchPath);
-											page->searchPath=treepath;
-											buildMessgage(page);
-											free(filename);
-											return(true);
-										}
-								}
-							free(filename);
-						}
-				}
-		
-//			if(loopup==false)
-//				loop=gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&searchiter)==true);
-		}
-	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&searchiter)==true);
-//	while(loop==true);
-
-	if(loopup==false)
-		{
-			gtk_tree_path_free(page->searchPath);
-			page->searchPath=gtk_tree_path_new_first();
-		}
-	else
-		{
-			char buff[16];
-			gint nums=gtk_tree_model_iter_n_children ((GtkTreeModel *)page->listStore,NULL);
-			sprintf(buff,"%i",nums);
-			gtk_tree_path_free(page->searchPath);
-			page->searchPath=gtk_tree_path_new_from_string(buff);
-		}
-//		page->searchPath=gtk_tree_path_new_last();
-//gint depth;
-//gint *num=gtk_tree_path_get_indices_with_depth (page->searchPath,&depth);
-//gint nums=gtk_tree_model_iter_n_children ((GtkTreeModel *)page->listStore,NULL);
-//printf(">>%i %i %i<<\n",gtk_tree_path_get_depth (page->searchPath),depth,nums);
-	return(downkey);
-}
-
-#if 0
-gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
-{
-	bool		downkey=false;
-	char		temp[16];
-	char		*filename;
-//	GtkTreePath	*treepath=NULL;
-
-	temp[0]=0;
-	switch(event->keyval)
-		{
-			case GDK_KEY_Down:
-				if(strlen(page->searchString)>0)
-					{
-						resetSearch=true;
-						downkey=true;
-						//if(page->searchPath!=NULL)
-						//	{
-						//		gtk_tree_path_free(page->searchPath);
-						//		page->searchPath=gtk_tree_path_new_first();
-						//		
-						//	}
-						//else
-							gtk_tree_path_next(page->searchPath);
-						//if(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==false)
-						//	gtk_tree_model_get_iter_first((GtkTreeModel *)page->listStore,&page->searchIter);
-						//gtk_tree_model_get_iter((GtkTreeModel *)page->listStore,&page->searchIter,page->searchPath);
 						buildMessgage(page);
 					}
 				else
-					{
-						buildMessgage(page);
-						return(false);
-					}
-				break;
-
-			case GDK_KEY_Return:
-				if(strlen(page->searchString)>0)
-					{
-						//treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
-						//selectItem(page->iconView,treepath,page);
-						selectItem(page->iconView,page->searchPath,page);
-						return(true);
-					}
-				else
-					return(false);
-				break;
-
-			default:
-				if(resetSearch==true)
-					{
-						page->searchString[0]=0;
-						resetSearch=false;
-					}
-				 if((isalnum(event->keyval)) || (ispunct(event->keyval)))
-				 	{
-						sprintf(&temp[0],"%c",event->keyval);
-						strcat(page->searchString,temp);
-					}
-				else
 					return(false);
 				break;
 		}
 
+	cntloops=0;
 	do
 		{
 			filename=NULL;
-			//treepath=NULL;
-			//treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
-		//	treepath=page->searchPath;
-			if(treepath!=NULL)
+			sprintf(pathasstring,"%i",page->searchPath);
+			treepath=gtk_tree_path_new_from_string(pathasstring);
+			if(treepath==NULL)
+				return(downkey);
+	
+			gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
+			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,TEXT_COLUMN,&filename,-1);
+			if(filename!=NULL)
 				{
-				printf("path=%s\n",gtk_tree_path_to_string (treepath));
-					gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&page->searchIter,TEXT_COLUMN,&filename,-1);
-					if(filename!=NULL)
+					if(strcasestr(filename,page->searchString)!=NULL)
 						{
-							if(strcasestr(filename,page->searchString)!=NULL)
-								{
-									treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
-									gtk_icon_view_unselect_all(page->iconView);
-									gtk_icon_view_select_path(page->iconView,treepath);
-									gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
-									buildMessgage(page);
-									return(true);
-								}
+							gtk_icon_view_unselect_all(page->iconView);
+							gtk_icon_view_select_path(page->iconView,treepath);
+							gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
+							gtk_tree_path_free(treepath);
+							buildMessgage(page);
 							free(filename);
+							return(true);
 						}
 				}
+			if(loopup==false)
+				{
+					page->searchPath++;
+					if(page->searchPath>maxitems)
+						page->searchPath=0;
+				}
+			else
+				{
+					page->searchPath--;
+					if(page->searchPath<0)
+						page->searchPath=maxitems;
+				}
+			cntloops++;
+			if(cntloops>maxitems)
+				loop=false;
 		}
-	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==true);
-		
+	while(loop);
 	return(downkey);
 }
-
-#endif
 
 void newIconView(pageStruct *page)
 {
@@ -800,7 +708,6 @@ void newIconView(pageStruct *page)
 	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),TEXT_COLUMN);
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
-
 
 //GtkTreeView *tv=(GtkTreeView*)page->listStore;
 //selection = gtk_tree_view_get_selection(tv);
