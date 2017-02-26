@@ -562,24 +562,43 @@ void populatePageStore(pageStruct *page)
 
 }
 
+bool	resetSearch=false;
+
 gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 {
 	bool		downkey=false;
 	char		temp[16];
 	char		*filename;
+	GtkTreeIter	searchiter;
 	GtkTreePath	*treepath=NULL;
+	bool		loopup=false;
 
 	temp[0]=0;
-
-
 	switch(event->keyval)
 		{
 			case GDK_KEY_Down:
 				if(strlen(page->searchString)>0)
 					{
+						resetSearch=true;
 						downkey=true;
-						if(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==false)
-							gtk_tree_model_get_iter_first((GtkTreeModel *)page->listStore,&page->searchIter);
+						loopup=false;
+						gtk_tree_path_next(page->searchPath);
+						buildMessgage(page);
+					}
+				else
+					{
+						buildMessgage(page);
+						return(false);
+					}
+				break;
+
+			case GDK_KEY_Up:
+				if(strlen(page->searchString)>0)
+					{
+						resetSearch=true;
+						loopup=true;
+						downkey=true;
+						gtk_tree_path_prev(page->searchPath);
 						buildMessgage(page);
 					}
 				else
@@ -592,9 +611,7 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 			case GDK_KEY_Return:
 				if(strlen(page->searchString)>0)
 					{
-						treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
-						selectItem(page->iconView,treepath,page);
-//						buildMessgage(page);
+						selectItem(page->iconView,page->searchPath,page);
 						return(true);
 					}
 				else
@@ -602,12 +619,135 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 				break;
 
 			default:
+				if(resetSearch==true)
+					{
+						page->searchString[0]=0;
+						resetSearch=false;
+					}
 				 if((isalnum(event->keyval)) || (ispunct(event->keyval)))
 				 	{
 						sprintf(&temp[0],"%c",event->keyval);
 						strcat(page->searchString,temp);
-						//setStatusMessage(page->searchString);
-//						buildMessgage(page);
+					}
+				else
+					return(false);
+				break;
+		}
+
+	gtk_tree_model_get_iter((GtkTreeModel *)page->listStore,&searchiter,page->searchPath);
+//	bool loop=true;
+	do
+		{
+			filename=NULL;
+			if(page->searchPath!=NULL)
+				{
+					gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,TEXT_COLUMN,&filename,-1);
+					if(filename!=NULL)
+						{
+							if(strcasestr(filename,page->searchString)!=NULL)
+								{
+									treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&searchiter);
+									if(treepath!=NULL)
+										{
+											gtk_icon_view_unselect_all(page->iconView);
+											gtk_icon_view_select_path(page->iconView,treepath);
+											gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
+											gtk_tree_path_free(page->searchPath);
+											page->searchPath=treepath;
+											buildMessgage(page);
+											free(filename);
+											return(true);
+										}
+								}
+							free(filename);
+						}
+				}
+		
+//			if(loopup==false)
+//				loop=gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&searchiter)==true);
+		}
+	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&searchiter)==true);
+//	while(loop==true);
+
+	if(loopup==false)
+		{
+			gtk_tree_path_free(page->searchPath);
+			page->searchPath=gtk_tree_path_new_first();
+		}
+	else
+		{
+			char buff[16];
+			gint nums=gtk_tree_model_iter_n_children ((GtkTreeModel *)page->listStore,NULL);
+			sprintf(buff,"%i",nums);
+			gtk_tree_path_free(page->searchPath);
+			page->searchPath=gtk_tree_path_new_from_string(buff);
+		}
+//		page->searchPath=gtk_tree_path_new_last();
+//gint depth;
+//gint *num=gtk_tree_path_get_indices_with_depth (page->searchPath,&depth);
+//gint nums=gtk_tree_model_iter_n_children ((GtkTreeModel *)page->listStore,NULL);
+//printf(">>%i %i %i<<\n",gtk_tree_path_get_depth (page->searchPath),depth,nums);
+	return(downkey);
+}
+
+#if 0
+gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
+{
+	bool		downkey=false;
+	char		temp[16];
+	char		*filename;
+//	GtkTreePath	*treepath=NULL;
+
+	temp[0]=0;
+	switch(event->keyval)
+		{
+			case GDK_KEY_Down:
+				if(strlen(page->searchString)>0)
+					{
+						resetSearch=true;
+						downkey=true;
+						//if(page->searchPath!=NULL)
+						//	{
+						//		gtk_tree_path_free(page->searchPath);
+						//		page->searchPath=gtk_tree_path_new_first();
+						//		
+						//	}
+						//else
+							gtk_tree_path_next(page->searchPath);
+						//if(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==false)
+						//	gtk_tree_model_get_iter_first((GtkTreeModel *)page->listStore,&page->searchIter);
+						//gtk_tree_model_get_iter((GtkTreeModel *)page->listStore,&page->searchIter,page->searchPath);
+						buildMessgage(page);
+					}
+				else
+					{
+						buildMessgage(page);
+						return(false);
+					}
+				break;
+
+			case GDK_KEY_Return:
+				if(strlen(page->searchString)>0)
+					{
+						//treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
+						//selectItem(page->iconView,treepath,page);
+						selectItem(page->iconView,page->searchPath,page);
+						return(true);
+					}
+				else
+					return(false);
+				break;
+
+			default:
+				if(resetSearch==true)
+					{
+						page->searchString[0]=0;
+						resetSearch=false;
+					}
+				 if((isalnum(event->keyval)) || (ispunct(event->keyval)))
+				 	{
+						sprintf(&temp[0],"%c",event->keyval);
+						strcat(page->searchString,temp);
 					}
 				else
 					return(false);
@@ -617,28 +757,34 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 	do
 		{
 			filename=NULL;
-			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&page->searchIter,TEXT_COLUMN,&filename,-1);
-			if(filename!=NULL)
+			//treepath=NULL;
+			//treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
+		//	treepath=page->searchPath;
+			if(treepath!=NULL)
 				{
-					if(strcasestr(filename,page->searchString)!=NULL)
+				printf("path=%s\n",gtk_tree_path_to_string (treepath));
+					gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&page->searchIter,TEXT_COLUMN,&filename,-1);
+					if(filename!=NULL)
 						{
-							treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
-							gtk_icon_view_unselect_all(page->iconView);
-							gtk_icon_view_select_path(page->iconView,treepath);
-							gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
-							buildMessgage(page);
-							return(true);
+							if(strcasestr(filename,page->searchString)!=NULL)
+								{
+									treepath=gtk_tree_model_get_path((GtkTreeModel*)page->listStore,&page->searchIter);
+									gtk_icon_view_unselect_all(page->iconView);
+									gtk_icon_view_select_path(page->iconView,treepath);
+									gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
+									buildMessgage(page);
+									return(true);
+								}
+							free(filename);
 						}
-					free(filename);
 				}
 		}
 	while(gtk_tree_model_iter_next((GtkTreeModel *)page->listStore,&page->searchIter)==true);
 		
-
-//	if(downkey==true)
-//		return(true);
 	return(downkey);
 }
+
+#endif
 
 void newIconView(pageStruct *page)
 {
@@ -1485,7 +1631,7 @@ void buildMessgage(pageStruct *pagex)
 		}
 	else
 		{
-			sprintf(command,"df -h %s|tail -n1|awk '{print \"Disk \" $1 \": Size \" $2 \" Used \" $3 \" Avail \" $4 \" Usage \" $5 \" Mountpoint \" $6}'",page->thisFolder);
+			sprintf(command,"df -h \"%s\"|tail -n1|awk '{print \"Disk \" $1 \": Size \" $2 \" Used \" $3 \" Avail \" $4 \" Usage \" $5 \" Mountpoint \" $6}'",page->thisFolder);
 			sinkReturnStr=oneLiner(command,buffer);
 		}
 

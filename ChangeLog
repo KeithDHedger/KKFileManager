@@ -1,5 +1,6 @@
 0.0.5
-Added click to execute tp prefs.
+Got rid of annoying gtk warnings when searching.
+Added click to execute to prefs.
 Code clean.
 Added templates to menu, templates are in ~/Tempplates.
 Password in connection box shows bullets.
