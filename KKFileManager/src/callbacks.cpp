@@ -103,7 +103,7 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 				break;
 			case CONTEXTDELETE:
 				{
-					char			*files=NULL;
+					char	*files=NULL;
 
 					arraylen=selectionToArray(&selectionarray,false);
 					if(arraylen>1)

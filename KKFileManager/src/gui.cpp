@@ -584,8 +584,30 @@ gboolean keyIcon(GtkWidget *widget,GdkEventKey *event,pageStruct *page)
 	if(maxitems<1)
 		return(false);
 
+/*
+struct	contextStruct
+{
+	pageStruct	*page;
+	GtkTreePath	*treepath;
+	GtkTreeView *tree;
+	unsigned	id;
+};
+
+*/
 	switch(event->keyval)
 		{
+			case GDK_KEY_Delete:
+				{
+					contextStruct ctx={page,treepath,(GtkTreeView*)page->iconView,CONTEXTDELETE};
+					contextMenuActivate(NULL,&ctx);
+				}
+				break;
+			case GDK_KEY_BackSpace:
+				page->searchString[strlen(page->searchString)-1]=0;
+				buildMessgage(page);
+				return(true);
+				break;
+
 			case GDK_KEY_Down:
 				if(strlen(page->searchString)>0)
 					{
