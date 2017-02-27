@@ -90,6 +90,8 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	char				password[128];
 	char				uid[128];
 	char				sharepath[NAME_MAX+1];
+	bool				isdev=false;
+	char				mbuff[1024];
 
 	nm->url=NULL;
 	nm->fstype=NULL;
@@ -110,12 +112,13 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 	if(cnt<6)
 		{
 			parseNetworkUrl(text,nm);
-			printDriveDetails(nm);
+			//printDriveDetails(nm);
 			updateNetHistoryFile(text,0);
 
 			switch(cnt)
 				{
 					case 0:
+					//smb://keithhedger:hogandnana@192.168.1.66/media
 					//udevil mount -t cifs  -o username=keithhedger,password=hogandnana,uid=1000,port=445 //192.168.1.66/lansite
 						if(nm->user==NULL)
 							nm->user=strdup("guest");
@@ -169,14 +172,14 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 						{
 						//ssh://192.168.1.66
 							if(nm->path!=NULL)
-								sprintf(sharepath,"%s",nm->port);
+								sprintf(sharepath,"%s",nm->path);
 							else
 								sprintf(sharepath,"%s","/");
 
-							asprintf(&command,"mkdir -vp ~/.local/%s",nm->host);
+							asprintf(&command,"mkdir -vp ~/.local/%s/%s",nm->host,sharepath);
 							system(command);
 							free(command);
-							asprintf(&command,"sshfs %s:%s ~/.local/%s",nm->host,sharepath,nm->host);
+							asprintf(&command,"sshfs %s:%s ~/.local/%s/%s",nm->host,sharepath,nm->host,sharepath);
 							system(command);
 							//printf("ssh -> %s\n",command);
 							free(command);
@@ -203,15 +206,26 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 
 						asprintf(&command,"echo -e \"%s\\n%s\\n\"|udevil mount http://%s%s",uid,password,nm->host,portname);
 						system(command);
-						printf("dav->%s\n",command);
+						//printf("dav->%s\n",command);
 						free(command);
 						break;
 					case 5:
+						isdev=true;
 						asprintf(&command,"udevil mount %s",text);
 						system(command);
 						free(command);
 						break;
 				}
+
+			if(isdev==true)
+				snprintf(mbuff,1023,"mount |grep %s|awk '{print $3}'",text);
+			else
+				snprintf(mbuff,1023,"mount |grep %s|grep %s|awk '{print $3}'",nm->path,nm->host);
+
+			sinkReturnStr=oneLiner(mbuff,(char*)&mbuff);
+
+			if(strlen(mbuff)>0)
+				setCurrentFolderForTab(mbuff,page,true,true);
 			return;
 		}
 

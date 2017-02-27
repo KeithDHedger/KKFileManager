@@ -176,12 +176,8 @@ void clearMenu(GtkMenuShell *menushell,gpointer user_data)
 
 void goNetDisk(GtkWidget *widget,gpointer data)
 {
-	char	*holdtext=strdup(gtk_entry_get_text(locationTextBox));
-
 	gtk_entry_set_text(locationTextBox,netDiskArray[(long)data]);
 	goLocation(locationTextBox,NULL,NULL);
-	gtk_entry_set_text(locationTextBox,holdtext);
-	free(holdtext);
 }
 
 void connectMenu(GtkMenuToolButton *toolbutton,gpointer data)

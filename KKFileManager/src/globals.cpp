@@ -215,7 +215,8 @@ char* oneLiner(const char *command,char *buf)
 		}
 	if(sinkReturnStr==NULL)
 		{
-			free(retstr);
+			if(buf==NULL)
+				free(retstr);
 			return(NULL);
 		}
 	else

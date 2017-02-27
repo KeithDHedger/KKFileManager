@@ -380,7 +380,7 @@ void contextDiskMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 								asprintf(&command,"fusermount -u \"%s\"",mountpoint);
 								system(command);
 								free(command);
-								asprintf(&command,"rmdir \"%s\"",mountpoint);
+								asprintf(&command,"rmdir -p \"%s\"",mountpoint);
 								system(command);
 							}
 						free(command);
