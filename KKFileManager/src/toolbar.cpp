@@ -217,7 +217,12 @@ void goLocation(GtkEntry *entry,GdkEvent *event,gpointer data)
 
 	if(g_file_test(gtk_entry_get_text(entry),G_FILE_TEST_IS_DIR)==false)
 		{
-			asprintf(&command,"mimeopen -L -n \"%s\" &",gtk_entry_get_text(entry));
+			if(text[0]=='/')
+				asprintf(&command,"mimeopen -L -n \"%s\" &",text);
+			
+			if(text[0]=='$')
+				asprintf(&command,"%s &",&text[1]);
+
 			system(command);
 			free(command);
 			return;
