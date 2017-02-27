@@ -518,7 +518,7 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 //		 	return;
 //		 }
 
-	if (info==DRAG_TEXT_URI_LIST)
+	if (info==DROP_TEXT_URI_LIST)
 		{
 			uris=gtk_selection_data_get_uris(data);
 			if(uris==NULL)
@@ -537,8 +537,6 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 				{
 					filepath=g_filename_from_uri(uris[cnt],NULL,NULL);
 					result=true;
-
-					//setFilePathStruct(&fps,"fDp",filepath,page->thisFolder);
 					setFilePathStruct(&fps,"fDp",filepath,usethisdroppath);
 					fps.askFileName=true;
 					getValidToPathFromFilepath(&fps);
@@ -549,6 +547,35 @@ void dragDataReceived(GtkWidget *widget,GdkDragContext *context,gint x,gint y,Gt
 				}
 			g_strfreev(uris);
 		}
+	else if(info==DROP_TEXT_PLAIN)
+			{
+				FILE	*fp=NULL;
+				char	buffer[PATH_MAX];
+				guchar	*str=gtk_selection_data_get_text(data);
+
+				if(str!=NULL)
+					{
+						if(dropPath!=NULL)
+							usethisdroppath=dropPath;
+						else
+							usethisdroppath=page->thisFolder;
+
+						sprintf(buffer,"%s/Clipping",usethisdroppath);
+						setFilePathStruct(&fps,"fDp",buffer,usethisdroppath);
+						fps.askFileName=true;
+						getValidToPathFromFilepath(&fps);
+						if(fps.modified==true)
+							{
+								fp=fopen(fps.toFilePath,"w");
+								if(fp!=NULL)
+									{
+										fprintf(fp,"%s",str);
+										fclose(fp);
+									}
+							}
+						free(str);
+					}
+			}
 	else
 		{
 			g_print("error\n");

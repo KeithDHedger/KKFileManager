@@ -1,6 +1,6 @@
 #
 #
-AC_INIT([KKFileManager],[0.0.5],[PROJ],[KKFileManager])
+AC_INIT([KKFileManager],[0.0.6],[PROJ],[KKFileManager])
 
 AC_CONFIG_HEADER([config.h])
 AC_PROG_CXX

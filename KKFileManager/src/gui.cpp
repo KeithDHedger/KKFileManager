@@ -33,7 +33,8 @@ GdkPixbuf		*pixbuft;
 const char		*iconNames[]={"user-home","user-desktop","computer","user-bookmarks","drive-removable-media-usb","drive-harddisk","media-optical","gnome-dev-disc-dvdrom","gnome-dev-cdrom","network-workgroup"};
 
 GtkTargetEntry dragTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
-GtkTargetEntry dropTargets[]={{(char*)"text/uri-list",0,DRAG_TEXT_URI_LIST}};
+GtkTargetEntry dropTargets[]={{(char*)"text/uri-list",0,DROP_TEXT_URI_LIST},{(char*)"text/plain",0,DROP_TEXT_PLAIN}};
+
 int				statusID;
 
 menuDataStruct	menuData[]=
@@ -753,8 +754,8 @@ void newIconView(pageStruct *page)
 	target->target=(gchar*)"InternalTarget";
 	target->flags=GTK_TARGET_SAME_APP;
 	target->info=0;
-	gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,dropTargets,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
-	gtk_icon_view_enable_model_drag_dest(page->iconView,dragTargets,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
+	gtk_icon_view_enable_model_drag_source(page->iconView,GDK_BUTTON1_MASK,dragTargets,1,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
+	gtk_icon_view_enable_model_drag_dest(page->iconView,dropTargets,2,(GdkDragAction)(GDK_ACTION_COPY|GDK_ACTION_MOVE|GDK_ACTION_LINK));
 
 //drag
 	g_signal_connect(G_OBJECT(page->iconView),"drag-begin",G_CALLBACK(doDragBegin),(gpointer)page);

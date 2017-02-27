@@ -226,29 +226,6 @@ char* oneLiner(const char *command,char *buf)
 	return(retstr);
 }
 
-char* oneLinerXXX(const char *command)
-{
-	FILE	*fp=NULL;
-	char	*retstr=(char*)calloc(1,256);
-	fp=popen(command,"r");
-	if(fp!=NULL)
-		{
-			sinkReturnStr=fgets(retstr,256,fp);
-			pclose(fp);
-		}
-	if(sinkReturnStr==NULL)
-		{
-			free(retstr);
-			return(NULL);
-		}
-	else
-		{
-			if(retstr[strlen(retstr)-1]=='\n')
-				retstr[strlen(retstr)-1]=0;
-		}
-	return(retstr);
-}
-
 void setCurrentFolderForTab(const char *newfolder,pageStruct *page,bool updatenav,bool force)
 {
 	GtkEntryCompletion	*completion;
