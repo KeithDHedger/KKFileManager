@@ -9,7 +9,7 @@ kkfilemanager_SOURCES = $(COMMONSRC)
 kkfilemanager_CFLAGS = -O3 -export-dynamic
 kkfilemanager_CXXFLAGS = -O3 -export-dynamic
 
-pixfilesdir = $(datadir)/pixmaps
+pixfilesdir = $(pkgdatadir)/pixmaps
 pixfiles_DATA = ../resources/pixmaps/*.png
 
 scriptfilesdir = $(pkgdatadir)/scripts
