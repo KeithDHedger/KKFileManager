@@ -1,4 +1,5 @@
 0.0.6
+Added thumbnails to image files.
 Mounting from location box or net history now goes to the mountpoint.
 If first  character of location box is $ text is treated as background command.
 Mount device from location box with /dev/xxx.

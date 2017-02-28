@@ -235,14 +235,14 @@ void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_dat
 		}
 }
 
-void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool isdir,pageStruct *page)
+void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool isdir,const char *mimetype,pageStruct *page)
 {
 	GtkTreeIter iter;
 
 	gtk_list_store_append(page->listStore, &iter);
 	if(pixbuf==NULL)
 		pixbuf=genericText;
-	gtk_list_store_set(page->listStore,&iter,PIXBUF_COLUMN,pixbuf,TEXT_COLUMN,type,FILEPATH,path,ISDIR,isdir,-1);
+	gtk_list_store_set(page->listStore,&iter,PIXBUF_COLUMN,pixbuf,FILENAME,type,FILEPATH,path,ISDIR,isdir,MIMETYPE,mimetype,-1);
 }
 
 char *getMimeType(const char *path)
@@ -258,7 +258,7 @@ unsigned hashMimeType(char* cp)
 	return(hash);
 }
 
-GdkPixbuf* getPixBuf(const char *file)
+GdkPixbuf* getPixBuf(const char *file,const char *mimetype)
 {
 	GIcon			*icon=NULL;
 	GtkIconInfo		*info=NULL;
@@ -270,7 +270,12 @@ GdkPixbuf* getPixBuf(const char *file)
 	char			*newf=NULL;
 	bool			isbrokenlink=false;
 
-	mime=getMimeType(file);
+	if(mimetype==NULL)
+		mime=getMimeType(file);
+	else
+		mime=strdup(mimetype);
+
+	//mime=strdup(mimetype);
 //mime=strdup("application-octet-stream");
 //printf("mime=%s file %s\n",mime,file);
 	if(g_file_test(file,G_FILE_TEST_IS_SYMLINK)==true)
@@ -296,7 +301,6 @@ GdkPixbuf* getPixBuf(const char *file)
 		}
 	else
 		hash=hashMimeType(mime);
-
 
 	if(pixBuffCache.find(hash)!=pixBuffCache.end())
 		{
@@ -372,9 +376,16 @@ gboolean loadFilesDir(gpointer data)
 	GdkPixbuf	*pixbuf;
 	char		buffer[PATH_MAX];
 	pageStruct	*page=(pageStruct*)data;
+	char		*mimetype=NULL;
+	char		rootpath[PATH_MAX];
 
 	while(gtk_events_pending())
 		gtk_main_iteration();
+
+	if(strcmp(page->thisFolder,"/")==0)
+		sprintf(rootpath,"%s","/");
+	else
+		sprintf(rootpath,"%s/",page->thisFolder);
 
 	switch(page->fileType)
 		{
@@ -394,12 +405,9 @@ gboolean loadFilesDir(gpointer data)
 						if(page->fileList[j]->d_type==DT_DIR)
 							if(page->fileList[j]->d_name[0]=='.')
 								{
-									if(strcmp(page->thisFolder,"/")==0)
-										sprintf(buffer,"/%s",page->fileList[j]->d_name);
-									else
-										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-									pixbuf=getPixBuf(buffer);
-									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
+									sprintf(buffer,"%s%s",rootpath,page->fileList[j]->d_name);
+									pixbuf=getPixBuf(buffer,"inode/directory");
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,"inode/directory",page);
 								}
 					}
 				if(page->uptoHere==page->fileCnt)
@@ -418,18 +426,16 @@ gboolean loadFilesDir(gpointer data)
 							page->uptoHere=page->fileCnt;
 					}
 				break;
+
 			case LOADFOLDERs:
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type==DT_DIR)
 							if(page->fileList[j]->d_name[0]!='.')
 								{
-									if(strcmp(page->thisFolder,"/")==0)
-										sprintf(buffer,"/%s",page->fileList[j]->d_name);
-									else
-										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-									pixbuf=getPixBuf(buffer);
-									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,page);
+									sprintf(buffer,"%s%s",rootpath,page->fileList[j]->d_name);
+									pixbuf=getPixBuf(buffer,"inode/directory");
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,true,"inode/directory",page);
 								}
 					}
 				if(page->uptoHere==page->fileCnt)
@@ -464,12 +470,11 @@ gboolean loadFilesDir(gpointer data)
 						if(page->fileList[j]->d_type!=DT_DIR)
 							if(page->fileList[j]->d_name[0]=='.')
 								{
-									if(strcmp(page->thisFolder,"/")==0)
-										sprintf(buffer,"/%s",page->fileList[j]->d_name);
-									else
-										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-									pixbuf=getPixBuf(buffer);
-									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
+									sprintf(buffer,"%s%s",rootpath,page->fileList[j]->d_name);
+									mimetype=getMimeType(buffer);
+									pixbuf=getPixBuf(buffer,mimetype);
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,mimetype,page);
+									free(mimetype);
 								}
 					}
 				if(page->uptoHere==page->fileCnt)
@@ -495,23 +500,63 @@ gboolean loadFilesDir(gpointer data)
 						if(page->fileList[j]->d_type!=DT_DIR)
 							if(page->fileList[j]->d_name[0]!='.')
 								{
-									if(strcmp(page->thisFolder,"/")==0)
-										sprintf(buffer,"/%s",page->fileList[j]->d_name);
-									else
-										sprintf(buffer,"%s/%s",page->thisFolder,page->fileList[j]->d_name);
-									pixbuf=getPixBuf(buffer);
-									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,page);
+									sprintf(buffer,"%s%s",rootpath,page->fileList[j]->d_name);
+									mimetype=getMimeType(buffer);
+									pixbuf=getPixBuf(buffer,mimetype);
+									setNewPagePixbuf(pixbuf,page->fileList[j]->d_name,buffer,false,mimetype,page);
+									free(mimetype);
 								}
 					}
+
 				if(page->uptoHere==page->fileCnt)
 					{
 						page->fileType++;
-						return(false);
+						page->fromHere=0;
+						page->uptoHere=LOADTHUMBCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
 					}
 				else
 					{
 						page->fromHere=page->uptoHere;
 						page->uptoHere=page->uptoHere+LOADICONCNT;
+						if(page->uptoHere > page->fileCnt)
+							page->uptoHere=page->fileCnt;
+					}
+				break;
+
+			case LOADPIXMAPS:
+				for(int j=page->fromHere;j<page->uptoHere;j++)
+					{
+						char		pathasstring[16];
+						GtkTreeIter	searchiter;
+						char		*filepath=NULL;
+						GdkPixbuf	*pixbuf;
+						char		*mime=NULL;
+						bool		gotiter;
+
+						sprintf(pathasstring,"%i",j);
+						gotiter=gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
+						if(gotiter==false)
+							return(false);
+						gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,MIMETYPE,&mime,FILEPATH,&filepath,-1);
+						if(g_str_has_prefix(mime,"image"))
+							{
+								pixbuf=gdk_pixbuf_new_from_file_at_size(filepath,-1,iconSize,NULL);											
+								gtk_list_store_set(page->listStore,&searchiter,PIXBUF_COLUMN,pixbuf,-1);
+								g_object_unref(pixbuf);
+							}
+					}
+
+				if(page->uptoHere>=page->fileCnt)
+					{
+						page->fileType=0;
+						return(false);
+					}
+				else
+					{
+						page->fromHere=page->uptoHere;
+						page->uptoHere=page->uptoHere+LOADTHUMBCNT;
 						if(page->uptoHere > page->fileCnt)
 							page->uptoHere=page->fileCnt;
 					}
@@ -683,7 +728,7 @@ struct	contextStruct
 				return(downkey);
 	
 			gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
-			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,TEXT_COLUMN,&filename,-1);
+			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,FILENAME,&filename,-1);
 			if(filename!=NULL)
 				{
 					if(strcasestr(filename,page->searchString)!=NULL)
@@ -725,10 +770,10 @@ void newIconView(pageStruct *page)
 //gtk_tree_view_column_set_min_width
 //GtkTreeSelection  *selection;
 
-	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN);
+	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING);
 	page->iconView=(GtkIconView*)gtk_icon_view_new();
 	gtk_icon_view_set_pixbuf_column(GTK_ICON_VIEW(page->iconView),PIXBUF_COLUMN);
-	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),TEXT_COLUMN);
+	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),FILENAME);
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
 
