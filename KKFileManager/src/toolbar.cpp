@@ -370,9 +370,7 @@ void setUpToolBar(void)
 						g_signal_connect(G_OBJECT(connectButton),"clicked",G_CALLBACK(doConnectWrap),NULL);
 //connect history
 						menu=gtk_menu_new();
-						//backButtonMenu=gtk_menu_new();
 						gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(connectButton),menu);
-						//gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(backButton),backButtonMenu);
 						g_signal_connect(G_OBJECT(connectButton),"show-menu",G_CALLBACK(connectMenu),NULL);
 						g_signal_connect_after(GTK_MENU_SHELL(menu),"selection-done",G_CALLBACK(clearMenu),NULL);
 						break;					
@@ -389,9 +387,7 @@ void setUpToolBar(void)
 						g_signal_connect(G_OBJECT(backButton),"clicked",G_CALLBACK(navigateHistory),NULL);
 //back history
 						menu=gtk_menu_new();
-						//backButtonMenu=gtk_menu_new();
 						gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(backButton),menu);
-						//gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(backButton),backButtonMenu);
 						g_signal_connect(G_OBJECT(backButton),"show-menu",G_CALLBACK(backMenu),NULL);
 						g_signal_connect_after(GTK_MENU_SHELL(menu),"selection-done",G_CALLBACK(clearMenu),NULL);
 						break;

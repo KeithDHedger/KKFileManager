@@ -89,6 +89,20 @@ format:
 
 	c=set to filepath from from filename and to dirpath
 */
+void printfFileStruct(filePathStruct *fps)
+{
+	printf("from dirpath=%s\n",fps->fromDirPath);
+	printf("from filename=%s\n",fps->fromFileName);
+	printf("from filepath=%s\n",fps->fromFilePath);
+	printf("to dirpath=%s\n",fps->toDirPath);
+	printf("to filename=%s\n",fps->toFileName);
+	printf("to filepath=%s\n",fps->toFilePath);
+	printf("modified=%i\n",fps->modified);
+	printf("askFileName=%i\n",fps->askFileName);
+	printf("fromFilePathIsDir=%i\n",fps->fromFilePathIsDir);
+	printf("toFilePathIsDir=%i\n",fps->toFilePathIsDir);
+}
+
 void setFilePathStruct(filePathStruct *fps,const char *format,...)
 {
 	va_list	ap;
@@ -262,7 +276,7 @@ filePathStruct* getValidFilepath(const char *filepath)
 }
 
 
-void freefilePathStruct(filePathStruct* fs)
+void freefilePathStruct(filePathStruct* fs,bool freestruct)
 {
 	if(fs->fromDirPath!=NULL)
 		free(fs->fromDirPath);
@@ -270,9 +284,15 @@ void freefilePathStruct(filePathStruct* fs)
 		free(fs->fromFileName);
 	if(fs->fromFilePath!=NULL)
 		free(fs->fromFilePath);
+
 	if(fs->toDirPath!=NULL)
 		free(fs->toDirPath);
-	free(fs);
+	if(fs->toFileName!=NULL)
+		free(fs->toFileName);
+	if(fs->toFilePath!=NULL)
+		free(fs->toFilePath);
+	if(freestruct==true)
+		free(fs);
 }
 
 void doFileAction(filePathStruct *fps,int action)

@@ -47,8 +47,9 @@ void printfilestruct(filePathStruct *fps);
 void getValidToPathFromFilepath(filePathStruct *fps);
 void getUniqueFilenameOnly(filePathStruct *fps);
 void setFilePathStruct(filePathStruct *fps,const char *format,...);
-void freefilePathStruct(filePathStruct* fs);
+void freefilePathStruct(filePathStruct* fs,bool freestruct);
 filePathStruct* getValidFilepath(const char *filepath);
 void doFileAction(filePathStruct *fps,int action);
+void printfFileStruct(filePathStruct *fps);
 
 #endif

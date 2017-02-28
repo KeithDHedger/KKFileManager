@@ -762,24 +762,75 @@ struct	contextStruct
 	return(downkey);
 }
 
+void renameItem(GtkCellRendererText *cell,gchar *path_string,gchar *text,pageStruct *page)
+{
+	char			buffer[PATH_MAX+20];
+	GtkTreeIter		iter;
+	GtkTreePath		*path;
+
+	filePathStruct	fps={NULL,NULL,NULL,NULL,NULL,NULL,false,false,false,false};
+
+	if(page==NULL)
+		return;
+
+	path=gtk_tree_path_new_from_string(path_string);
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(page->listStore),&iter,path);
+	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&iter,FILEPATH,&fps.fromFilePath,-1);
+	
+	setFilePathStruct(&fps,"NDTpt",text,page->thisFolder);
+
+	if(strcmp(fps.fromFilePath,fps.toFilePath)==0)
+		{
+			fps.askFileName=true;
+			getValidToPathFromFilepath(&fps);
+			if(fps.modified==false)
+				{
+					freefilePathStruct(&fps,false);
+					gtk_tree_path_free(path);
+					return;
+				}
+		}
+
+	sprintf(buffer,"mv \"%s\" \"%s\"\n",fps.fromFilePath,fps.toFilePath);
+	system(buffer);
+
+	freefilePathStruct(&fps,false);
+	gtk_tree_path_free(path);
+	setCurrentFolderForTab(page->thisFolder,page,true,true);
+}
+
 void newIconView(pageStruct *page)
 {
-	char	buffer[64];
+	GtkCellRenderer	*renderer;
+	float			align;
+	char			buffer[64];
+	
 	sprintf(buffer,"GtkIconView-%u",pageCnt);
 //TODO//
 //gtk_tree_view_column_set_min_width
 //GtkTreeSelection  *selection;
-
+//GtkCellRendererText
+// gtk_tree_view_column
 	page->listStore=gtk_list_store_new(NUMCOLS,G_TYPE_STRING,GDK_TYPE_PIXBUF,G_TYPE_STRING,G_TYPE_BOOLEAN,G_TYPE_STRING);
 	page->iconView=(GtkIconView*)gtk_icon_view_new();
 	gtk_icon_view_set_pixbuf_column(GTK_ICON_VIEW(page->iconView),PIXBUF_COLUMN);
-	gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),FILENAME);
+	//gtk_icon_view_set_text_column(GTK_ICON_VIEW(page->iconView),FILENAME);
+
+	renderer=gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_end(GTK_CELL_LAYOUT(page->iconView),renderer,false);
+	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (page->iconView),renderer,"text",FILENAME,NULL);
+
+#if _USEGTK3_
+	align=0.5;
+#else
+	align=0.0;
+#endif
+
+	g_object_set(renderer,"alignment",PANGO_ALIGN_CENTER,"wrap-mode",PANGO_WRAP_WORD_CHAR,"xalign",align,"yalign",align,"editable",true,"wrap-width",iconSize*2,NULL);
+	g_signal_connect(renderer,"edited",G_CALLBACK(renameItem),page);
+
 	gtk_icon_view_set_model(GTK_ICON_VIEW(page->iconView),GTK_TREE_MODEL(page->listStore));
 	gtk_icon_view_set_item_padding(GTK_ICON_VIEW(page->iconView),0);
-
-//GtkTreeView *tv=(GtkTreeView*)page->listStore;
-//selection = gtk_tree_view_get_selection(tv);
-
 
 	page->bdownsignal=g_signal_connect(page->iconView,"button-press-event",G_CALLBACK(buttonDown),page);	
 	page->bupsignal=g_signal_connect(page->iconView,"button-release-event",G_CALLBACK(buttonUp),page);	
