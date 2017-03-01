@@ -49,7 +49,9 @@ void getValidToPathFromFilepath(filePathStruct *fps)
 
 	if(fps->askFileName==true)
 		{
-			doAskForFilename(fps->toFileName);
+			//doAskForFilename(fps->toFileName);
+			fileName=strdup(fps->toFileName);
+			doAskForFilename(NULL,NULL);
 			if(validName==true)
 				{
 					snprintf(tmppathbuffer,PATH_MAX,"%s/%s",fps->toDirPath,fileName);

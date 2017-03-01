@@ -44,6 +44,7 @@ menuDataStruct	menuData[]=
 		{"New Folder",GTK_STOCK_DIRECTORY,0,0,NULL,"newfoldermenu",NULL},
 		{"New Bookmark",GTK_STOCK_NEW,0,0,NULL,"newbmmenu",NULL},
 		{"Open",GTK_STOCK_OPEN,0,0,NULL,"openmenu",NULL},
+		{"Rename",GTK_STOCK_SAVE_AS,0,0,NULL,"renamemenu",NULL},
 		{"Delete",GTK_STOCK_DELETE,0,0,NULL,"deletemenu",NULL},
 		{"Duplicate",GTK_STOCK_COPY,0,0,NULL,"duplicatemenu",NULL},
 		{"Extract",GTK_STOCK_CONVERT,0,0,NULL,"extractmenu",NULL},

@@ -101,6 +101,23 @@ void contextMenuActivate(GtkMenuItem *menuitem,contextStruct *ctx)
 						g_list_free(iconlist);
 					}
 				break;
+			case CONTEXTRENAME:
+				arraylen=selectionToArray(&selectionarray,false);
+				if(arraylen==1)
+					{
+						sprintf(buffer,"%s",selectionarray[0]);
+						setFilePathStruct(&fps,"fD",buffer,ctx->page->thisFolder);
+						fps.askFileName=true;
+						getValidToPathFromFilepath(&fps);
+						if(fps.modified==true)
+							{
+								sprintf(buffer,"mv \"%s\" \"%s\"",fps.fromFilePath,fps.toFilePath);
+								system(buffer);
+							}
+					}
+				if(selectionarray!=NULL)
+					g_strfreev(selectionarray);
+				break;
 			case CONTEXTDELETE:
 				{
 					char	*files=NULL;
@@ -681,6 +698,11 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 					contextMenus[CONTEXTOPEN]->page=page;
 					contextMenus[CONTEXTOPEN]->treepath=treepath;
 					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTOPEN]);
+//rename file
+					menuitem=newImageMenuItem(CONTEXTRENAME,tabMenu);
+					contextMenus[CONTEXTRENAME]->page=page;
+					contextMenus[CONTEXTRENAME]->treepath=treepath;
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(contextMenuActivate),(void*)contextMenus[CONTEXTRENAME]);
 //delete file
 					menuitem=newMenuItem(CONTEXTDELETE,tabMenu);
 					contextMenus[CONTEXTDELETE]->page=page;
@@ -1038,20 +1060,20 @@ void runTerminalHere(GtkWidget* widget,gpointer data)
 	free(command);
 }
 
-void setAskEntry(GtkWidget* widget,gpointer ptr)
-{
-	if(fileName!=NULL)
-		free(fileName);
-	fileName=NULL;
-	validName=false;
-
- 	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)askentryText[ENTERFILENAMETXT])>0))
- 		{
-			fileName=strdup(gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
-			validName=true;
-		}
-	gtk_widget_destroy(askentryWindow);
-}
+//void setAskEntry(GtkWidget* widget,gpointer ptr)
+//{
+//	if(fileName!=NULL)
+//		free(fileName);
+//	fileName=NULL;
+//	validName=false;
+//
+// 	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)askentryText[ENTERFILENAMETXT])>0))
+// 		{
+//			fileName=strdup(gtk_entry_get_text((GtkEntry*)askentryText[ENTERFILENAMETXT]));
+//			validName=true;
+//		}
+//	gtk_widget_destroy(askentryWindow);
+//}
 
 void doAbout(GtkWidget *widget,gpointer data)
 {
@@ -1461,6 +1483,21 @@ void makeTemplate(GtkMenuItem *widget,gpointer data)
 			system(command);
 			free(command);
 		}
+}
+
+void setAskFilename(GtkWidget* widget,gpointer ptr)
+{
+	if(fileName!=NULL)
+		free(fileName);
+	fileName=NULL;
+	validName=false;
+
+ 	if(((long)ptr==-1) && (gtk_entry_get_text_length((GtkEntry*)filenamedialogText[FILENAMETXT])>0))
+ 		{
+			fileName=strdup(gtk_entry_get_text((GtkEntry*)filenamedialogText[FILENAMETXT]));
+			validName=true;
+		}
+	gtk_widget_destroy(filenamedialogWindow);
 }
 
 

@@ -35,13 +35,14 @@
 #include "gui.h"
 #include "callbacks.h"
 #include "prefs.h"
-#include "dialogs.h"
+//#include "dialogs.h"
 #include "history.h"
 #include "internet.h"
 #include "files.h"
 #include "properties.h"
 #include "mimetype.h"
 #include "connect.h"
+#include "filenamedialog.h"
 
 #ifdef _USEGTK3_
 //menus

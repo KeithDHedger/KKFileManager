@@ -55,4 +55,6 @@ void setConnect(GtkWidget* widget,gpointer ptr);
 
 void makeTemplate(GtkMenuItem *widget,gpointer data);
 
+void setAskFilename(GtkWidget* widget,gpointer ptr);
+
 #endif
