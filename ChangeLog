@@ -1,4 +1,5 @@
 0.0.6
+Thumbnail loading now in seperate thread.
 Fixed wrong install location for app icon.
 Added renaming file by clicking on the icon name.
 Added thumbnails to image files.
