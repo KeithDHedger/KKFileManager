@@ -531,7 +531,6 @@ gboolean loadFilesDir(gpointer data)
 				break;
 
 			case LOADFILES:
-			printf("loadfiles\n");
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type!=DT_DIR)
