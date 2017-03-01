@@ -373,18 +373,18 @@ inline bool ignoredots(const char *ptr)
 
 void* loadThumbnails(void *arg)
 {
+	char		pathasstring[16];
+	GtkTreeIter	searchiter;
+	char		*filepath=NULL;
+	GdkPixbuf	*pixbuf;
+	char		*mime=NULL;
+	bool		gotiter;
 	pageStruct	*page=(pageStruct*)arg;
+
 	page->thumbnailThreadRunning=true;
 
 	for(int j=0;j<page->fileCnt;j++)
 		{
-			char		pathasstring[16];
-			GtkTreeIter	searchiter;
-			char		*filepath=NULL;
-			GdkPixbuf	*pixbuf;
-			char		*mime=NULL;
-			bool		gotiter;
-
 			sprintf(pathasstring,"%i",j);
 			gotiter=gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
 			if(gotiter==false)
@@ -398,8 +398,10 @@ void* loadThumbnails(void *arg)
 					pixbuf=gdk_pixbuf_new_from_file_at_size(filepath,-1,iconSize,NULL);											
 					gtk_list_store_set(page->listStore,&searchiter,PIXBUF_COLUMN,pixbuf,-1);
 					g_object_unref(pixbuf);
+					free(filepath);
 				}
-			}
+			free(mime);
+		}
 
 	page->thumbnailThreadRunning=false;
 	return(NULL);
