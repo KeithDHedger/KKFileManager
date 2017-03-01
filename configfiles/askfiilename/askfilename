@@ -1,0 +1,21 @@
+#base name for variables etc
+BASE:AskFilename
+DONAME:doAskForFilename
+WINDOWTITLE:Enter Filename
+
+#dont include create box code
+NOBOXCODE
+NOBASEHEADER
+
+MAKEDIALOG
+TRANSIENTFOR:mainWindow
+
+INCLUDE:"globals.h"
+
+textbox:FILENAMETXT:Enter Filename:fileName
+
+VARIABLE:char		*fileName:global
+VARIABLE:bool		validName:global
+
+
+#prefsmaker askfilename ../../KKFileManager/src/filenamedialog askforname.cpp
