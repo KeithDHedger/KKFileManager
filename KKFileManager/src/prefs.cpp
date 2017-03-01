@@ -1,7 +1,7 @@
 
 /******************************************************
 *
-*     ©keithhedger Sat 25 Feb 15:39:21 GMT 2017
+*     ©keithhedger Tue 28 Feb 17:33:12 GMT 2017
 *     kdhedger68713@gmail.com
 *
 *     prefs.cpp
@@ -10,8 +10,8 @@
 
 #include "globals.h"
 
-GtkWidget	*prefsCheck[1];
-GtkWidget	*prefsText[4];
+GtkWidget	*prefsCheck[2];
+GtkWidget	*prefsText[5];
 
 GtkWidget	*prefsWindow;
 
@@ -72,6 +72,15 @@ void doPrefs(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),true,true,4);
 #endif
 	makePrefsCheck(EXECUTEONCLICK,"Execute on click",executeOnClick,vbox);
+#ifdef _USEGTK3_
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
+#else
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),true,true,4);
+#endif
+	tbox=(GtkBox*)createNewBox(NEWHBOX,false,0);
+	makePrefsCheck(NONETPICS,"No Thumbnails On",noThumbs,tbox);
+	makePrefsText(EXCLUDENETPICSON,"",noNetPicsOn,tbox,true);
+	gtk_box_pack_start(GTK_BOX(vbox),(GtkWidget*)tbox,true,true,4);
 #ifdef _USEGTK3_
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),true,true,4);
 #else

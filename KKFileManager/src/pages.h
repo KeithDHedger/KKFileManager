@@ -54,6 +54,8 @@ struct pageStruct
 	char				searchString[NAME_MAX];
 	bool				buttonDown;
 	int					searchPath;
+	pthread_t			thumbnailThread;
+	bool				thumbnailThreadRunning;
 };
 
 unsigned getPageIdFromTabNum(int tabnum);

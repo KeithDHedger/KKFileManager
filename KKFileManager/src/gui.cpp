@@ -371,6 +371,40 @@ inline bool ignoredots(const char *ptr)
 
 }
 
+void* loadThumbnails(void *arg)
+{
+	pageStruct	*page=(pageStruct*)arg;
+	page->thumbnailThreadRunning=true;
+
+	for(int j=0;j<page->fileCnt;j++)
+		{
+			char		pathasstring[16];
+			GtkTreeIter	searchiter;
+			char		*filepath=NULL;
+			GdkPixbuf	*pixbuf;
+			char		*mime=NULL;
+			bool		gotiter;
+
+			sprintf(pathasstring,"%i",j);
+			gotiter=gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
+			if(gotiter==false)
+				{
+					page->thumbnailThreadRunning=false;
+					return(NULL);
+				}
+			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,MIMETYPE,&mime,FILEPATH,&filepath,-1);
+			if(g_str_has_prefix(mime,"image"))
+				{
+					pixbuf=gdk_pixbuf_new_from_file_at_size(filepath,-1,iconSize,NULL);											
+					gtk_list_store_set(page->listStore,&searchiter,PIXBUF_COLUMN,pixbuf,-1);
+					g_object_unref(pixbuf);
+				}
+			}
+
+	page->thumbnailThreadRunning=false;
+	return(NULL);
+}
+
 gboolean loadFilesDir(gpointer data)
 {
 	GdkPixbuf	*pixbuf;
@@ -378,7 +412,8 @@ gboolean loadFilesDir(gpointer data)
 	pageStruct	*page=(pageStruct*)data;
 	char		*mimetype=NULL;
 	char		rootpath[PATH_MAX];
-
+	struct		statfs;
+ 
 	while(gtk_events_pending())
 		gtk_main_iteration();
 
@@ -463,6 +498,7 @@ gboolean loadFilesDir(gpointer data)
 						page->uptoHere=LOADICONCNT;
 						if(page->uptoHere > page->fileCnt)
 							page->uptoHere=page->fileCnt;
+						return(true);
 						break;
 					}
 				for(int j=page->fromHere;j<page->uptoHere;j++)
@@ -482,7 +518,7 @@ gboolean loadFilesDir(gpointer data)
 						page->fileType++;
 						page->fromHere=0;
 						page->uptoHere=LOADICONCNT;
-						if(page->uptoHere > page->fileCnt)
+						if(page->uptoHere >= page->fileCnt)
 							page->uptoHere=page->fileCnt;
 					}
 				else
@@ -495,6 +531,7 @@ gboolean loadFilesDir(gpointer data)
 				break;
 
 			case LOADFILES:
+			printf("loadfiles\n");
 				for(int j=page->fromHere;j<page->uptoHere;j++)
 					{
 						if(page->fileList[j]->d_type!=DT_DIR)
@@ -511,10 +548,27 @@ gboolean loadFilesDir(gpointer data)
 				if(page->uptoHere==page->fileCnt)
 					{
 						page->fileType++;
-						page->fromHere=0;
-						page->uptoHere=LOADTHUMBCNT;
-						if(page->uptoHere > page->fileCnt)
-							page->uptoHere=page->fileCnt;
+						if(noThumbs==true)
+							{
+								sprintf(buffer,"stat --file-system \"%s\"|grep Type:|awk -F'Type: ' '{print $2}'",rootpath);
+								char *type=oneLiner(buffer,NULL);
+								char	**ignoretypes;
+								int		cnt=0;
+								ignoretypes=g_strsplit(noNetPicsOn,";",-1);
+								if(ignoretypes!=NULL)
+									{
+										while(ignoretypes[cnt]!=NULL)
+											{
+												if(strcmp(type,ignoretypes[cnt])==0)
+													{
+														page->fileType=0;
+														return(false);
+													}
+												cnt++;
+											}
+									}
+								free(type);
+							}
 					}
 				else
 					{
@@ -526,40 +580,10 @@ gboolean loadFilesDir(gpointer data)
 				break;
 
 			case LOADPIXMAPS:
-				for(int j=page->fromHere;j<page->uptoHere;j++)
-					{
-						char		pathasstring[16];
-						GtkTreeIter	searchiter;
-						char		*filepath=NULL;
-						GdkPixbuf	*pixbuf;
-						char		*mime=NULL;
-						bool		gotiter;
+				sinkReturn=pthread_create(&(page->thumbnailThread),NULL,&loadThumbnails,(void*)page);
+				page->fileType++;
+				return(false);
 
-						sprintf(pathasstring,"%i",j);
-						gotiter=gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
-						if(gotiter==false)
-							return(false);
-						gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,MIMETYPE,&mime,FILEPATH,&filepath,-1);
-						if(g_str_has_prefix(mime,"image"))
-							{
-								pixbuf=gdk_pixbuf_new_from_file_at_size(filepath,-1,iconSize,NULL);											
-								gtk_list_store_set(page->listStore,&searchiter,PIXBUF_COLUMN,pixbuf,-1);
-								g_object_unref(pixbuf);
-							}
-					}
-
-				if(page->uptoHere>=page->fileCnt)
-					{
-						page->fileType=0;
-						return(false);
-					}
-				else
-					{
-						page->fromHere=page->uptoHere;
-						page->uptoHere=page->uptoHere+LOADTHUMBCNT;
-						if(page->uptoHere > page->fileCnt)
-							page->uptoHere=page->fileCnt;
-					}
 				break;
 		}
 
@@ -589,6 +613,12 @@ void populatePageStore(pageStruct *page)
 	if(page==NULL)
 		return;
 
+	if(page->thumbnailThreadRunning==true)
+		{
+			pthread_cancel(page->thumbnailThread);
+			page->thumbnailThreadRunning=false;
+		}
+
 	flushFolderBuffer(page);
 	gtk_list_store_clear(page->listStore);
 
@@ -598,14 +628,13 @@ void populatePageStore(pageStruct *page)
 	page->fileType=0;
 	page->fromHere=0;
 	page->uptoHere=LOADICONCNT;
-	if(page->uptoHere > page->fileCnt)
+	if(page->uptoHere >= page->fileCnt)
 		page->uptoHere=page->fileCnt;
 
 	if(cwd!=NULL)
 		chdir(cwd);
 	g_timeout_add(10,loadFilesDir,(gpointer)page);
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);
-
 }
 
 bool	resetSearch=false;

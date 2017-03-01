@@ -18,4 +18,10 @@ textbox:EXCLUDEDISKLISTTXT:Exclude Disk List:diskExcludePattern
 HLINE
 checkbox:EXECUTEONCLICK:Execute on click:executeOnClick
 
+HLINE
+BEGINHBOX
+checkbox:NONETPICS:No Thumbnails On:noThumbs
+textbox:EXCLUDENETPICSON::noNetPicsOn
+ENDHBOX
+
 #prefsmaker prefsconfig ../KKFileManager/src/prefs

@@ -158,6 +158,9 @@ void appStart(GApplication  *application,gpointer data)
 
 	g_application_hold(application);
 
+	noNetPicsOn=strdup("cifs;fuseblk");
+	noThumbs=true;
+
 	toolBarLayout=strdup("NUBFHLR");
 	diskIncludePattern=strdup("*sd?*");
 	diskExcludePattern=strdup("*");
@@ -215,9 +218,6 @@ int main(int argc,char **argv)
 	int				status;
 	char			*dbusname;
 	GOptionContext	*context;
-
-
-
 	GOptionEntry	entries[]=
 {
     {"multiple",'m',0,G_OPTION_ARG_NONE,&singleOverRide,"Multiple instance mode",NULL},
@@ -250,6 +250,7 @@ int main(int argc,char **argv)
 	g_signal_connect(mainApp,"activate",G_CALLBACK(activate),NULL);
 	g_signal_connect(mainApp,"startup",G_CALLBACK(appStart),NULL);
 	g_signal_connect(mainApp,"open",G_CALLBACK(open),NULL);
+
 
 	status=g_application_run(mainApp,argc,argv);
 	g_object_unref(mainApp);

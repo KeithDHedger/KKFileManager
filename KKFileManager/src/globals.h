@@ -234,6 +234,8 @@ extern char				*terminalCommand;
 extern bool				showHidden;
 extern bool				executeOnClick;
 extern bool				fromOpen;
+extern char				*noNetPicsOn;
+extern bool				noThumbs;
 
 //save and load var lists
 extern char				*windowAllocData;

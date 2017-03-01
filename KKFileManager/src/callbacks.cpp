@@ -987,11 +987,16 @@ void setPrefs(GtkWidget* widget,gpointer ptr)
 //*sd[abc][1-9]*
 	if((long)ptr==DIALOGAPPLY)
 		{
+			noThumbs=gtk_toggle_button_get_active((GtkToggleButton*)prefsCheck[NONETPICS]);
 			executeOnClick=gtk_toggle_button_get_active((GtkToggleButton*)prefsCheck[EXECUTEONCLICK]);
 
 			if(toolBarLayout!=NULL)
 				free(toolBarLayout);
 			toolBarLayout=strdup(gtk_entry_get_text((GtkEntry*)prefsText[TOOLBARLAYOUTTXT]));
+
+			if(noNetPicsOn!=NULL)
+				free(noNetPicsOn);
+			noNetPicsOn=strdup(gtk_entry_get_text((GtkEntry*)prefsText[EXCLUDENETPICSON]));
 
 			gtk_widget_destroy((GtkWidget*)toolBar);
 			toolBar=(GtkToolbar*)gtk_toolbar_new();

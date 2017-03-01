@@ -127,6 +127,8 @@ char			*terminalCommand=NULL;
 bool			showHidden=false;
 bool			executeOnClick=false;
 bool			fromOpen=false;
+char			*noNetPicsOn=NULL;
+bool			noThumbs=true;
 
 //save and load var lists
 char			*windowAllocData=NULL;
@@ -141,7 +143,9 @@ args			kkfilemanager_rc[]=
 {
 	//bools
 	{"executeonclick",TYPEBOOL,&executeOnClick},
+	{"nothumbs",TYPEBOOL,&noThumbs},
 	//strings
+	{"nonetpicson",TYPESTRING,&noNetPicsOn},
 	{"toolbarlayout",TYPESTRING,&toolBarLayout},
 	{"includedisks",TYPESTRING,&diskIncludePattern},
 	{"excludedisks",TYPESTRING,&diskExcludePattern},
