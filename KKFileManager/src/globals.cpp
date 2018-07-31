@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Sat 12 Nov 15:13:28 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Sat 12 Nov 15:13:28 GMT 2016 keithdhedger@gmail.com
 
  * This file (globals.cpp) is part of KKFileManager.
 

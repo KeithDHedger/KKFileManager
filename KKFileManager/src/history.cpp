@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Fri 23 Dec 11:50:14 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Fri 23 Dec 11:50:14 GMT 2016 keithdhedger@gmail.com
 
  * This file (history.cpp) is part of KKFileManager.
 

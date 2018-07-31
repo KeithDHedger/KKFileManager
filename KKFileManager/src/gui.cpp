@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Sat 12 Nov 15:16:28 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Sat 12 Nov 15:16:28 GMT 2016 keithdhedger@gmail.com
 
  * This file (gui.cpp) is part of KKFileManager.
 
@@ -240,7 +240,7 @@ void setNewPagePixbuf(GdkPixbuf *pixbuf,const char *type,const char *path,bool i
 {
 	GtkTreeIter iter;
 
-	gtk_list_store_append(page->listStore, &iter);
+	gtk_list_store_append(page->listStore,&iter);
 	if(pixbuf==NULL)
 		pixbuf=genericText;
 	gtk_list_store_set(page->listStore,&iter,PIXBUF_COLUMN,pixbuf,FILENAME,type,FILEPATH,path,ISDIR,isdir,MIMETYPE,mimetype,-1);
@@ -370,6 +370,46 @@ inline bool ignoredots(const char *ptr)
 
 	return(true);
 
+}
+
+gboolean loadThumbnailsGtk3(gpointer arg)
+{
+	char		pathasstring[16];
+	GtkTreeIter	searchiter;
+	char		*filepath=NULL;
+	GdkPixbuf	*pixbuf;
+	char		*mime=NULL;
+	bool		gotiter;
+	pageStruct	*page=(pageStruct*)arg;
+
+	if(page->thumbnailThreadRunning==false)
+		return(false);
+
+	sprintf(pathasstring,"%i",page->fromHere);
+	gotiter=gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
+	if(gotiter==false)
+		{
+			page->thumbnailThreadRunning=false;
+			return(false);
+		}
+	gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,MIMETYPE,&mime,FILEPATH,&filepath,-1);
+	if(g_str_has_prefix(mime,"image"))
+		{
+			pixbuf=gdk_pixbuf_new_from_file_at_size(filepath,-1,iconSize,NULL);											
+			gtk_list_store_set(page->listStore,&searchiter,PIXBUF_COLUMN,pixbuf,-1);
+			g_object_unref(pixbuf);
+			free(filepath);
+		}
+	free(mime);
+
+	page->fromHere++;
+	if(page->uptoHere>=page->fileCnt)
+		{
+			page->fileType++;
+			page->thumbnailThreadRunning=false;
+			return(false);
+		}
+	return(true);
 }
 
 void* loadThumbnails(void *arg)
@@ -582,10 +622,18 @@ gboolean loadFilesDir(gpointer data)
 				break;
 
 			case LOADPIXMAPS:
+			page->fromHere=0;
+#ifdef _USEGTK3_
+			page->uptoHere=LOADTHUMBCNT;
+			if(page->uptoHere > page->fileCnt)
+				page->uptoHere=page->fileCnt;
+			page->thumbnailThreadRunning=true;
+			gdk_threads_add_timeout(250,loadThumbnailsGtk3,(gpointer)page);
+#else
 				sinkReturn=pthread_create(&(page->thumbnailThread),NULL,&loadThumbnails,(void*)page);
+#endif
 				page->fileType++;
 				return(false);
-
 				break;
 		}
 
@@ -617,7 +665,9 @@ void populatePageStore(pageStruct *page)
 
 	if(page->thumbnailThreadRunning==true)
 		{
+#ifndef _USEGTK3_
 			pthread_cancel(page->thumbnailThread);
+#endif
 			page->thumbnailThreadRunning=false;
 		}
 
@@ -626,7 +676,9 @@ void populatePageStore(pageStruct *page)
 
 	cwd=get_current_dir_name();
 	chdir(page->thisFolder);
+	printf("file cnt in=%i\n",page->fileCnt);
 	page->fileCnt=scandir(page->thisFolder,&page->fileList,filter,versionsort);
+	printf("file cnt out=%i\n",page->fileCnt);
 	page->fileType=0;
 	page->fromHere=0;
 	page->uptoHere=LOADICONCNT;
@@ -635,7 +687,12 @@ void populatePageStore(pageStruct *page)
 
 	if(cwd!=NULL)
 		chdir(cwd);
-	g_timeout_add(10,loadFilesDir,(gpointer)page);
+
+	//gdk_threads_add_idle(loadFilesDir,(gpointer)page);
+
+//	g_timeout_add(10,loadFilesDir,(gpointer)page);
+	gdk_threads_add_timeout(200,loadFilesDir,(gpointer)page);
+//	gdk_threads_add_idle(loadFilesDir,(gpointer)page);
 	gtk_widget_show_all((GtkWidget*)page->scrollBox);
 }
 
@@ -758,33 +815,36 @@ struct	contextStruct
 			if(treepath==NULL)
 				return(downkey);
 	
-			gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring);
-			gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,FILENAME,&filename,-1);
-			if(filename!=NULL)
+			if(gtk_tree_model_get_iter_from_string((GtkTreeModel*)page->listStore,&searchiter,pathasstring)==true)
 				{
-					if(strcasestr(filename,page->searchString)!=NULL)
+					gtk_tree_model_get(GTK_TREE_MODEL(page->listStore),&searchiter,FILENAME,&filename,-1);
+					if(filename!=NULL)
 						{
-							gtk_icon_view_unselect_all(page->iconView);
-							gtk_icon_view_select_path(page->iconView,treepath);
-							gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
-							gtk_tree_path_free(treepath);
-							buildMessgage(page);
-							free(filename);
-							return(true);
+							if(strcasestr(filename,page->searchString)!=NULL)
+								{
+									gtk_icon_view_unselect_all(page->iconView);
+									gtk_icon_view_select_path(page->iconView,treepath);
+									gtk_icon_view_scroll_to_path(page->iconView,treepath,false,0.0,0.0);
+									gtk_tree_path_free(treepath);
+									buildMessgage(page);
+									free(filename);
+									return(true);
+								}
 						}
+				if(loopup==false)
+					{
+						page->searchPath++;
+						if(page->searchPath>maxitems)
+							page->searchPath=0;
+					}
+				else
+					{
+						page->searchPath--;
+						if(page->searchPath<0)
+							page->searchPath=maxitems;
+					}
 				}
-			if(loopup==false)
-				{
-					page->searchPath++;
-					if(page->searchPath>maxitems)
-						page->searchPath=0;
-				}
-			else
-				{
-					page->searchPath--;
-					if(page->searchPath<0)
-						page->searchPath=maxitems;
-				}
+			gtk_tree_path_free(treepath);
 			cntloops++;
 			if(cntloops>maxitems)
 				loop=false;
@@ -851,7 +911,7 @@ void newIconView(pageStruct *page)
 	gtk_cell_layout_pack_end(GTK_CELL_LAYOUT(page->iconView),renderer,false);
 	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT (page->iconView),renderer,"text",FILENAME,NULL);
 
-#if _USEGTK3_
+#ifdef _USEGTK3_
 	align=0.5;
 #else
 	align=0.0;
@@ -1084,25 +1144,27 @@ void updateDiskList(void)
 			while(fgets(buffer,2048,fp))
 				{
 					if(strlen(buffer)>0)
-						buffer[strlen(buffer)-1]=0;
-						array=g_strsplit(buffer," ",-1);
-						if(array!=NULL)
-							{
+						{
+							buffer[strlen(buffer)-1]=0;
+							array=g_strsplit(buffer," ",-1);
+							if(array!=NULL)
+								{
 								//printf(">>>%s<<<\n",array[0]);
-								netmount->fstype=NULL;
-								netmount->host=NULL;
-								netmount->path=NULL;
-								if(parseNetworkUrl(array[0],netmount)==VALIDURL)
-									{
+									netmount->fstype=NULL;
+									netmount->host=NULL;
+									netmount->path=NULL;
+									if(parseNetworkUrl(array[0],netmount)==VALIDURL)
+										{
 										//printf(">>%s<<\n",netmount->fsType);
 										//printf(">>%s<<\n",netmount->serverName);
 										//printf(">>%s<<\n",netmount->sharePath);
 										//printf("-----------------------------\n");
-										gtk_list_store_append(diskList,&iter);
-										gtk_list_store_set(diskList,&iter,DEVPIXBUF,guiPixbufs[NETWORKDIVE],DEVPATH,netmount->host,DISKNAME,netmount->path,MOUNTPATH,array[1],MOUNTED,true,-1);
-									}
-								g_strfreev(array);
-							}
+											gtk_list_store_append(diskList,&iter);
+											gtk_list_store_set(diskList,&iter,DEVPIXBUF,guiPixbufs[NETWORKDIVE],DEVPATH,netmount->host,DISKNAME,netmount->path,MOUNTPATH,array[1],MOUNTED,true,-1);
+										}
+									g_strfreev(array);
+								}
+						}
 				}
 			pclose(fp);
 		}
@@ -1116,63 +1178,65 @@ void updateDiskList(void)
 			while(fgets(buffer,2048,fp))
 				{
 					if(strlen(buffer)>0)
-						buffer[strlen(buffer)-1]=0;
-						sprintf(buffercommand,"findmnt -no TARGET \"%s\"",buffer);
-						mountpath=oneLiner(buffercommand,NULL);
-						if(mountpath==NULL)
-							mountpath=strdup("…");
-						sprintf(buffercommand,"lsblk -no label \"%s\"",buffer);
-						label=oneLiner(buffercommand,NULL);
+						{
+							buffer[strlen(buffer)-1]=0;
+							sprintf(buffercommand,"findmnt -no TARGET \"%s\"",buffer);
+							mountpath=oneLiner(buffercommand,NULL);
+							if(mountpath==NULL)
+								mountpath=strdup("…");
+							sprintf(buffercommand,"lsblk -no label \"%s\"",buffer);
+							label=oneLiner(buffercommand,NULL);
 
-						ptr=strrchr(buffer,'/');
-						ptr++;
+							ptr=strrchr(buffer,'/');
+							ptr++;
 						
 //generic disk
-						drive=guiPixbufs[HDDRIVEPB];
+							drive=guiPixbufs[HDDRIVEPB];
 //usb disk
-						sprintf(buffercommand,"udevadm info --query=all --name=\"%s\" |grep -i usb",ptr);
-						isusb=oneLiner(buffercommand,NULL);
-						if((isusb!=NULL) && (strlen(isusb)>0))
-							{
-								drive=guiPixbufs[USBDISKPB];
-								free(isusb);
-							}
+							sprintf(buffercommand,"udevadm info --query=all --name=\"%s\" |grep -i usb",ptr);
+							isusb=oneLiner(buffercommand,NULL);
+							if((isusb!=NULL) && (strlen(isusb)>0))
+								{
+									drive=guiPixbufs[USBDISKPB];
+									free(isusb);
+								}
 //dvd disk
-						sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM",ptr);
-						isdvd=oneLiner(buffercommand,NULL);
-						if(isdvd!=NULL)
-							{
-								free(isdvd);
-								isdvd=NULL;
-								gotrom=false;
-								sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_DVD",ptr);
-								isdvd=oneLiner(buffercommand,NULL);
-								if((isdvd!=NULL) && (strlen(isdvd)>0))
-									{
-										drive=guiPixbufs[DVDROMPB];
-										gotrom=true;
-										free(isdvd);
-									}
+							sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM",ptr);
+							isdvd=oneLiner(buffercommand,NULL);
+							if(isdvd!=NULL)
+								{
+									free(isdvd);
+									isdvd=NULL;
+									gotrom=false;
+									sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_DVD",ptr);
+									isdvd=oneLiner(buffercommand,NULL);
+									if((isdvd!=NULL) && (strlen(isdvd)>0))
+										{
+											drive=guiPixbufs[DVDROMPB];
+											gotrom=true;
+											free(isdvd);
+										}
 //cdrom
-								sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_CD",ptr);
-								isdvd=oneLiner(buffercommand,NULL);
-								if((isdvd!=NULL) && (strlen(isdvd)>0))
-									{
-										drive=guiPixbufs[CDROMPB];
-										gotrom=true;
-										free(isdvd);
-									}
-								if(gotrom==true)
-									{
-										gtk_list_store_append(diskList,&iter);
-										gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
-									}
-							}
-						else
-							{
-								gtk_list_store_append(diskList,&iter);
-								gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
-							}
+									sprintf(buffercommand,"udevadm info --name=\"%s\"|grep ID_CDROM_MEDIA_CD",ptr);
+									isdvd=oneLiner(buffercommand,NULL);
+									if((isdvd!=NULL) && (strlen(isdvd)>0))
+										{
+											drive=guiPixbufs[CDROMPB];
+											gotrom=true;
+											free(isdvd);
+										}
+									if(gotrom==true)
+										{
+											gtk_list_store_append(diskList,&iter);
+											gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
+										}
+								}
+							else
+								{
+									gtk_list_store_append(diskList,&iter);
+									gtk_list_store_set(diskList,&iter,DEVPIXBUF,drive,DEVPATH,ptr,DISKNAME,label,MOUNTPATH,mountpath,MOUNTED,true,-1);
+								}
+						}
 				}
 			pclose(fp);
 		}

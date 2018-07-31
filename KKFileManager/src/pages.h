@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Wed 16 Nov 15:08:29 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Wed 16 Nov 15:08:29 GMT 2016 keithdhedger@gmail.com
 
  * This file (pages.h) is part of KKFileManager.
 

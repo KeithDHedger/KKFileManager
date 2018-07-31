@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Wed 16 Nov 15:08:37 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Wed 16 Nov 15:08:37 GMT 2016 keithdhedger@gmail.com
 
  * This file (pages.cpp) is part of KKFileManager.
 
@@ -74,7 +74,10 @@ void addNewPage(char *startdir)
 	page=(pageStruct*)calloc(1,sizeof(pageStruct));
 	page->scrollBox=(GtkScrolledWindow*)gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy(page->scrollBox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
-	page->thisFolder=strdup(startdir);
+	if(g_file_test(startdir,G_FILE_TEST_IS_DIR)==true)
+		page->thisFolder=strdup(startdir);
+	else
+		page->thisFolder=strdup(getenv("HOME"));
 	page->pageID=pageCnt;
 	basename=g_path_get_basename(page->thisFolder);
 	page->tabBox=makeNewTab(basename,page);
@@ -102,7 +105,7 @@ void addNewPage(char *startdir)
 	g_object_set_data(G_OBJECT(page->vBox),"pageid",(gpointer)(long)page->pageID);
 	gtk_widget_show_all((GtkWidget*)mainNotebook);
 	pageCnt++;
-	gtk_entry_set_text(locationTextBox,startdir);
+	gtk_entry_set_text(locationTextBox,page->thisFolder);
 	gtk_editable_set_position((GtkEditable*)locationTextBox,-1);
 
 	gtk_notebook_set_current_page(mainNotebook,gtk_notebook_get_n_pages(mainNotebook)-1);
@@ -119,7 +122,7 @@ void monitorFolderForPage(pageStruct *page)
 				g_object_unref(page->monitorDir);
 			page->dirPath=g_file_new_for_path(page->thisFolder);
 			//page->monitorDir=g_file_monitor_directory(page->dirPath,(GFileMonitorFlags)(G_FILE_MONITOR_NONE),NULL,NULL);
-			page->monitorDir=g_file_monitor_directory(page->dirPath,(GFileMonitorFlags)(G_FILE_MONITOR_SEND_MOVED|G_FILE_MONITOR_WATCH_MOUNTS),NULL,NULL);
+			page->monitorDir=g_file_monitor_directory(page->dirPath,(GFileMonitorFlags)(G_FILE_MONITOR_SEND_MOVED|G_FILE_MONITOR_WATCH_MOUNTS|G_FILE_MONITOR_WATCH_MOVES),NULL,NULL);
 			g_signal_connect(G_OBJECT(page->monitorDir),"changed",G_CALLBACK(dirChanged),page);
 		}
 }

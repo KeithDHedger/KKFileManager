@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Sat 12 Nov 15:12:50 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Sat 12 Nov 15:12:50 GMT 2016 keithdhedger@gmail.com
 
  * This file (globals.h) is part of KKFileManager.
 
@@ -53,6 +53,7 @@
 #define GTK_STOCK_DELETE "edit-delete"
 #define GTK_STOCK_COPY "edit-copy"
 #define GTK_STOCK_PASTE "edit-paste"
+#define GTK_STOCK_SAVE_AS "document-save-as"
 //odds
 #define GTK_STOCK_ADD "list-add"
 #define GTK_STOCK_YES "Yes"
@@ -92,7 +93,7 @@
 #define MAXLOCATIONS 16
 
 #define LOADICONCNT 128
-#define LOADTHUMBCNT 16
+#define LOADTHUMBCNT 1
 
 #define DRAG_TEXT_URI_LIST 1
 #define DROP_TEXT_URI_LIST 1

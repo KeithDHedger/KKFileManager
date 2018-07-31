@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Sun  5 Feb 18:28:05 GMT 2017 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Sun  5 Feb 18:28:05 GMT 2017 keithdhedger@gmail.com
 
  * This file (mimetype.h) is part of KKFileManager.
 

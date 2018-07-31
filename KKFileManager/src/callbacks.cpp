@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Thu 17 Nov 13:06:08 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Thu 17 Nov 13:06:08 GMT 2016 keithdhedger@gmail.com
 
  * This file (callbacks.cpp) is part of KKFileManager.
 
@@ -41,10 +41,16 @@ void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitor
 				closeTab(NULL,page);
 				updateDiskList();
 				break;
+			case G_FILE_MONITOR_EVENT_DELETED:
+			case G_FILE_MONITOR_EVENT_CREATED:
+			case G_FILE_MONITOR_EVENT_RENAMED:
+				populatePageStore(page);
+				break;
 			case  G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
 				break;
 			default:
-				populatePageStore(page);
+				break;
+//				populatePageStore(page);
 		}
 }
 
@@ -685,8 +691,10 @@ gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page)
 							while(si!=NULL)
 								{
 									if(si->data!=NULL && treepath!=NULL)
-										if(gtk_tree_path_compare((const GtkTreePath*)si->data,treepath)==0)
-											pathfound=true;
+										{
+											if(gtk_tree_path_compare((const GtkTreePath*)si->data,treepath)==0)
+												pathfound=true;
+										}
 										si=si->next;
 								}
 							if(pathfound==false)
@@ -989,7 +997,7 @@ void openDisk(GtkIconView *icon_view,GtkTreePath *tree_path,gpointer *userdata)
 
 void closeTab(GtkButton *button,pageStruct *page)
 {
-	if(page!=NULL);
+	if(page!=NULL)
 		{
 //printf("page=%u folder=%s\n",page->pageID,page->thisFolder);
 			gtk_notebook_remove_page(mainNotebook,gtk_notebook_page_num(mainNotebook,page->vBox));

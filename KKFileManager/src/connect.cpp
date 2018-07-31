@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Fri 24 Feb 14:15:11 GMT 2017 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Fri 24 Feb 14:15:11 GMT 2017 keithdhedger@gmail.com
 
  * This file (connect.cpp) is part of KKFileManager.
 

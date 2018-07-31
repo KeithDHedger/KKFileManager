@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Mon 23 Jan 10:56:19 GMT 2017 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Mon 23 Jan 10:56:19 GMT 2017 keithdhedger@gmail.com
 
  * This file (files.cpp) is part of KKFileManager.
 

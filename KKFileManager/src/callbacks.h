@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Thu 17 Nov 13:06:14 GMT 2016 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Thu 17 Nov 13:06:14 GMT 2016 keithdhedger@gmail.com
 
  * This file (callbacks.h) is part of KKFileManager.
 
