@@ -31,3 +31,5 @@ add move/copy etc to context menu<br>
 <br>
 ...
 
+BUGS etc.<br>
+kdhedger68713@gmail.com<br>

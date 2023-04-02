@@ -2,13 +2,21 @@
 #
 AC_INIT([KKFileManager],[0.0.6],[PROJ],[KKFileManager])
 
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 
 AM_INIT_AUTOMAKE
 
 AC_PROG_CC
-AC_HEADER_STDC
+m4_warn([obsolete],
+[The preprocessor macro `STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  ISO C90 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
@@ -45,5 +53,6 @@ PKG_CHECK_MODULES(GTK, $GTK_MODULES)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
-AC_OUTPUT(Makefile KKFileManager/app/Makefile)
+AC_CONFIG_FILES([Makefile KKFileManager/app/Makefile])
+AC_OUTPUT
 
