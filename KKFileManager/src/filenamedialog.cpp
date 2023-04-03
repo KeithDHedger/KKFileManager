@@ -50,7 +50,6 @@ void doAskForFilename(GtkWidget* widget,gpointer data)
 {
 	GtkBox		*vbox;
 	GtkWidget	*hbox;
-	GtkBox		*tbox;
 	GtkWidget	*item;
 
 	GtkWidget *content;

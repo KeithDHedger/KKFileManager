@@ -22,6 +22,8 @@
 #ifndef _CALLBACKS_
 #define _CALLBACKS_
 
+#define ABOUTBOXSTRING "KKFileManager, a configuurable GTK 2/3 file manager."
+
 void dirChanged(GFileMonitor *monitor,GFile *file,GFile *other_file,GFileMonitorEvent event_type,pageStruct *page);
 gboolean buttonDown(GtkWidget *widget,GdkEventButton *event,pageStruct *page);
 gboolean buttonDownA(GtkWidget *widget,GdkEventButton *event,pageStruct *page);

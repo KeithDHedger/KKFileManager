@@ -5,6 +5,26 @@ Makefile
 Makefile.in
 configure
 KKFileManager/app/kkfilemanager
-
+*.bak
 *~
+
+KKFileManager/app/.deps
+COPYING
+AUTHORS
+INSTALL
+NEWS
+aclocal.m4
+compile
+config.h.in
+configfiles
+depcomp
+install-sh
+missing
+.dirstamp
+*.o
+.deps
+*.log
+*.status
+config.h
+stamp-h1
 

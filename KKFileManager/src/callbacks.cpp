@@ -1091,7 +1091,7 @@ void doAbout(GtkWidget *widget,gpointer data)
 
 	g_file_get_contents(GDOCSFOLDER "/gpl-3.0.txt",&licence,NULL,NULL);
 
-	gtk_show_about_dialog((GtkWindow*)mainWindow,"authors",authors,"comments",aboutboxstring,"copyright",copyright,"version",VERSION,"website",MYWEBSITE,"website-label","KKFileManager Homepage","program-name","KKFileManager","logo-icon-name",ABOUTICON,"license",licence,NULL);
+	gtk_show_about_dialog((GtkWindow*)mainWindow,"authors",authors,"comments",aboutboxstring,"copyright",copyright,"version",VERSION,"website",KKFILEMANAGER,"website-label","KKFileManager Homepage","program-name","KKFileManager","logo-icon-name",ABOUTICON,"license",licence,NULL);
 
 	free(licence);
 }
